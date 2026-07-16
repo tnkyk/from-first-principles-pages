@@ -1,13 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Attention schematic">
-  <rect width="640" height="220" fill="#151716"/>
-  <text x="24" y="32" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">���!	</text>
-  <rect x="40" y="60" width="70" height="40" rx="4" fill="#1e201e" stroke="#35d0bb"/>
-  <text x="58" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="14">Q</text>
-  <rect x="140" y="60" width="70" height="40" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="158" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="14">K</text>
-  <rect x="240" y="60" width="70" height="40" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="258" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="14">V</text>
-  <text x="40" y="130" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">^<� Q�K � softmax � � V n��sG</text>
-  <rect x="40" y="150" width="560" height="44" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="56" y="178" fill="#35d0bb" font-family="IBM Plex Mono, monospace" font-size="13">Attention(Q,K,V) = softmax(QK@ / d�) V</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="自己注意（scaled dot-product）">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">自己注意（scaled dot-product）</text>
+  
+  <rect x="50" y="80" width="90" height="56" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="78" y="115" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="22">Q</text>
+  <rect x="180" y="80" width="90" height="56" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="208" y="115" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="22">K</text>
+  <rect x="310" y="80" width="90" height="56" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="338" y="115" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="22">V</text>
+  <text x="50" y="175" fill="#4a4c48" font-family="Georgia, serif" font-size="14">類似度 Q·K → softmax 重み → V の加重平均</text>
+  <rect x="50" y="195" width="620" height="40" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="70" y="221" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="15">Attention(Q,K,V)=softmax(QKᵀ/√dₖ)V</text>
+
 </svg>

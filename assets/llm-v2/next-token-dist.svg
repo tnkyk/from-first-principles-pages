@@ -1,20 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Next-token distribution schematic">
-  <rect width="640" height="220" fill="#151716"/>
-  <text x="24" y="32" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">a�: q�n</text>
-  <text x="24" y="58" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">�Y
-n�� � 1����x�</text>
-  <rect x="40" y="90" width="36" height="90" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="96" y="120" width="36" height="60" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="152" y="105" width="36" height="75" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="208" y="140" width="36" height="40" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="264" y="155" width="36" height="25" fill="#35d0bb29" stroke="#35d0bb"/>
-  <text x="40" y="204" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="11">)</text>
-  <text x="96" y="204" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="11">��</text>
-  <text x="152" y="204" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="11">W</text>
-  <text x="208" y="204" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="11">�</text>
-  <text x="264" y="204" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="11">&</text>
-  <path d="M340 130 H400" stroke="#35d0bb" stroke-width="2"/>
-  <text x="412" y="120" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">����</text>
-  <rect x="412" y="136" width="180" height="44" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="428" y="164" fill="#35d0bb" font-family="IBM Plex Mono, monospace" font-size="14">� )</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="次トークン分布">
+  <rect width="720" height="280" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">次トークン分布</text>
+  
+  <text x="40" y="70" fill="#4a4c48" font-family="Georgia, serif" font-size="14">条件「東京の」→ 語彙上の確率 → 1トークン選択</text>
+  <rect x="50" y="100" width="40" height="110" fill="#35d0bb" stroke="#0d7a6c" stroke-width="2"/>
+  <rect x="110" y="140" width="40" height="70" fill="#35d0bb" stroke="#0d7a6c" stroke-width="2"/>
+  <rect x="170" y="120" width="40" height="90" fill="#35d0bb" stroke="#0d7a6c" stroke-width="2"/>
+  <rect x="230" y="160" width="40" height="50" fill="#35d0bb" stroke="#0d7a6c" stroke-width="2"/>
+  <rect x="290" y="175" width="40" height="35" fill="#35d0bb" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="50" y="240" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="12">天気</text>
+  <text x="110" y="240" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="12">首都</text>
+  <text x="170" y="240" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="12">街</text>
+  <text x="230" y="240" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="12">人</text>
+  <text x="290" y="240" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="12">…</text>
+  <rect x="420" y="120" width="240" height="70" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="440" y="150" fill="#4a4c48" font-family="Georgia, serif" font-size="13">サンプル結果</text>
+  <text x="440" y="175" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="18">→ 「天気」</text>
+  <text x="40" y="265" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · Brown et al., 2020 自己回帰設定</text>
+
 </svg>

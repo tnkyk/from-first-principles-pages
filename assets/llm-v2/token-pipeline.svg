@@ -1,20 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img" aria-label="Token pipeline schematic">
-  <rect width="640" height="200" fill="#151716"/>
-  <text x="24" y="36" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">�W</text>
-  <rect x="24" y="52" width="140" height="56" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="36" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="13">Ǚ��Wf</text>
-  <path d="M176 80 H214" stroke="#35d0bb" stroke-width="2" marker-end="url(#a)"/>
-  <text x="230" y="36" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">����</text>
-  <rect x="230" y="52" width="200" height="56" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="242" y="86" fill="#35d0bb" font-family="IBM Plex Mono, monospace" font-size="12">Ǚ / � / � / Wf</text>
-  <path d="M442 80 H480" stroke="#35d0bb" stroke-width="2" marker-end="url(#a)"/>
-  <text x="490" y="36" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">ˁ�</text>
-  <rect x="490" y="52" width="126" height="56" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="508" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="12">v� v� v� v�</text>
-  <text x="24" y="150" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">Y�(!�  r�GLXM�z��Lٯ��x��</text>
-  <defs>
-    <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L6,3 L0,6" fill="none" stroke="#35d0bb"/>
-    </marker>
-  </defs>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="トークン化パイプライン">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">トークン化パイプライン</text>
+  
+  <rect x="40" y="70" width="160" height="70" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="56" y="100" fill="#4a4c48" font-family="Georgia, serif" font-size="13">文字列</text>
+  <text x="56" y="122" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="14">資料を要約して</text>
+  <path d="M210 105 H250" stroke="#0d7a6c" stroke-width="3" marker-end="url(#arr)"/>
+  <rect x="260" y="70" width="200" height="70" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="276" y="100" fill="#4a4c48" font-family="Georgia, serif" font-size="13">トークン列</text>
+  <text x="276" y="122" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="13">資料 / を / 要約 / して</text>
+  <path d="M470 105 H510" stroke="#0d7a6c" stroke-width="3" marker-end="url(#arr)"/>
+  <rect x="520" y="70" width="160" height="70" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="536" y="100" fill="#4a4c48" font-family="Georgia, serif" font-size="13">埋め込み</text>
+  <text x="536" y="122" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="13">v₁ v₂ v₃ v₄</text>
+  <text x="40" y="200" fill="#4a4c48" font-family="Georgia, serif" font-size="13">分割規則が単位を決め、各記号がベクトルへ写る（開語彙）</text>
+  <text x="40" y="230" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · Sennrich et al., 2016</text>
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0d7a6c"/></marker></defs>
+
 </svg>

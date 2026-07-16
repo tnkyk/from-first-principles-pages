@@ -1,14 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Temperature sampling schematic">
-  <rect width="640" height="220" fill="#151716"/>
-  <text x="24" y="32" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">X logitsUF)�</text>
-  <text x="40" y="70" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">ND)�  �D</text>
-  <rect x="40" y="84" width="20" height="90" fill="#35d0bb"/>
-  <rect x="70" y="140" width="20" height="34" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="100" y="155" width="20" height="19" fill="#35d0bb29" stroke="#35d0bb"/>
-  <text x="280" y="70" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">�D)�  s_D</text>
-  <rect x="280" y="110" width="20" height="64" fill="#35d0bb"/>
-  <rect x="310" y="120" width="20" height="54" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="340" y="128" width="20" height="46" fill="#35d0bb29" stroke="#35d0bb"/>
-  <rect x="370" y="136" width="20" height="38" fill="#35d0bb29" stroke="#35d0bb"/>
-  <text x="24" y="204" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">c�p�o	��}n����gojD</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="温度と分布の鋭さ">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">温度と分布の鋭さ</text>
+  
+  <text x="50" y="70" fill="#4a4c48" font-family="Georgia, serif" font-size="14">低い温度 — 鋭い</text>
+  <rect x="50" y="90" width="28" height="100" fill="#0d7a6c"/>
+  <rect x="90" y="150" width="28" height="40" fill="#35d0bb" stroke="#0d7a6c"/>
+  <rect x="130" y="170" width="28" height="20" fill="#35d0bb" stroke="#0d7a6c"/>
+  <text x="320" y="70" fill="#4a4c48" font-family="Georgia, serif" font-size="14">高い温度 — 平たい</text>
+  <rect x="320" y="120" width="28" height="70" fill="#0d7a6c"/>
+  <rect x="360" y="130" width="28" height="60" fill="#35d0bb" stroke="#0d7a6c"/>
+  <rect x="400" y="140" width="28" height="50" fill="#35d0bb" stroke="#0d7a6c"/>
+  <rect x="440" y="150" width="28" height="40" fill="#35d0bb" stroke="#0d7a6c"/>
+  <text x="50" y="230" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">散らばりは変わる。真偽スイッチではない。</text>
+
 </svg>

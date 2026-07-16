@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="Retrieval-Augmented Generation">
+  <rect width="720" height="280" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Retrieval-Augmented Generation</text>
+  
+  <rect x="40" y="80" width="140" height="60" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="70" y="116" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">質問 x</text>
+  <path d="M190 110 H240" stroke="#0d7a6c" stroke-width="3"/>
+  <rect x="250" y="70" width="180" height="80" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="270" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">Retriever</text>
+  <text x="270" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">索引から文書 z を取得</text>
+  <path d="M440 110 H490" stroke="#0d7a6c" stroke-width="3"/>
+  <rect x="500" y="70" width="180" height="80" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="520" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">Generator</text>
+  <text x="520" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">x+z から回答 y</text>
+  <text x="40" y="200" fill="#4a4c48" font-family="Georgia, serif" font-size="14">パラメータ内知識 + 非パラメータ記憶（検索）</text>
+  <text x="40" y="235" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · Lewis et al., 2020 RAG</text>
+
+</svg>

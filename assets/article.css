@@ -195,8 +195,10 @@ figure.article-figure img {
   display: block;
   width: 100%;
   height: auto;
+  min-height: 120px;
   border-radius: var(--radius);
   border: 1px solid var(--ink-line);
+  background: #f2f3f0;
 }
 
 /* Landmark / archive figures — Faza-like capped paper mat */

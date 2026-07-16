@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>moe-route</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .ex { display: inline-block; margin: 0.25rem; padding: 0.45rem 0.6rem; border: 1px solid var(--ink-line); border-radius: 3px; font-family: var(--font-mono); }
+    .ex.on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .ex.off { opacity: 0.35; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> ルータが選ぶ専門家集合が変わると、同じ入力でも活性パスが変わる</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <button type="button" class="primary" id="tokA">トークン「code」</button>
+      <button type="button" id="tokB">トークン「詩」</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">Mixtral 型の玩具: 8 experts のうち top-2 だけが動きます。</p>
+  </div>
+  <script>
+    const names = ["E0","E1","E2","E3","E4","E5","E6","E7"];
+    const routes = { code: [1, 4], "詩": [2, 6] };
+    const stage = document.getElementById("stage");
+    function render(active) {
+      stage.innerHTML = names.map((n,i) => {
+        const on = active.includes(i);
+        return "<span class='ex " + (on ? "on" : "off") + "'>" + n + (on ? " 活性" : " 休止") + "</span>";
+      }).join("") + "<div class='mono' style='margin-top:0.75rem;color:var(--ink-dim)'>活性: " +
+        (active.length ? active.map(i=>names[i]).join(", ") : "なし") + " / 総数8</div>";
+    }
+    document.getElementById("tokA").onclick = () => render(routes.code);
+    document.getElementById("tokB").onclick = () => render(routes["詩"]);
+    document.getElementById("reset").onclick = () => render([]);
+    render([]);
+  </script>
+</body>
+</html>

@@ -1,10 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 240" role="img" aria-label="Training stack schematic">
-  <rect width="640" height="240" fill="#151716"/>
-  <text x="24" y="32" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">���t��ï!	</text>
-  <rect x="80" y="160" width="480" height="44" rx="4" fill="#1e201e" stroke="#393b38"/>
-  <text x="100" y="188" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">�Mf�  !����,</text>
-  <rect x="80" y="108" width="480" height="40" rx="4" fill="#1e201e" stroke="#35d0bb"/>
-  <text x="100" y="134" fill="#35d0bb" font-family="Georgia, serif" font-size="14">SFT  :g��b��[�</text>
-  <rect x="80" y="56" width="480" height="40" rx="4" fill="#1e201e" stroke="#35d0bb"/>
-  <text x="100" y="82" fill="#35d0bb" font-family="Georgia, serif" font-size="14">RM � RL  x}g�V�����</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="事後調整スタック（SFT→RM→RL）">
+  <rect width="720" height="300" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">事後調整スタック（SFT→RM→RL）</text>
+  
+  <rect x="80" y="210" width="560" height="50" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="100" y="242" fill="#1a1c1a" font-family="Georgia, serif" font-size="16">① 事前学習 — 次トークン予測（広範コーパス）</text>
+  <rect x="80" y="145" width="560" height="50" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="100" y="177" fill="#0d7a6c" font-family="Georgia, serif" font-size="16">② SFT — 示范で指示追従の形式を寄せる</text>
+  <rect x="80" y="80" width="560" height="50" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="100" y="112" fill="#0d7a6c" font-family="Georgia, serif" font-size="16">③ RM → RL — 人間選好で方策を追加更新</text>
+  <text x="80" y="285" fill="#4a4c48" font-family="Georgia, serif" font-size="13">教育用模式図 · Ouyang et al., 2022 InstructGPT 三段パイプライン</text>
+
 </svg>
