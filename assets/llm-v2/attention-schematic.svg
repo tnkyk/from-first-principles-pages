@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" role="img" aria-label="Attention schematic">
+  <rect width="640" height="220" fill="#151716"/>
+  <text x="24" y="32" fill="#c2c3bf" font-family="Georgia, serif" font-size="14">êñè!	</text>
+  <rect x="40" y="60" width="70" height="40" rx="4" fill="#1e201e" stroke="#35d0bb"/>
+  <text x="58" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="14">Q</text>
+  <rect x="140" y="60" width="70" height="40" rx="4" fill="#1e201e" stroke="#393b38"/>
+  <text x="158" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="14">K</text>
+  <rect x="240" y="60" width="70" height="40" rx="4" fill="#1e201e" stroke="#393b38"/>
+  <text x="258" y="86" fill="#f2f3f0" font-family="IBM Plex Mono, monospace" font-size="14">V</text>
+  <text x="40" y="130" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">^<¦ Q·K ’ softmax Í ’ V n ÍsG</text>
+  <rect x="40" y="150" width="560" height="44" rx="4" fill="#1e201e" stroke="#393b38"/>
+  <text x="56" y="178" fill="#35d0bb" font-family="IBM Plex Mono, monospace" font-size="13">Attention(Q,K,V) = softmax(QK@ / d–) V</text>
+</svg>
