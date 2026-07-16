@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Temperature sample</title>
+  <title>温度とサンプリング</title>
   <link rel="stylesheet" href="../../../sim-kit.css" />
   <style>
     .row { display: flex; gap: 0.75rem; align-items: flex-end; height: 120px; margin-top: 0.5rem; }
@@ -15,21 +15,21 @@
 </head>
 <body>
   <div class="sim">
-    <p class="sim-claim"><strong>Claim:</strong> Raising temperature flattens the next-token distribution, increasing the chance of lower-probability tokens.</p>
+    <p class="sim-claim"><strong>主張:</strong> 温度を上げると次トークン分布が平坦になり、低確率トークンが選ばれやすくなる（知識は増えない）。</p>
     <div class="panel" id="stage">
-      <label class="mono" style="color:var(--ink-dim);font-size:12px;">Temperature T = <span id="tlabel">1.00</span></label>
+      <label class="mono" style="color:var(--ink-dim);font-size:12px;">温度 T = <span id="tlabel">1.00</span></label>
       <input id="temp" type="range" min="0.2" max="2.5" step="0.05" value="1" style="width:100%;margin-top:0.35rem;" />
       <div class="row" id="bars"></div>
       <div class="out" id="out"></div>
     </div>
     <div class="sim-row">
-      <button type="button" class="primary" id="act">Sample once</button>
-      <button type="button" id="reset">Reset T=1</button>
+      <button type="button" class="primary" id="act">1回サンプル</button>
+      <button type="button" id="reset">T=1 に戻す</button>
     </div>
-    <p class="hint">Educational toy — encodes one contrast, not a full product. Same logits; only sharpness changes.</p>
+    <p class="hint">教育用玩具 — 同じロジットの尖り具合だけが変わる。再生成の「言い回し差」はここにいる。</p>
   </div>
   <script>
-    const labels = ["the", "a", "cat", "sat"];
+    const labels = ["の", "は", "猫", "論文"];
     const logits = [2.0, 0.5, 1.0, -1.0];
     const bars = document.getElementById("bars");
     const temp = document.getElementById("temp");
@@ -43,7 +43,6 @@
       const s = exps.reduce((a, b) => a + b, 0);
       return exps.map((e) => e / s);
     }
-
     function render() {
       const T = Number(temp.value);
       tlabel.textContent = T.toFixed(2);
@@ -66,7 +65,6 @@
       });
       return p;
     }
-
     function sample() {
       const p = render();
       let r = Math.random();
@@ -76,9 +74,8 @@
         if (r <= 0) break;
       }
       i = Math.min(i, p.length - 1);
-      out.textContent = "drew “" + labels[i] + "” — lower bars gain mass as T rises; knowledge did not.";
+      out.textContent = "抽選結果「" + labels[i] + "」— Tを上げると低い棒にも質量が移る。新しい事実は入らない。";
     }
-
     document.getElementById("act").onclick = sample;
     document.getElementById("reset").onclick = () => { temp.value = 1; out.textContent = ""; render(); };
     temp.addEventListener("input", () => { out.textContent = ""; render(); });

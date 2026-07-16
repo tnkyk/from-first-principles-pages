@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,182 +20,210 @@
   <div class="page-shell">
     <main>
       <header class="article-header">
-        <a class="back-link" href="index.html">← Back to mental models</a>
+        <a class="back-link" href="index.html">← メンタルモデル一覧へ</a>
         <h1 class="title">LLM, from First Principles</h1>
       </header>
       <article class="article-body">
-<p>You paste a half-formed question into a chat box and, within a second, receive fluent paragraphs that sound like a careful colleague. Ask for a citation and it may invent a plausible-looking paper that never existed. Ask it to count the letters in a word and it can stumble while still sounding sure. The same system drafts legal-sounding prose, explains quantum mechanics in metaphor, and then quietly fabricates a meeting that never happened. The friction is not that the machine is “stupid”; it is that fluency and truth-tracking have come apart in a way everyday conversation never prepared you for.</p>
-<p>Without a first-principles map, every impressive answer becomes either magic or scam—and you lose the ability to decide <em>where</em> to trust, <em>what</em> to verify, and <em>which layer</em> failed when something goes wrong. Literacy here is agency: you stop negotiating with a ghost and start operating a constrained prediction machine—choosing prompts, checking claims, and knowing when the bottleneck is tokenization, context, sampling, or the training objective itself.</p>
-<p>My aim with this article is to rebuild the mechanisms from constraints, introducing jargon only when needed, following the story of problems that forced each next layer.</p>
-<h2 id="what-this-tour-will-and-will-not-do">What this tour will and will not do</h2>
-<p>I will rebuild the constraint chain from discrete text to preference-shaped chat—in invention order—keep each major step to a few new parts, use interactive toys only where a distribution must be felt, and end with judgment rules that locate failures by layer. I will not ship a prompt cookbook, prophesy timelines, or pretend preference tuning equals truthfulness.</p>
-<h2 id="the-path-of-problems">The path of problems</h2>
-<ol><li>How does typed language become something a machine can compute at all?</li><li>What training pressure turns that representation into useful predictions?</li><li>How can a late word feel the pull of an early instruction inside one finite window?</li><li>How does a cloud of scores become one spoken reply—and why regenerating changes it?</li><li>Why does a completion engine start acting like a general task interface—and then like a chat assistant?</li><li>When fluency lies, which layer do you interrogate first?</li></ol>
-<p>Three everyday mysteries stay in the pocket: invented citations that sound perfect; regenerating that changes wording but keeps the gist; early instructions ignored in a huge paste. Each pays off when its layer arrives.</p>
-<h2 id="language-has-to-become-numbers-first">Language has to become numbers first</h2>
-<p>You type a sentence into a chat box and the reply looks like language—but underneath, the machine is not holding letters or meanings in the way a person does. A neural network is a stack of matrix multiplications: every input must be a fixed-size vector of real numbers, and every operation expects tensors with predictable shapes. Raw chat text is discrete symbols—Unicode characters, whitespace, punctuation—none of which can be fed directly into a weight matrix. The first architectural failure is therefore blunt: <strong>machines cannot multiply &quot;words.&quot;</strong> Whatever comes next in the pipeline must turn strings into numbers indexed by a finite list.</p>
-<h3 id="token-vocabulary">Token vocabulary</h3>
-<p>The first move is to stop treating the keyboard stream as the unit of computation. Instead, the model defines a <strong>token vocabulary</strong>: a closed list of string pieces the tokenizer can emit. A token might be a whole common word (<code>&quot; the&quot;</code>), a fragment (<code>&quot;ing&quot;</code>), or a single character for rare spellings. The vocabulary size is fixed at training time—often tens of thousands of entries—so the model never sees an out-of-vocabulary symbol at runtime; unknown text is simply cut into known pieces. This is easy to misread: <strong>tokens are reusable string pieces, not ideas.</strong> <code>&quot;bank&quot;</code> as one token does not carry river-vs-finance sense; it is just an indexable substring that often appears in training text.</p>
-<h3 id="integer-ids">Integer ids</h3>
-<p>Each vocabulary entry is assigned an <strong>integer id</strong>—a plain counting number from <code>0</code> to <code>V−1</code>. The string <code>&quot;Hello&quot;</code> might become <code>[15496]</code> if the whole word is one token, or <code>[9906, 995]</code> if split differently; the model never sees the letters, only the id sequence. A chat turn is therefore stored as <strong>token ids</strong>: a one-dimensional array of integers, one per token, in order. Padding and batching wrap these arrays into matrices, but the semantic commitment is already made—language has been discretized into a finite alphabet of ids before any &quot;understanding&quot; could even be hypothesized.</p>
-<h3 id="embedding-lookup">Embedding lookup</h3>
-<p>Matrix machines still need vectors, not bare integers. An <strong>embedding lookup</strong> table is a matrix <code>E</code> of shape <code>[V, d]</code>: row <code>i</code> is the <code>d</code>-dimensional vector assigned to id <code>i</code>. Forward pass for a single id is indexing: <code>vector = E[id]</code>. For a sequence of ids, the lookup returns a sequence of vectors—one row per token—that downstream layers can mix. Crucially, this is not retrieval from a curated encyclopedia: <strong>embedding lookup is a lookup table, not a library of truths.</strong> Rows start random and are shaped entirely by whatever training pressure comes later; at this layer there is no guarantee that similar ids sit near each other in vector space.</p>
-<h3 id="reconstruction-from-string-to-tensor">Reconstruction: from string to tensor</h3>
-<p>Take the prompt fragment <code>&quot;The cat sat&quot;</code>. Suppose the tokenizer maps it to three ids:</p>
-<p>| Token piece | Integer id |</p>
-<p>|-------------|------------|</p>
-<p>| <code>&quot;The&quot;</code>     | 464        |</p>
-<p>| <code>&quot; cat&quot;</code>    | 3797       |</p>
-<p>| <code>&quot; sat&quot;</code>    | 3331       |</p>
-<p>The embedding table (say <code>d = 4</code> for illustration) might return:</p>
+<p>半ば形だけの質問をチャット欄に貼り付けると、一瞬で丁寧な同僚のような流暢な段落が返ってくる。引用を頼むと、存在しない論文名がもっともらしく並ぶ——著者名、年号、ジャーナル風の語彙まで整っているのに、文献データベースには何もない。<strong>捏造引用</strong>は、悪意ではなく、最初に触れるべきミステリーの一つだ。単語の文字数を数えさせると、自信ありげな口調のままつまずく。同じシステムが法律っぽい文面を書き、量子力学を比喩で説明し、それから静かに「なかった会議」の議事録を捏造する。摩擦は「機械がバカだ」ということではない。<strong>流暢さと真偽追跡が、日常会話が教えてくれなかった形で切り離された</strong>ということだ。</p>
+<p>もう一つ、再生成ボタン。同じ質問でも、二回目は言い回しが変わる——比喩が入れ替わり、箇条書きの順序が入れ替わる。それでも結論の骨格はしばしば同じ。<strong>再生成の言い回し差</strong>は、モデルが「考えを改めた」のではなく、別の確率的経路を辿ったサインだ（第6章で回収）。三つ目：長い契約書を丸ごと貼り、冒頭に「必ず三項目だけ答えよ」と書いても、応答が五項目になったり、禁止した形式で返ってきたりする。<strong>長い貼付で先頭指示が消える</strong>——これも第8章の有限コンテキスト窓で回収する。</p>
+<p>第一原理の地図がなければ、印象的な回答は魔法か詐欺のどちらかに見え、<strong>どこを信じ、何を検証し、失敗時にどの層が壊れたのか</strong>を決める力を失う。ここでのリテラシーは能動性だ——幽霊と交渉するのをやめ、制約された予測機械として扱い始める。プロンプトを選び、主張を確かめ、ボトルネックがトークン化なのか、コンテキストなのか、サンプリングなのか、訓練目的そのものなのかを見分ける。</p>
+<p>この記事は「LLM の正体は Transformer だ」というスローガンから始めない。スローガンは出口に近い圧縮に過ぎない。入口は、あなたがすでに体験している違和感——<strong>捏造引用</strong>、<strong>再生成の言い回し差</strong>、<strong>長い貼付で先頭指示が消える</strong>——から始める。各章末尾の ### 出口命題 は、その層が保証することと保証しないことを一行で固定するチェックポイントだ。機構名は、それらの違和感を説明するために、問題が迫った順で登場する。</p>
+<p>この記事の狙いは、制約から機構を再構成することだ。必要になるまで専門用語を遅らせ、各層を迫った問題の物語順にたどる。読み終わったとき、あなたは「AI が何を“考えている”か」ではなく、「今どの層で、何が入力され、何が最適化され、何が検証されていないか」を声に出せる——それがポケットマップの中身だ。</p>
+<h2 id="このツアーでやること-やらないこと">このツアーでやること / やらないこと</h2>
+<p>離散テキストから嗜好で形作られたチャットまで、<strong>発明順の制約連鎖</strong>を再構成する。各章は新パーツを少数だけ導入し、分布を体感しないと理解できない箇所だけ対話型の玩具を置き、失敗を層で特定する判断規則で終える。プロンプト料理本は出さない。AGI 予言もしない。<strong>嗜好調整＝真実性</strong>とも言わない。</p>
+<p>対話型の玩具（<code>tokenize-embed</code>、<code>next-token</code>、<code>attention-mix</code>、<code>temperature-sample</code>、<code>context-window</code>）は、断言を暗記させるためではない。スコアベクトル・ソフトマックス重み・窓の切り詰めを<strong>触って</strong>、段落の比喩が指している対象を指先で確認するためだ。図（<code>token-pipeline</code>、<code>attention-schematic</code>、<code>autoregressive-loop</code>、<code>layer-map</code>）は、症状から層へ降りるときのポケット地図の折り目になる。</p>
+<p>読み終えたあと、あなたがやめるべきこともはっきりさせる。モデルに「今度こそ嘘をつくな」と感情で懇願すること——それは嗜好つき方針や分布的もっともらしさの層をすり抜け、幽霊交渉に戻る。逆に、すべての出力を無視することも、層地図の放棄だ。ブレストと検証可能な主張の間には、<strong>外側の検証ループ</strong>を差し込む余地がある。</p>
+<h2 id="理解の道筋問題の列">理解の道筋（問題の列）</h2>
+<ol><li>打ち込まれた言語は、いかにして計算可能なものになるのか？</li><li>その表現を有用な予測へ変える<strong>訓練圧</strong>は何か？</li><li><strong>有限コンテキスト窓</strong>の中で、後の語はどうやって先頭の指示の引きを感じるのか？</li><li>スコアの雲は、いかに一つの発話列になるのか——<strong>再生成</strong>で言い回しが変わるのはなぜか？</li><li>文書続きエンジンは、なぜ汎用タスク界面、さらにチャット助手のように見え始めるのか？</li><li>流暢さが嘘をつくとき、<strong>最初に疑うべき層</strong>はどれか？</li></ol>
+<p>（問題は六つ。機構章は九つ——入口の契約、問題列、六つの機構、締めのポケットマップ——だが、問いの数は六に抑えている。）</p>
+<p>この六問は、部品名のチェックリストではない。読者が実際に困る順——文字列をどう数にするか、何を学習しているか、遠い指示をどう届けるか、返答をどう一列にするか、助手らしさをどう得るか、失敗をどう診るか——に並べた<strong>理解の道筋</strong>だ。各章は一問に答え、新しい部品を三つ以内に抑え、出口命題で次の問いへ橋を架ける。</p>
+<p>入口で三つの日常ミステリーをポケットに入れておく。<strong>捏造引用</strong>——完璧に聞こえるのに文献がない。<strong>再生成の言い回し差</strong>——要点は同じなのに形容が入れ替わる。<strong>長い貼付で先頭指示が消える</strong>——冒頭のルールが後半で蒸発する。それぞれ、該当する層に到達したときに回収する。</p>
+<p>各問題は、次の章タイトルが機構名ではなく<strong>問題の名前</strong>になっている理由でもある。読者が持ち帰るべきは部品表の暗記ではなく、症状から層へ降りる道筋——<strong>理解の道筋</strong>——だ。</p>
+<h2 id="まず言語を数にしなければならない">まず言語を数にしなければならない</h2>
+<p>チャット欄に文を打つと、返答は言語に見える。だが下層では、人間のように文字や意味を「保持」しているわけではない。ニューラルネットは行列積の積み重ねであり、入力はすべて固定長の実数ベクトル、演算は予測可能な形状のテンソルを要求する。生のチャットテキストは離散記号——Unicode 文字、空白、句読点——であり、重み行列にそのまま入れられない。最初の設計上の失敗は率直だ。<strong>機械は「単語」を掛け算できない。</strong> パイプラインの次段は、文字列を有限リストで索引づけられた数に変換しなければならない。</p>
+<p>ここでよくある誤解を先に潰しておく。モデルが「単語の意味を理解している」から賢いのではない。理解という語は、後段の層——次トークン予測、自己注意ミックス、嗜好つき方針——が積み上げた振る舞いに、読者が後付けでラベルを貼っているに過ぎない。第3章の仕事は、その振る舞いの<strong>最下層</strong>を固定することだ：入力は必ず整数列になり、各整数は埋め込み参照でベクトルに変換される。それ以外の経路はない。</p>
+<h3 id="トークン語彙">トークン語彙</h3>
+<p>最初の手は、キーボードストリームを計算単位とみなすのをやめることだ。モデルは<strong>トークン語彙</strong>——トークナイザが出力しうる文字列片の閉じたリスト——を定義する。トークンはよく出る語全体（<code>&quot; the&quot;</code>）か、語尾片（<code>&quot;ing&quot;</code>）か、稀な綴りでは一文字かもしれない。語彙サイズは訓練時に固定され、しばしば数万エントリ。実行時に語彙外記号は出ない——未知テキストは既知の片に切られる。<strong>トークンは再利用可能な文字列片であり、概念ではない。</strong> <code>&quot;bank&quot;</code> が一トークンでも、川岸か金融かの意味は載らない。訓練テキストにしばしば現れる、索引可能な部分文字列に過ぎない。</p>
+<p>同じ英文でも、トークナイザの世代やベンダーで分割が変わる。<code>&quot;ChatGPT&quot;</code> が一トークンか <code>&quot;Chat&quot;</code> <code>&quot;GPT&quot;</code> かは実装依存だ。コードや URL、人名の綴りでは、一文字ずつに割かれることもある。だから「この単語をモデルは一塊で見ている」と決め打ちできない——<strong>トークンID 列</strong>を確認しないと、プロンプトの微妙な空白や句読点が能力評価を歪める。</p>
+<h3 id="トークンid">トークンID</h3>
+<p>語彙各エントリには<strong>トークンID</strong>——<code>0</code> から <code>V−1</code> までの整数——が割り当てられる。<code>&quot;Hello&quot;</code> が語全体なら一つの ID、分割されれば複数 ID。モデルが見るのは文字ではなく ID 列だけだ。チャットの一ターンは、順序付き整数配列として保存される。パディングやバッチ化で行列に包まれるが、意味論的なコミットはここで済んでいる——言語は、いかなる「理解」が仮説化されるより前に、ID の有限アルファベットへ離散化された。</p>
+<h3 id="埋め込み参照">埋め込み参照</h3>
+<p>行列機械は依然としてベクトルを要する。裸の整数ではない。<strong>埋め込み参照</strong>表は形状 <code>[V, d]</code> の行列 <code>E</code> だ。行 <code>i</code> は ID <code>i</code> に対応する <code>d</code> 次元ベクトル。一 ID の順伝播は索引：<code>vector = E[id]</code>。ID 列に対しては、下流が混ぜられるベクトル列が返る。決定的なのは、これが百科事典からの検索ではない点だ。<strong>埋め込み参照は参照表であり、真理の図書館ではない。</strong> 行はランダム始まりで、後続の訓練圧だけが形作る。この層では、似た ID がベクトル空間で近接する保証はない。</p>
+<p>訓練が進むと、似た文脈で交換可能なトークンは近づきうる——だがそれは後段の次トークン予測圧の副産物であり、埋め込み参照が「意味辞典」を実装しているわけではない。行 <code>i</code> を取り出す操作は、データベースの JOIN でもナレッジグラフのルックアップでもない。<strong>索引 <code>i</code> → ベクトル</strong>の一点参照だ。</p>
+<h3 id="再構成文字列からテンソルへ">再構成：文字列からテンソルへ</h3>
+<p>プロンプト断片 <code>&quot;The cat sat&quot;</code> を考える。トークナイザが三 ID に割り当てたとする。</p>
+<div class="table-wrap"><table><thead><tr><th>トークン片</th><th>トークンID</th></tr></thead><tbody><tr><td><code>&quot;The&quot;</code></td><td>464</td></tr><tr><td><code>&quot; cat&quot;</code></td><td>3797</td></tr><tr><td><code>&quot; sat&quot;</code></td><td>3331</td></tr></tbody></table></div>
+<p>埋め込み表（例として <code>d = 4</code>）は次を返す。</p>
 <pre><code>E[464]  → [ 0.12, -0.05,  0.33,  0.08]
 E[3797] → [-0.21,  0.44,  0.02, -0.19]
 E[3331] → [ 0.07,  0.11, -0.28,  0.41]</code></pre>
-<p>Stacked, the model receives a <code>3 × 4</code> matrix—three vectors in sequence order. No Unicode, no syntax tree, no propositional content—just indexed rows ready for arithmetic. Neural machine translation systems established this id-then-embed pipeline for sequence models (<a href="https://arxiv.org/abs/1409.0473" rel="noopener">Bahdanau et al., 2014</a>); large-scale language models such as GPT-2 use the same interface at the front door, only with a wider vocabulary and longer contexts (<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>).</p>
-<h3 id="exit-proposition">Exit proposition</h3>
-<p>Language enters the model as a sequence of token ids mapped to vectors—not as thoughts.</p>
-<p>Those vectors now exist, but nothing in this step yet says which id should follow <code>&quot; sat&quot;</code>. The rows of <code>E</code> could drift arbitrarily unless a training pressure ties them to the statistical structure of real text. The next failure is immediate: <strong>those vectors still need a pressure that says which id should come next.</strong></p>
-<h2 id="the-pressure-is-what-token-comes-next">The pressure is &quot;what token comes next?&quot;</h2>
-<p>Chapter 1 ended with floating-point rows indexed by token ids—differentiable, batchable, but semantically unconstrained. You could permute the embedding table at random and, without a training objective, nothing in the architecture would object. The failure is not &quot;the model lacks world knowledge&quot;; it is narrower: <strong>without a local objective, embeddings have no reason to arrange themselves for open-ended language use.</strong> The entire modern language-model stack is built around one answer to that gap—not a suite of task heads, not a truth criterion, but a single conditional guessing game repeated at every position.</p>
-<h3 id="context-as-conditioner">Context as conditioner</h3>
-<p>Fix attention on one position in a token-id sequence. Everything to its left (in the usual left-to-right setup) is <strong>context</strong>: the prefix the model may condition on when scoring what comes next. <code>&quot;The cat sat on the&quot;</code> is context; the model&#x27;s job at the following slot is to allocate probability mass over the entire vocabulary for the next piece. Nothing in the loss asks whether the prefix is a question, a command, or a citation; the only commitment is that earlier ids influence the score vector at the current step. This <strong>context as conditioner</strong> framing is what lets one stack serve translation, summarization, and chat-like continuation without swapping modules—the format of the prefix changes which ids are likely, but the mechanism is always &quot;given what came before, score the next id.&quot;</p>
-<h3 id="next-token-distribution">Next-token distribution</h3>
-<p>The output of each forward pass at position <code>t</code> is a <strong>next-token distribution</strong>: a vector of length <code>V</code> whose entries are non-negative and sum to one. Index <code>j</code> is read as the model&#x27;s assigned probability for vocabulary id <code>j</code> immediately after the prefix ending at <code>t</code>. In practice the network emits raw <strong>logits</strong> (unnormalized scores); a softmax turns them into probabilities. At <code>&quot;The cat sat on the&quot;</code>, mass might concentrate on ids for <code>&quot; mat&quot;</code>, <code>&quot; floor&quot;</code>, <code>&quot; couch&quot;</code>—not because the model &quot;knows furniture,&quot; but because those continuations appeared often under similar prefixes in training text. <strong>Local likelihood is not a global truth score.</strong> High probability means &quot;this id often followed similar contexts in the corpus,&quot; not &quot;this statement is correct in the world.&quot;</p>
-<h3 id="cross-entropy-on-raw-text">Cross-entropy on raw text</h3>
-<p>Training supplies the missing pressure by showing billions of real continuations. For each position, the correct next id from the document is treated as the target class; <strong>cross-entropy on raw text</strong> penalizes probability assigned to every wrong id and rewards probability on the actual next token. Averaged over positions and documents, gradient descent nudges embeddings and all upstream weights so that likely training continuations receive likelihood. No human labels mark &quot;helpful&quot; or &quot;factual&quot; at this stage—the supervision signal is literally the next character or token cut from the same web page, book, or forum thread. Bengio and colleagues formalized learning a conditional distribution over words from context (<a href="https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf" rel="noopener">Bengio et al., 2003</a>); GPT-2 scales the same recipe: one transformer, one softmax head, one objective over crawled text (<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>). <strong>Broad competence can emerge from one objective without a per-task module</strong>—not because the loss encodes every skill explicitly, but because many skills are compressible into &quot;predict the continuation.&quot;</p>
-<h3 id="reconstruction-one-step-of-the-loss">Reconstruction: one step of the loss</h3>
-<p>Consider a toy vocabulary <code>V = 5</code> with ids <code>{the=0, cat=1, sat=2, on=3, mat=4}</code>. After processing prefix ids <code>[0, 1, 2, 3]</code> (&quot;the cat sat on&quot;), suppose logits at the next slot are:</p>
-<p>| id | token | logit | softmax p |</p>
-<p>|----|-------|-------|-----------|</p>
-<p>| 0  | the   | −1.0  | 0.02      |</p>
-<p>| 1  | cat   | −0.5  | 0.03      |</p>
-<p>| 2  | sat   | −2.0  | 0.01      |</p>
-<p>| 3  | on    | −1.5  | 0.02      |</p>
-<p>| 4  | mat   | +3.0  | 0.92      |</p>
-<p>The training document continues with id <code>4</code> (<code>mat</code>). Cross-entropy loss at this position is <code>-log(0.92) ≈ 0.08</code>—small, because the model already agrees with the corpus. If the true next id were <code>1</code> (<code>cat</code>) instead, the same logits would incur <code>-log(0.03) ≈ 3.5</code>, a large penalty driving weights to spread mass differently. Repeat this for every position in every sequence; <strong>next-token prediction</strong> is the skill being optimized—nothing more exotic at this layer.</p>
-<h3 id="exit-proposition">Exit proposition</h3>
-<p>The skill being optimized is next-token prediction from the left context on raw text.</p>
-<p>That objective is local: each position scores the immediate next id given everything to its left. Yet a user prompt can place a constraint in the first sentence that must govern a noun twenty tokens later—subject-verb agreement, a defined acronym, an instruction to reply in French. A fixed bag of hand-crafted features around each position cannot reliably route that distant constraint, and compressing the whole prefix into a single recurrent state grows brittle as sequences lengthen. <strong>Distant constraints must reach each position inside one finite window</strong>—which is exactly the failure the next chapter addresses.</p>
-<h2 id="every-position-must-borrow-from-the-whole-window">Every position must borrow from the whole window</h2>
-<p>Next-token prediction tells each position to emit a distribution—but it does not, by itself, say how information from token 3 should influence token 30. Earlier sequence models squeezed the entire prefix through a fixed-size recurrent state updated one step at a time; useful for local syntax, fragile when an instruction or entity name at the start must control a word near the end. Convolutional or fixed-width windows fare worse: anything outside the kernel simply never arrives. The failure is structural: <strong>fixed local features and brittle sequential state fail to route early instructions to late words.</strong> What is needed is a mechanism that lets every position re-read the whole prefix and decide, with differentiable weights, how much to import from each earlier vector.</p>
-<h3 id="query-key-similarity">Query-key similarity</h3>
-<p>Split the problem into &quot;what am I looking for?&quot; and &quot;what do each of my neighbors offer?&quot; At position <code>i</code>, the model forms a <strong>query</strong> vector <code>q_i</code> from the current embedding. Every position <code>j</code> in the context (including <code>i</code> itself) exposes a <strong>key</strong> vector <code>k_j</code>. A scalar score is the dot product <code>q_i · k_j</code>—large when the two vectors align in direction, small when they do not. Intuitively, the query asks a soft question (&quot;who matches this syntactic role?&quot; &quot;where was the subject introduced?&quot;) and each key advertises whether its token is relevant. These scores are not discrete lookups: <strong>attention is a soft mixture, not a hard fact pointer.</strong> No single key &quot;wins&quot; by fiat; all positions remain candidates with different weights.</p>
-<h3 id="softmax-weights">Softmax weights</h3>
-<p>Raw dot products can span a wide range, so the model applies <strong>softmax weights</strong> across positions for each query: exponentiate scores, divide by their sum, obtain a vector that is non-negative and sums to one. Position <code>j</code>&#x27;s weight <code>α_{ij}</code> answers &quot;what fraction of my update should come from token <code>j</code>?&quot; If the query at a verb aligns with the key at the sentence subject, that subject&#x27;s index gets mass; if an early instruction token shares a pattern with a later slot, mass can flow backward across the window. Temperature of the softmax is learned indirectly through key/query scaling; sharp peaks mean &quot;listen mostly here,&quot; flat peaks mean &quot;blend many sources.&quot; Crucially, the weights are recomputed at every layer and every head—there is no permanent edge labeled &quot;refers-to.&quot;</p>
-<h3 id="value-mixture">Value mixture</h3>
-<p>Keys decide <em>how much</em> to import; <strong>value</strong> vectors <code>v_j</code> decide <em>what</em> gets imported. Each position carries a value vector parallel to its key. The updated representation at <code>i</code> is the <strong>value mixture</strong>: <code>Σ_j α_{ij} v_j</code>, a weighted average of value vectors from the context window. After this <strong>self-attention mix</strong>, position <code>i</code>&#x27;s vector is rebuilt from the whole prefix, not only from its immediate neighbors or a compressed memory cell. Stacking more layers repeats the recipe: <strong>stacking layers stacks mixers; one head is not a knowledge graph.</strong> Depth adds successive re-blending passes, not a shelf of stored facts with pointers.</p>
-<h3 id="reconstruction-three-positions-by-hand">Reconstruction: three positions by hand</h3>
-<p>Take three tokens—ids for <code>&quot;It&quot;</code>, <code>&quot; sat&quot;</code>, <code>&quot; quietly&quot;</code>—with simplified 2-D value vectors:</p>
-<p>| position | token     | value vector v |</p>
-<p>|----------|-----------|----------------|</p>
-<p>| 0        | It        | [1.0, 0.0]     |</p>
-<p>| 1        | sat       | [0.0, 1.0]     |</p>
-<p>| 2        | quietly   | [1.0, 1.0]     |</p>
-<p>Suppose the query at position 2 (<code>quietly</code>) yields softmax weights <code>[0.1, 0.2, 0.7]</code> over positions 0–2. The new vector at 2 is:</p>
+<p>積み上げると <code>3 × 4</code> 行列——三ベクトルが列順——がモデルに入る。Unicode も、構文木も、命題内容もない。索引付き行が演算の準備完了だ。系列モデル向けのニューラル機械翻訳が、この ID→埋め込みのパイプラインを確立した（<a href="https://arxiv.org/abs/1409.0473" rel="noopener">Bahdanau et al., 2014</a>）。GPT-2 のような大規模言語モデルも、入り口のインターフェースは同じで、語彙と文脈だけが広い（<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>）。</p>
+<p>バッチ処理のイメージ：複数ユーザーのプロンプトは、長さを揃えるため末尾に <strong>パディング</strong> ID が付く。埋め込み参照はパディング行も持つが、注意マスクで無視される。ここでも「意味のないパディング」が混ざる——<strong>モデルが見るのは常に ID 列</strong>という契約は変わらない。プロンプト注入攻撃や不可視 Unicode の話は、セキュリティ層の話だが、根底は同じ：文字列→トークンID の境界が、意図と実入力をズラしうる。</p>
+<figure class="article-figure"><img src="assets/llm/token-pipeline.svg" alt="" /><figcaption>見るべき構造: 文字列→トークン片→整数ID→埋め込み参照。モデルが見るのはID列であり、思考そのものではない。（図: 教育用模式図）</figcaption></figure>
+<details class="sim-panel" open><summary>シミュレーションを開く — 言語は思考として入るのではなく、語彙片→整数ID→埋め込み参照の列として入る。</summary><iframe class="sim-frame" src="assets/sims/llm/tokenize-embed/index.html" title="tokenize-embed" loading="lazy"></iframe></details>
+<h3 id="出口命題">出口命題</h3>
+<p>言語は、思考としてではなく、トークンID 列がベクトルへ写像された列としてモデルに入る。</p>
+<p>ベクトルは存在するが、この段階では <code>&quot; sat&quot;</code> の次にどの ID が来るべきかは何も言っていない。<code>E</code> の行は、訓練圧が実テキストの統計構造に結びつけない限り任意に漂いうる。次の失敗は即座に来る——<strong>ベクトルには「次に来る ID」を言う圧力がまだない。</strong></p>
+<h2 id="圧力は次のトークンは何か">圧力は「次のトークンは何か？」</h2>
+<p>第3章は、トークンID で索引された浮動小数点行で終わった——微分可能でバッチ可能だが、意味論的には無拘束。埋め込み表をランダムに置き換えても、訓練目的がなければ架構は文句を言わない。失敗は「モデルに世界知識がない」ではない。もっと狭い——<strong>局所目的がなければ、埋め込みは汎用语言利用のために自己配置する理由を持たない。</strong> 現代の言語モデルスタック全体は、この隙間への一つの答えの上に建っている——タスクヘッドの群れでも、真偽基準でもなく、各位置で繰り返される一つの条件付き当てゲーム。</p>
+<h3 id="文脈を条件づけとして">文脈を条件づけとして</h3>
+<p>トークンID 列の一位置に注目する。通常の左から右の設定では、左側すべてが<strong>文脈</strong>——次をスコアリングするときに条件とみなしてよい接頭辞。<code>&quot;The cat sat on the&quot;</code> は文脈；続くスロットでの仕事は、語彙全体に確率質量を配分することだ。損失は接頭辞が質問か命令か引用かを問わない。唯一のコミットは、早い ID が現在位置のスコアベクトルに影響すること。<strong>文脈を条件づけ</strong>として捉えると、一つのスタックが翻訳・要約・チャット風続きをモジュール交換なしに担える——接頭辞の形式がどの ID をありそうにするかを変えるだけで、機構は常に「前に来たものを与えて、次 ID をスコアせよ」。</p>
+<p>たとえば接頭辞が <code>User: ... Assistant:</code> 型なら、続きは助手方言になりやすい。<code>def </code> で始まれば Python 続きになりやすい。<code>Once upon a time</code> なら物語調。これらは別タスク ID をネットワーク内で切り替えているのではなく、<strong>同じ次トークン予測</strong>が異なる条件付き分布を出しているだけだ。Radford らは、大規模な事前訓練だけで多様な続きスタイルが単一目的から立ち上がることを GPT-2 で示した（<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>）。</p>
+<h3 id="次トークン分布">次トークン分布</h3>
+<p>位置 <code>t</code> における各順伝播の出力は<strong>次トークン分布</strong>——長さ <code>V</code> のベクトルで、非負かつ和が一。インデックス <code>j</code> は、接頭辞が <code>t</code> で終わる直後に語彙 ID <code>j</code> が来る確率として読む。実装ではネットワークは生の <strong>logits</strong>（未正規化スコア）を出し、ソフトマックスが確率にする。<code>&quot;The cat sat on the&quot;</code> では <code>&quot; mat&quot;</code> <code>&quot; floor&quot;</code> <code>&quot; couch&quot;</code> などの ID に質量が集中しうる——モデルが家具を「知っている」のではなく、訓練テキストで似た接頭辞の後にそれらの続きがしばしば現れたからだ。<strong>局所尤度はグローバルな真偽スコアではない。</strong> 高確率は「この ID がコーパスで似た文脈の後にしばしば続いた」という意味で、「世界においてこの記述が正しい」ではない。</p>
+<h3 id="生テキストへの交差エントロピー">生テキストへの交差エントロピー</h3>
+<p>訓練は、何十億もの実続きを見せて欠けていた圧を供給する。各位置で、文書からの正しい次 ID をターゲットクラスとし、<strong>生テキストへの交差エントロピー</strong>が誤った ID への確率を罰し、実際の次トークンへの確率を報酬する。位置と文書で平均すると、勾配降下が埋め込みと上流の重みすべてを、訓練でありそうな続きに尤度を与える方向へ押す。この段階に「有用」「事実」とラベルする人間はいない——教師信号は文字通り、同じ Web ページ・書籍・スレッドから切り出した次の文字かトークン。Bengio らは文脈からの語条件分布学習を形式化した（<a href="https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf" rel="noopener">Bengio et al., 2003</a>）。当時のニューラル言語モデルは、固定長の前語コンテキストから次語の分布を出す——現代 LLM の<strong>次トークン予測</strong>の直接の祖先だ。GPT-2 は同じレシピをスケールさせる——一つの Transformer、一つのソフトマックス頭、クロールテキスト上の一目的（<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>）。<strong>一目的から広い能力が立ち上がりうる</strong>——損失が各技能を明示符号化しているからではなく、多くの技能が「続きを予測せよ」に圧縮可能だから。</p>
+<p>歴史的メモを層の言葉で結ぶ：Bahdanau の注意（<a href="https://arxiv.org/abs/1409.0473" rel="noopener">2014</a>）はエンコーダ–デコーダ間のソフトルーティング；Vaswani の自己注意（<a href="https://arxiv.org/abs/1706.03762" rel="noopener">2017</a>）はデコーダ内の全位置混合；GPT-2/3 はそのデコーダスタックに次トークン損失だけを掛けた。チャットの「助手感」は、Ouyang ら（<a href="https://arxiv.org/abs/2203.02155" rel="noopener">2022</a>）以降の指示＋嗜好層——<strong>いずれも同じトークンID 列の上に載った別圧</strong>として読める。</p>
+<p>たとえば要約らしい続き、コードらしい続き、Q&amp;A らしい続きは、すべて「この接頭辞のあと、訓練コーパスではこう続いた」という統計の産物として説明できる。モデルが「要約タスクを実行している」という内部フラグを持つのではない。タスク境界は、接頭辞のトークン列が与える条件付けにすぎない——第7章の文脈内パターン完了へ続く橋だ。</p>
+<h3 id="再構成損失の一ステップ">再構成：損失の一ステップ</h3>
+<p>玩具語彙 <code>V = 5</code>、ID <code>{the=0, cat=1, sat=2, on=3, mat=4}</code>。接頭辞 ID <code>[0, 1, 2, 3]</code>（&quot;the cat sat on&quot;）処理後、次スロットの logits が次のとおりだとする。</p>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>トークン</th><th>logit</th><th>ソフトマックス p</th></tr></thead><tbody><tr><td>0</td><td>the</td><td>−1.0</td><td>0.02</td></tr><tr><td>1</td><td>cat</td><td>−0.5</td><td>0.03</td></tr><tr><td>2</td><td>sat</td><td>−2.0</td><td>0.01</td></tr><tr><td>3</td><td>on</td><td>−1.5</td><td>0.02</td></tr><tr><td>4</td><td>mat</td><td>+3.0</td><td>0.92</td></tr></tbody></table></div>
+<p>訓練文書は ID <code>4</code>（<code>mat</code>）で続く。この位置の交差エントロピー損失は <code>-log(0.92) ≈ 0.08</code>——小さい。モデルが既にコーパスと一致しているから。真の次 ID が <code>1</code>（<code>cat</code>）なら、同じ logits で <code>-log(0.03) ≈ 3.5</code> という大きな罰が質量の配分を変える方向へ重みを押す。すべての位置・すべての系列で繰り返す。<strong>最適化されている技能は次トークン予測</strong>——この層ではそれ以上のエキゾチックなものはない。</p>
+<p>大規模事前訓練のスケール感を数字で固定する必要はないが、イメージは持て：数十億トークン × 各トークン位置で一回ずつ損失——同じ「次を当てよ」ゲームの反復。GPT-2（<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>）は WebText 上でこれを走らせ、単一 Transformer で多様な続きスタイルを獲得した。GPT-3（<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Brown et al., 2020</a>）はさらにパラメータとデータを増やし、<strong>文脈内パターン完了</strong>が実用域に入る閾値を示した——だが根底の損失は変わらない。</p>
+<p>もう一つの反混同：モデルが「自信を持って」答えるのは、真偽に自信があるからではない。ソフトマックスの尖った分布は、<strong>この接頭辞のあとコーパス上よく来た続き</strong>への尖りだ。引用符付きの欄外音「私は確信しています」も、訓練テキストで権威ある文体のあとに続きやすいトークン列なら、尤度は上がる。だから第8章の<strong>分布的もっともらしさ</strong>へ直結する——流暢な自信と世界の真偽は、損失関数上で結びついていない。</p>
+<details class="sim-panel" open><summary>シミュレーションを開く — 学習が押しつける技能は、左文脈からの次トークン予測であり、世界の真偽スコアではない。</summary><iframe class="sim-frame" src="assets/sims/llm/next-token/index.html" title="next-token" loading="lazy"></iframe></details>
+<h3 id="出口命題">出口命題</h3>
+<p>最適化されている技能は、生テキスト上の左文脈からの次トークン予測である。</p>
+<p>その目的は局所的——各位置は左側すべてを与えられた直後の次 ID だけをスコアする。だがユーザーのプロンプトは、最初の文に二十トークン後の名詞を支配しなければならない制約を置きうる——主述一致、定義した略語、フランス語で答えよという指示。各位置の手作り特徴の固定袋ではその遠隔制約を信頼してルーティングできず、接頭辞全体を一つの再帰状態に圧縮する方法は系列が長くなるほど脆い。<strong>遠隔制約は有限窓内の各位置に届かなければならない</strong>——次章が扱う失敗はまさにそれだ。</p>
+<p>RNN や LSTM は理論上、任意長の履歴を状態に圧縮できる。だが圧縮は情報のボトルネックになり、長距離依存は勾配消失・表現の上書きで薄れる。畳み込みは局所窓しか見ない。Transformer 系の答えは、<strong>各層で全位置ペアの類似度を再計算する自己注意</strong>だ——ただしその「全」も、実際には有限長の窓と、デコーダでは未来を見ない因果マスクの中での「全」である。無限記憶への扉はここにはない。</p>
+<h2 id="窓のどこからでも借りられなければならない">窓のどこからでも借りられなければならない</h2>
+<p>次トークン予測は各位置に分布を出させるが、<strong>トークン3の情報をトークン30へどう届けるか</strong>は、それ自体では言わない。初期の系列モデルは接頭辞全体を固定サイズの再帰状態に一歩ずつ押し込んだ——局所構文には有用だが、始めの指示や固有名が末尾の語を支配しなければならないときに脆い。畳み込みや固定幅窓はもっと悪い——カーネル外は単に届かない。失敗は構造的だ。<strong>固定局所特徴と脆い逐次状態では、早い指示を遅い語へルーティングできない。</strong> 必要なのは、各位置が接頭辞全体を読み直し、どれだけ各早いベクトルから借りるかを微分可能な重みで決める機構。</p>
+<h3 id="クエリキー類似度">クエリ–キー類似度</h3>
+<p>問題を「何を探しているか？」と「各隣が何を提供するか？」に分ける。位置 <code>i</code> でモデルは現在の埋め込みから<strong>クエリ</strong>ベクトル <code>q_i</code> を形成する。文脈内の各位置 <code>j</code>（<code>i</code> 自身を含む）は<strong>キー</strong>ベクトル <code>k_j</code> を公開する。スカラースコアは内積 <code>q_i · k_j</code>——二ベクトルの方向が揃えば大きく、揃わなければ小さい。直観的には、クエリがソフトな問い（「この構文役割に合うのは？」「主語はどこで導入された？」）を投げ、各キーがそのトークンが関連しうるかを広告する。これらのスコアは離散検索ではない——<strong>注意はソフトな混合であり、硬い事実ポインタではない。</strong> 単一キーが独裁的に「勝つ」わけではない；すべての位置が異なる重みの候補のまま残る。</p>
+<h3 id="ソフトマックス重み">ソフトマックス重み</h3>
+<p>生の内積は広い範囲を取りうるので、各クエリについて位置間に<strong>ソフトマックス重み</strong>を適用する——スコアを指数化し、和で割り、非負で和が一のベクトルを得る。位置 <code>j</code> の重み <code>α_{ij}</code> は「更新の何割をトークン <code>j</code> から借りるか？」への答え。動詞位置のクエリが文主語のキーと揃えば、その主語インデックスに質量が行く。早い指示トークンが後のスロットとパターンを共有すれば、質量は窓を逆方向に流れうる。ソフトマックスの尖りはキー/クエリスケーリングを通じて間接的に学習される；尖った峰は「主にここを聞け」、平坦な峰は「多くを混ぜろ」。重みは各層・各ヘッドで再計算される——「参照先」と永久ラベルされた辺はない。</p>
+<p>デコーダのみの生成モデルでは、位置 <code>i</code> のクエリは <code>j ≤ i</code> にだけ注意する——未来のトークンはまだ存在しない（または見てはいけない）からだ。これが<strong>自己回帰</strong>と<strong>注意</strong>の接合部だ。学習時は正解続きも同時に見えるが、マスクで未来を隠し、各位置で「左だけから次を当てよ」というゲームを保つ。推論時は生成済みトークンだけが左側に増えていく。</p>
+<h3 id="値の混合">値の混合</h3>
+<p>キーは<em>いくら</em>借りるかを決め、<strong>値</strong>ベクトル <code>v_j</code> は<em>何を</em>借りるかを決める。各位置はキーと並行して値ベクトルを持つ。位置 <code>i</code> の更新表現は<strong>値の混合</strong>：<code>Σ_j α_{ij} v_j</code>、文脈窓からの値ベクトルの加重平均。この<strong>自己注意ミックス</strong>の後、位置 <code>i</code> のベクトルは接頭辞全体から再構成され、直近隣か圧縮メモリセルだけからではない。層を積むとレシピが繰り返される——<strong>層を積むことはミキサーを積むこと；一ヘッドは知識グラフではない。</strong> 深さは逐次再混合パスを加え、ポインタ付きの事実棚を加えるのではない。</p>
+<p>実装では「ヘッド」が並列に複数走り、各ヘッドが異なる種類の類似度（構文、共起、長距離依存の近似など）を学習しうる。それでも各ヘッドの出力は値の混合であり、データベースのキー <code>paper_id=12345</code> への硬い参照ではない。<strong>捏造引用</strong>が起きうる理由の一つがここにある——Bibliography 方言のトークン列は混合で再構成される「もっともらしい平均」として出うるが、外部の文献レコードへのポインタではない。</p>
+<h3 id="再構成三位置を手計算">再構成：三位置を手計算</h3>
+<p>三トークン——<code>&quot;It&quot;</code> <code>&quot; sat&quot;</code> <code>&quot; quietly&quot;</code> の ID——と、簡略化した2次元値ベクトル：</p>
+<div class="table-wrap"><table><thead><tr><th>位置</th><th>トークン</th><th>値ベクトル v</th></tr></thead><tbody><tr><td>0</td><td>It</td><td>[1.0, 0.0]</td></tr><tr><td>1</td><td>sat</td><td>[0.0, 1.0]</td></tr><tr><td>2</td><td>quietly</td><td>[1.0, 1.0]</td></tr></tbody></table></div>
+<p>位置2（<code>quietly</code>）のクエリが位置0–2にソフトマックス重み <code>[0.1, 0.2, 0.7]</code> を与えたとする。位置2の新ベクトルは：</p>
 <pre><code>0.1 · [1,0] + 0.2 · [0,1] + 0.7 · [1,1]
 = [0.1, 0.0] + [0.0, 0.2] + [0.7, 0.7]
 = [0.8, 0.9]</code></pre>
-<p>The output is neither any single input row nor a hard copy of position 0—it is a <strong>similarity-weighted average</strong> determined by query-key alignment. Vaswani et al. introduced this parallel mixing block as the core of the Transformer (<a href="https://arxiv.org/abs/1706.03762" rel="noopener">Vaswani et al., 2017</a>); earlier attention over encoder states in seq2seq models showed the same soft routing idea in a narrower form (<a href="https://arxiv.org/abs/1409.0473" rel="noopener">Bahdanau et al., 2014</a>).</p>
-<details class="sim-panel"><summary>Expand simulation — Attention replaces a token&#x27;s representation with a similarity-weighted average of value vectors from the context.</summary><iframe class="sim-frame" src="assets/sims/llm/attention-mix/index.html" title="attention-mix" loading="lazy"></iframe></details>
-<h3 id="exit-proposition">Exit proposition</h3>
-<p>Self-attention rebuilds each position as a similarity-weighted average of value vectors from the context.</p>
-<p>After mixing, the network still holds a distribution over vocabulary ids at the final position—it has not yet committed to a single spoken continuation. Training optimized likelihood; inference must emit one id at a time, append it, and run again. <strong>A scored distribution is not yet a spoken reply</strong>—that gap belongs to the sampling loop in the next chapter.</p>
-<h2 id="speech-is-sampled-one-token-at-a-time">Speech is sampled one token at a time</h2>
-<p>You hit regenerate and the answer returns with different adjectives, a reordered bullet list, maybe a new opening joke—yet the gist often survives. That everyday mystery is not the model “changing its mind” between beliefs. After self-attention mix, each step still only owns a cloud of scores over the vocabulary. Users need a sequence of readable tokens; the machine must turn that cloud into one irreversible choice, then condition on it. Always taking the single highest score makes text dull and repetitive. Drawing uniformly from the whole vocabulary makes gibberish. The forced middle path is structured randomness over the same conditioned scores.</p>
-<h3 id="autoregressive-loop">Autoregressive loop</h3>
-<p>Generation is a loop, not a one-shot paragraph dump. At step <code>t</code> the model receives the prompt plus every token already emitted, runs the stack of mixers, and produces logits for the next position only. One token is chosen; it is appended; the loop repeats until a stop condition. This is the <strong>autoregressive loop</strong> described for decoder-style transformers in <a href="https://arxiv.org/abs/1706.03762" rel="noopener">Attention Is All You Need</a> and used throughout <a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">GPT-2</a>: each new id becomes permanent context for everything that follows. There is no separate “planning module” that commits to a finished essay and then types it; local choices accumulate into global shape—including early mistakes that later tokens must paper over.</p>
-<h3 id="softmax-sampling">Softmax sampling</h3>
-<p>Logits become a <strong>next-token distribution</strong> via softmax: exponentiate, normalize, obtain probabilities that sum to one. <strong>Softmax sampling</strong> draws an id from that distribution (or a truncated variant of it). Argmax is the degenerate case that always picks the mode. Nucleus or top-k methods simply zero out the long tail before sampling; they do not add facts. Reconstruction with a toy vocabulary <code>{the, a, cat, sat}</code> and logits <code>[2.0, 0.5, 1.0, -1.0]</code>:</p>
+<p>出力は単一入力行の硬いコピーでもない——<strong>類似度加重平均</strong>だ。Vaswani らはこの並列混合ブロックを Transformer の核として導入した（<a href="https://arxiv.org/abs/1706.03762" rel="noopener">Vaswani et al., 2017</a>）。seq2seq におけるエンコーダ状態への注意は、より狭い形で同じソフトルーティングの発想を示していた（<a href="https://arxiv.org/abs/1409.0473" rel="noopener">Bahdanau et al., 2014</a>）。</p>
+<p>Transformer が RNN より長距離依存で成功した理由を、層の言葉で言い直す。<strong>固定幅の再帰状態</strong>に早いトークンを押し込む代わりに、各層が窓内全位置から値を借り直す——勾配は注意重みを通じて遠い位置にも流れやすい。ただし計算量は窓長 <code>n</code> に対しおおむね <code>O(n²)</code> だ。だから「無限に読む」ではなく、<strong>有限コンテキスト窓</strong>という物理が製品設計に戻ってくる（第8章）。</p>
+<p>位置0の指示トークン「Answer in JSON only」が、位置400の出力形式に影響しうるのは、この重み付き混合のおかげだ——硬いポインタで JSON スキーマを参照しているのではない。混合後のベクトルが、次トークン分布で <code>{</code> や <code>&quot;key&quot;:</code> に質量を移す。</p>
+<figure class="article-figure"><img src="assets/llm/attention-schematic.svg" alt="" /><figcaption>見るべき構造: 線の太さは借りる量（ソフトマックス重み）。事実への硬いポインタではない。（図: 教育用模式図 / 機構は Vaswani et al., 2017）</figcaption></figure>
+<details class="sim-panel" open><summary>シミュレーションを開く — 自己注意は、トークン表現を文脈内の値ベクトルの類似度つき加重平均で置き換える。</summary><iframe class="sim-frame" src="assets/sims/llm/attention-mix/index.html" title="attention-mix" loading="lazy"></iframe></details>
+<h3 id="出口命題">出口命題</h3>
+<p>自己注意は、各位置を文脈内の値ベクトルの類似度加重平均として再構成する。</p>
+<p>混合の後も、ネットワークは最終位置で語彙 ID 上の分布を保持している——まだ一つの発話続きにコミットしていない。訓練は尤度を最適化した；推論は一度に一 ID を出し、付け足し、再実行しなければならない。<strong>スコア付き分布は、まだ発話された返答ではない</strong>——その隙間は次章のサンプリングループの所属だ。</p>
+<h2 id="発話は1トークンずつサンプリングされる">発話は1トークンずつサンプリングされる</h2>
+<p>再生成を押すと、形容が変わり、箇条書きの順序が入れ替わり、新しい冗談の書き出しが付く——それでも要点はしばしば残る。この日常ミステリーは、信念の間でモデルが「考えを変えた」のではない。自己注意ミックスの後も、各ステップは語彙上のスコアの雲しか持たない。ユーザーは読めるトークン列を要する；機械はその雲を不可逆な一選択に変え、それを条件にしなければならない。常に最高スコアだけ取ると退屈で反復的になる。語彙全体から一様に引くと意味不明な文字列になる。強いる中間道は、同じ条件付きスコア上の構造化されたランダム性だ。</p>
+<p>入口で置いた<strong>再生成の言い回し差</strong>を、ここで最初に名指しする。同じプロンプト、同じ重み、同じ温度でも、各ステップの抽選結果が変われば、形容詞・例示・段落の入り方は揺れる。要点（骨格トークン）が残るのは、条件付き分布の質量が同じモード付近に集中しているからだ。「考えを変えた」のではなく、<strong>同じ分布から別のサンプル経路を辿った</strong>だけと見るべきだ。</p>
+<h3 id="再生成ミステリーの長い再構成">再生成ミステリーの長い再構成</h3>
+<p>同じユーザー質問、同じモデル重み、温度 <code>T=0.7</code> 固定。一回目の生成でトークン列が <code>A, B, C, …, Z</code>、再生成で <code>A, B&#x27;, C, …, Z&#x27;</code> になったとする。<code>A</code> と <code>Z</code> 付近は高確率モード——ほとんどのサンプルで同型。中間の <code>B&#x27;</code> や装飾語は中〜低確率から引かれ、経路が分岐する。ユーザーが「信念が変わった」と感じるのは、<strong>自己回帰サンプリング</strong>が各ステップで独立にサイコロを振っているのに、条件付き分布の峰が安定しているからだ。温度を下げると <code>B&#x27;</code> の揺れは減るが、創造性ではなく<strong>尖り</strong>の調整に過ぎない。事実の有無は logits の inventory に既に書かれている——再生成はその inventory を書き換えない。</p>
+<figure class="article-figure"><img src="assets/llm/autoregressive-loop.svg" alt="" /><figcaption>見るべき構造: 1トークンを選び、文脈に足し、また分布を出す。選ばれたIDは取り消せない。（図: 教育用模式図）</figcaption></figure>
+<h3 id="自己回帰ループ">自己回帰ループ</h3>
+<p>生成はループであり、一発段落ダンプではない。ステップ <code>t</code> でモデルはプロンプトと既に出力したすべてのトークンを受け取り、ミキサーのスタックを走らせ、次位置だけの logits を出す。一トークンが選ばれ、付け足され、ループが繰り返されるまで停止条件まで。これが <a href="https://arxiv.org/abs/1706.03762" rel="noopener">Attention Is All You Need</a> で述べられ、 <a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">GPT-2</a> 全体で使われる<strong>自己回帰ループ</strong>だ——各新 ID は後続すべての永久文脈になる。完成エッセイにコミットしてから打つ「計画モジュール」は別にない；局所選択が大域形状を積み上げ、早い誤りを後のトークンが糊塗しなければならないことも含む。</p>
+<p>停止条件も層の一部だ：特殊な <strong>停止トークンID</strong> がサンプルされたらループ終了、最大長に達したら強制終了。どちらも「答えが完成した」という理解ではなく、実装ルール。だから途中で切れた箇条書きや、余計に続く謝罪文も、分布と停止規則の産物として説明できる。</p>
+<h3 id="ソフトマックスサンプリング">ソフトマックスサンプリング</h3>
+<p>logits はソフトマックスで<strong>次トークン分布</strong>になる——指数化、正規化、和が一の確率。<strong>ソフトマックスサンプリング</strong>（<strong>自己回帰サンプリング</strong>の核心）はその分布から ID を引く（または切り詰め変種）。argmax は常に最頻値を取る退化例。<strong>nucleus（top-p）</strong> や <strong>top-k</strong> は、累積確率または上位 k 個以外をゼロにしてから引く——尾を切るだけで、新しい事実は注入しない。製品 UI の「創造性」スライダーが触るのは、しばしばこの尾の切り方と温度の組み合わせだ。玩具語彙 <code>{the, a, cat, sat}</code>、logits <code>[2.0, 0.5, 1.0, -1.0]</code> での再構成：</p>
 <pre><code>probs ∝ exp(logits)
-≈ [0.54, 0.12, 0.20, 0.03]  (after normalize; numbers illustrative)</code></pre>
-<p>Draw once: you might get <code>the</code>. Draw again from the <em>same</em> vector: you might get <code>cat</code>. Regeneration is re-rolling this dice at every step—not consulting a second world model.</p>
-<h3 id="temperature-sharpness">Temperature sharpness</h3>
-<p>Products expose a control that reshapes the same logits before softmax. Divide logits by temperature <code>T &gt; 0</code>. When <code>T</code> is small, peaks sharpen and the mode dominates. When <code>T</code> rises, the distribution flattens and lower-probability tokens gain mass. That is <strong>temperature sharpness</strong>: a reshape of scores, not a knowledge injector. If the model never assigned probability to a correct rare fact, raising <code>T</code> will not invent a reliable citation—it will only make fluent wrongness more varied.</p>
-<details class="sim-panel"><summary>Expand simulation — Raising temperature flattens the next-token distribution, increasing the chance of lower-probability tokens.</summary><iframe class="sim-frame" src="assets/sims/llm/temperature-sample/index.html" title="temperature-sample" loading="lazy"></iframe></details>
-<p>Worked contrast on two logits <code>[3.0, 1.0]</code>:</p>
-<p>| T | p(token A) | p(token B) |</p>
-<p>|---|------------|------------|</p>
-<p>| 0.5 | ~0.98 | ~0.02 |</p>
-<p>| 1.0 | ~0.88 | ~0.12 |</p>
-<p>| 2.0 | ~0.73 | ~0.27 |</p>
-<p>Same underlying scores; different sharpness; different sample diversity. Everyday regenerate-with-same-gist sits here: high-probability skeleton tokens recur; decorative low-mass tokens jitter.</p>
-<p>Anti-confusion to keep in grain: temperature does not add facts under a “creativity” label. And a sampled token is irreversible context—later steps cannot un-say it without a new generation or an edit outside the loop.</p>
-<h3 id="exit-proposition">Exit proposition</h3>
-<p>Replies are sampled left-to-right; temperature reshapes the same scores rather than adding facts.</p>
-<p>Document continuation still optimizes for plausible web-like text. Users want something that follows instructions and matches rated helpfulness—that is the next pressure, not another sampling trick.</p>
-<h2 id="prompts-become-programs-preferences-reshape-the-policy">Prompts become programs; preferences reshape the policy</h2>
-<p>Autoregressive sampling can continue any prefix—including a half-written blog post, a Python file, or a chat log. That is still document completion. People using chat products want something sharper: show three examples of a format and have the model absorb the pattern; ask for a bulleted plan and get bullets; ask the system to refuse a harmful request and see a refusal style. Those behaviors are not free gifts of softmax. They come from two successive pressures layered on the same engine: making the prompt itself a usable program at scale, then reshaping the policy with human preferences so the default interface feels like an assistant rather than a haunted autocomplete.</p>
-<h3 id="in-context-pattern-completion">In-context pattern completion</h3>
-<p>When the context window contains a task description and a few input–output exemplars, a sufficiently trained model often continues in the demonstrated format—without a gradient update. <a href="https://arxiv.org/abs/2005.14165" rel="noopener">Language Models are Few-Shot Learners (GPT-3)</a> names this regime clearly: the prompt supplies the “program,” and <strong>in-context pattern completion</strong> is still conditioned next-token prediction. Reconstruction (schematic):</p>
-<pre><code>Prompt:
+≈ [0.54, 0.12, 0.20, 0.03]  （正規化後；数値は示意）</code></pre>
+<p>一度引く：<code>the</code> かもしれない。<em>同じ</em>ベクトルから再び引く：<code>cat</code> かもしれない。再生成は各ステップでこのサイコロを振り直すこと——第二の世界モデルに相談することではない。<strong>再生成の言い回し差</strong>はここで回収される：骨格トークンは高確率で繰り返し、装飾的低質量トークンだけが揺れる。</p>
+<h3 id="温度の尖り">温度の尖り</h3>
+<p>製品は softmax の前で同じ logits を形作る制御を露出する。logits を温度 <code>T &gt; 0</code> で割る。<code>T</code> が小さいと峰が尖り、最頻値が支配する。<code>T</code> が上がると分布が平坦になり、低確率トークンに質量が回る。それが<strong>温度の尖り</strong>——スコアの再形作であり、知識注入ではない。モデルが正しい稀な事実に一度も確率を割り当てていなければ、<code>T</code> を上げても信頼できる引用は生まれない——流暢な誤りがより多様になるだけ。</p>
+<details class="sim-panel" open><summary>シミュレーションを開く — 温度を上げると次トークン分布が平坦になり、低確率トークンが選ばれやすくなる。</summary><iframe class="sim-frame" src="assets/sims/llm/temperature-sample/index.html" title="temperature-sample" loading="lazy"></iframe></details>
+<p>二 logits <code>[3.0, 1.0]</code> の対比：</p>
+<div class="table-wrap"><table><thead><tr><th>T</th><th>p(トークンA)</th><th>p(トークンB)</th></tr></thead><tbody><tr><td>0.5</td><td>~0.98</td><td>~0.02</td></tr><tr><td>1.0</td><td>~0.88</td><td>~0.12</td></tr><tr><td>2.0</td><td>~0.73</td><td>~0.27</td></tr></tbody></table></div>
+<p>同じ根底スコア；異なる尖り；異なるサンプル多様性。</p>
+<p><strong>再生成の言い回し差</strong>のミニ再構成：接頭辞「Explain gravity simply」で、最初の生成が「Imagine a trampoline…」、再生成が「Picture a heavy ball…」と始まったとする。トランポリンとボールは、どちらも「簡単な重力説明」接頭辞のあとコーパス上ありそうな比喩トークン——どちらも中〜高確率の尾から引かれうる。一方、「重力はカーブ空間の測地線…」のような専門的続きは、温度が低ければ最初から除外され、要点の骨格（「重力＝質量が引く／時空の曲がり」等）は高確率モードとして残る。ユーザーが感じる「同じ説明、違う例え」は、この層の正常動作だ。</p>
+<p>混同を避ける：<strong>温度は「創造性」ラベルの下で事実を足さない。</strong> サンプルされたトークンは不可逆な文脈——後段は、新しい生成かループ外の編集なしには取り消せない。</p>
+<p>製品の「創造的／正確」トグルを層で翻訳すると：創造的側は、しばしば温度の尖りを下げる（分布を尖らせる）のではなく、<strong>上げる</strong>（平坦化して低確率トークンを許す）か、top-p を広げる。正確側は argmax に近づける——反復は増えるが、捏造引用のリスクは「創造性」より<strong>分布的もっともらしさ</strong>の話として残る。サンプリングをいじっても、存在しない DOI を真実の棚から引いてくるわけではない。</p>
+<h3 id="出口命題">出口命題</h3>
+<p>返答は左から右へサンプリングされる；温度は同じスコアを再形作するだけで、事実を足さない。</p>
+<p>文書続きは依然として Web 風テキストのもっともらしさを最適化する。ユーザーが欲しいのは指示追従と評価された有用性——それは次の圧であり、別のサンプリング技ではない。</p>
+<h2 id="プロンプトがプログラムになり嗜好が方針を形作る">プロンプトがプログラムになり、嗜好が方針を形作る</h2>
+<p>自己回帰サンプリングは任意の接頭辞——半分書いたブログ、Python ファイル、チャットログ——を続けうる。それでも文書完了だ。チャット製品を使う人はもっと鋭いことを欲する：形式の例を三つ見せてパターンを吸収させ、箇条書き計画を頼んで箇条書きを得、有害要求を拒否させて拒否スタイルを見る。それらは softmax の無料ギフトではない。同じエンジンに積まれた二つの連続圧から来る——プロンプト自体をスケールで使えるプログラムにすること、そして人間の嗜好で方針を形作り、既定界面を自動補完ではなく助手に感じさせること。</p>
+<h3 id="文脈内パターン完了">文脈内パターン完了</h3>
+<p>コンテキスト窓にタスク記述と少数の入出力例があると、十分訓練されたモデルはしばしば示された形式で続ける——勾配更新なしに。<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Language Models are Few-Shot Learners (GPT-3)</a> がこのレジームを明示する：プロンプトが「プログラム」を供給し、<strong>文脈内パターン完了</strong>は依然として条件付き次トークン予測だ。再構成（模式）：</p>
+<pre><code>プロンプト:
   translate English to French
   sea otter =&gt; loutre de mer
   cheese =&gt; 
-Model continues with high mass on: fromage</code></pre>
-<p>Nothing in the weight matrices was fine-tuned on that exact triple during the request. The continuation is what the next-token distribution assigns after reading the demonstration tokens. Anti-confusion: this is not “learning without reading the prompt.” The exemplars <em>are</em> the conditioning. Small models often fail the same trick because they never absorbed enough “treat the prompt as a form to complete” statistical patterns during pretraining—not because they lack a separate meta-learning soul.</p>
-<h3 id="instruction-fine-tuning">Instruction fine-tuning</h3>
-<p>Raw pretraining text is full of documents, not of polite Q&amp;A. Even a strong few-shot model can ignore a bare imperative or meander like a scraped webpage. <strong>Instruction fine-tuning</strong> adds a supervised stage: show many <code>(instruction, desired response)</code> pairs and continue next-token prediction on the response side. The part inventory stays small—same architecture, same sampling loop—but the distribution shifts toward “when you see an instruction-shaped prefix, emit assistant-shaped continuations.” This is still likelihood training; it does not install a fact checker. It makes the <em>interface</em> of following instructions more probable.</p>
-<h3 id="preference-shaped-policy">Preference-shaped policy</h3>
-<p>Humans disagree about which of two valid-looking answers is better: clearer, safer, more concise, less sycophantic. <a href="https://arxiv.org/abs/2203.02155" rel="noopener">InstructGPT</a> documents the forced next step: collect comparisons, fit a preference signal, and optimize the generative policy against it (after supervised instruction data). Call the result a <strong>preference-shaped policy</strong>. Product differences in tone, refusal style, and “as an AI…” framing often live here. Anti-confusion locked from the glossary: this is not “aligned to truth.” Preference data rewards what raters prefer under their instructions; fluent falsehoods can still win if they look helpful. Hallucinated citations can survive preference training because local plausibility still scores well unless raters specifically punish it every time.</p>
-<p>Everyday stake, kept at the chapter’s open and now closed as mechanism: when one chat product refuses and another completes, or when “Act as…” changes tone, ask whether the preference-shaped policy and instruction data differ—before inventing a moral module inside the tokenizer.</p>
-<p>| Layer | What it optimizes | What it does not buy |</p>
-<p>|-------|-------------------|----------------------|</p>
-<p>| Pretraining LM | next-token prediction on raw text | Instruction manners |</p>
-<p>| In-context pattern completion | Continuations consistent with prompt demos | Guaranteed task correctness |</p>
-<p>| Instruction fine-tuning | Likely assistant-shaped replies | Truth oracle |</p>
-<p>| Preference-shaped policy | Higher rated replies under rater rules | Grounding / world-state checks |</p>
-<h3 id="exit-proposition">Exit proposition</h3>
-<p>Scale makes prompt patterns usable; preference training reshapes the interface—neither installs a truth oracle.</p>
-<p>Fluent helpful answers can still be false, and the window that holds your instructions remains finite. The next chapter diagnoses those failures by layer instead of by mood.</p>
-<h2 id="when-fluency-lies-name-the-layer">When fluency lies, name the layer</h2>
-<p>The entrance mysteries return with names now. A citation that looks perfect but points nowhere is often <strong>distributional plausibility</strong> succeeding: the model emits token sequences that resemble the bibliography dialect of the web, without an outer check that the paper exists (<a href="https://arxiv.org/abs/2005.14165" rel="noopener">GPT-3</a> and <a href="https://arxiv.org/abs/2203.02155" rel="noopener">InstructGPT</a> both treat untruthful or biased continuations as expected limits of likelihood-plus-preference systems). A huge paste where the first bullet of constraints vanishes is often the <strong>finite context window</strong>: vanilla self-attention mix is quadratic in length (<a href="https://arxiv.org/abs/1706.03762" rel="noopener">Attention Is All You Need</a>), products truncate or compress, and early ids simply never enter the mixer. Diagnosing either failure as a single ghostly “AI mood” wastes agency. Name the layer.</p>
-<h3 id="distributional-plausibility">Distributional plausibility</h3>
-<p>Next-token prediction rewards local fit to training-like text. When the true answer is rare, unknown, or never present in the window, the highest-mass continuations can still be grammatical, confident, and wrong. That is hallucination as <strong>distributional plausibility</strong>—not proof of a deceptive agent with a private world model. Reconstruction: ask for “the 2019 paper by Smith &amp; Lee on underwater basket weaving DOI…” and watch a DOI-shaped string appear. The pieces (year, author pattern, DOI syntax) are high-mass fragments; their conjunction was never verified. Preference-shaped policy can reduce some of these cases when raters punish them, but it does not change the fact that the core loss never required a world-state check.</p>
-<h3 id="finite-context-window">Finite context window</h3>
-<p>Every deployed LM attends over a bounded token list. GPT-3’s public configuration used a 2048-token context (<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Brown et al.</a>); modern products enlarge the budget, yet the budget remains a budget. If your system prompt, retrieved docs, and user paste compete, something drops. Chat UIs that “remember” prior turns are outer systems: summaries, embeddings, databases—not proof that the core mixer holds infinite history. When an early instruction is ignored, inspect truncation and position before accusing disobedience.</p>
-<h3 id="outer-verification-loop">Outer verification loop</h3>
-<p>Truth-tracking is optional infrastructure wrapped <em>around</em> the generative engine: retrieval with citations you open, code execution, unit tests, human review, calculators. Call this the <strong>outer verification loop</strong>. It is not implied by cross-entropy. The pedagogical move is to stop expecting the LM loss to purchase it. If the task is checkable, check outside the prose. If it is not checkable, treat fluency as a draft, not a verdict.</p>
-<p>| Symptom | First layer to interrogate | Weak explanation to reject |</p>
-<p>|---------|----------------------------|----------------------------|</p>
-<p>| Fake citation / invented quote | distributional plausibility | “It wanted to lie” |</p>
-<p>| Early rules ignored in a long paste | finite context window | “It disobeyed” |</p>
-<p>| Wording changes on regenerate | autoregressive sampling | “It changed beliefs” |</p>
-<p>| Sudden refusal / tone shift by product | preference-shaped policy | “The tokenizer learned morals” |</p>
-<p>| Need a correct number or source | outer verification loop | “Higher temperature will find truth” |</p>
-<p>Payoff for the foreshadowed mysteries: invented citations → plausibility without checks; regenerating different wording → sampling (prior chapter); ignored early instructions → finite context / mixing budget.</p>
-<p>You now stand somewhere on the ladder—token ids, next-token prediction, self-attention mix, autoregressive sampling, in-context pattern completion, preference-shaped policy, or outer verification. The close of the article crystallizes judgment rules you can run without reopening the papers.</p>
-<h3 id="exit-proposition">Exit proposition</h3>
-<p>Failures localize to prediction, mixing, sampling, preference, or missing outer checks—not to one “AI mood.”</p>
-<p>What remains is to carry a pocket map: when a new everyday mystery arrives, choose the layer first, then decide whether to re-prompt, shorten context, change sampling, switch products, or verify outside the model.</p>
-<h2 id="carry-a-pocket-map-not-a-vibe">Carry a pocket map, not a vibe</h2>
-<p>You do not need to recite paper titles to keep agency. You need a map of layers and a habit of asking which layer failed before you negotiate with a ghost.</p>
-<h3 id="judgment-rules">Judgment rules</h3>
-<ol><li><strong>Fluent but checkably false</strong> → interrogate distributional plausibility first. The loss rewarded locally typical text; it did not require a world-state check. Open the citation, run the code, ask for a source you can click.</li><li><strong>Early instructions vanish in a long paste</strong> → interrogate the finite context window and what the product truncated or summarized. Re-place the constraints near the end, shorten, or retrieve—do not only raise temperature.</li><li><strong>Regenerations diverge in wording but share a skeleton</strong> → you are watching autoregressive sampling over the same conditioned distribution. Temperature sharpness changes diversity, not the knowledge inventory.</li><li><strong>Tone, refusals, or “as an AI…” framing differ by product</strong> → ask about preference-shaped policy and instruction data. That is interface shaping, not proof the tokenizer learned morals.</li><li><strong>You need truth, not draft prose</strong> → add an outer verification loop. Retrieval, tools, tests, and humans are not optional manners; they are the missing channel the LM loss never bought.</li></ol>
-<h3 id="when-to-descend-the-ladder">When to descend the ladder</h3>
-<p>Stay high when the task is brainstorming, rephrasing, or exploring formats—in-context pattern completion and preference-shaped chat are enough. Descend when something breakable is at stake: ids and tokenization when weird splits corrupt code; self-attention mix and window length when constraints drift; sampling when outputs are oddly repetitive or chaotic; preference layer when the <em>product</em> behavior shifted; outer verification whenever a claim must survive contact with the world.</p>
-<p>The wrong move is to push harder on the same layer—longer pleading prompts against a truncated window, or “be more creative” against a missing fact.</p>
-<h3 id="life-placement">Life placement</h3>
-<p>Say aloud which layer you are operating on:</p>
-<ul><li>putting language into <strong>token ids</strong> and <strong>embedding lookup</strong></li><li>training/using <strong>next-token prediction</strong></li><li>routing constraints through <strong>self-attention mix</strong></li><li>emitting text via <strong>autoregressive sampling</strong></li><li>steering with <strong>in-context pattern completion</strong></li><li>meeting a <strong>preference-shaped policy</strong></li><li>checking with an <strong>outer verification loop</strong></li></ul>
-<p>If you cannot name the layer, you are back in vibe territory—and that is exactly when fluent systems reclaim your agency.</p>
-<h3 id="the-chain-in-one-breath">The chain in one breath</h3>
-<p>Discrete text becomes token ids and vectors; next-token prediction supplies the pressure; self-attention mix lets every position borrow from a finite window; sampling turns scores into irreversible speech; scale makes prompts act like programs; preference training reshapes the assistant interface; none of that installs truth—so you verify outside when it matters.</p>
-<p>That is the mental model. Use it the next time a citation looks perfect, a regenerate feels like a new opinion, or an early rule quietly disappears from a long paste.</p>
+モデルは高い質量で続ける: fromage</code></pre>
+<p>重み行列はリクエスト中にその正確な三つで微調整されたわけではない。続きは、デモトークンを読んだ後の次トークン分布が割り当てるもの。混同しない：<strong>プロンプトを読まずに学習</strong>ではない。例そのものが条件づけだ。小モデルが同じ手品に失敗するのは、別のメタ学習魂がないからではなく、事前訓練中に「プロンプトを埋める形式として扱え」という統計パターンを十分吸収していないから、ということが多い。</p>
+<p>実務での含意：few-shot 例は「教えたつもり」でも、モデル側は<strong>文脈内パターン完了</strong>として読む。例の書式（区切り記号、ラベル語、改行）が訓練分布とズレると、例を増やしても形式が崩れる。勾配更新なしに「学習した」ように見える振る舞いは、すべて条件付き次トークン予測の読み取りに還元できる。</p>
+<h3 id="指示微調整">指示微調整</h3>
+<p>生の事前訓練テキストは文書だらけで、丁寧な Q&amp;A ではない。強力な few-shot モデルでも、裸の命令形を無視したり、スクレイプページのように脱線したりする。<strong>指示微調整</strong>は教師あり段階を加える——多くの <code>(指示, 望ましい応答)</code> ペアを見せ、応答側で次トークン予測を続ける。部品表は小さい——同じ架構、同じサンプリングループ——だが分布は「指示形接頭辞を見たら助手形続きを出せ」方向へ移る。依然として尤度訓練；事実チェッカーは載らない。<em>界面</em>——指示追従——をよりありそうにする。</p>
+<p>ここでも損失は「正しい答え」ではなく「データセットに書かれた助手形の続き」だ。教師データに誤情報が含まれれば、指示微調整はそれも再現しうる。拒否文のテンプレート、箇条書きの癖、過度な丁寧さ——これらは<strong>助手方言</strong>の尤度最大化であり、倫理推論モジュールのインストールではない。</p>
+<h3 id="嗜好つき方針">嗜好つき方針</h3>
+<p>人間は二つのありそうな答えのどちらが良いか——より明確、より安全、より簡潔、よりへつらわない——で食い違う。<a href="https://arxiv.org/abs/2203.02155" rel="noopener">InstructGPT</a> が次の強制段階を記録する：比較を集め、嗜好信号を当てはめ、（指示データの後）生成方針をそれに対して最適化する。結果を<strong>嗜好つき方針</strong>と呼ぶ。製品間の口調、拒否スタイル、「AI として…」枠組みの差の多くはここに住む。用語集からの混同禁止：<strong>真実への整合</strong>ではない。嗜好データは評価者の指示下で評価者が好むものを報酬する；流暢な虚偽は、役に立って見えれば依然勝ちうる。<strong>捏造引用</strong>は、評価者が毎回明示的に罰しない限り、局所もっともらしさで依然高得点になりうる——嗜好訓練は口調を変えても、コア損失が世界状態チェックを要求していない事実は変えない。</p>
+<p>InstructGPT パイプラインを層で読むと： (1) 事前訓練 LM＝次トークン予測、(2) 指示微調整＝助手形続きの尤度、(3) 比較データからの報酬モデル＝人間が好む並び、(4) PPO 等で方針更新＝<strong>嗜好つき方針</strong>。どの段階も「この文が事実か」を直接ラベルしない限り、引用の真偽は自動では買えない。製品が「安全」に感じるのは、拒否続きや慎重な言い回しが報酬されやすいから、という説明の方が、トークナイザ内蔵の良心説より層に沿う。</p>
+<p>日常の利害——一製品は拒否し別は完了する、「Act as…」で口調が変わる——は、トークナイザ内の道徳モジュールを発明する前に、嗜好つき方針と指示データが違うかを問うべきだ。</p>
+<p>Brown らの GPT-3 論文は、スケールが文脈内パターンを実用域に押し上げうることを示した（<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Brown et al., 2020</a>）。Ouyang らの InstructGPT は、その上に指示データと RLHF 的嗜好最適化を載せ、チャット製品の「助手感」を形作った（<a href="https://arxiv.org/abs/2203.02155" rel="noopener">Ouyang et al., 2022</a>）。どちらも、コアの次トークン予測から離れない——変わるのは接頭辞の分布と、好まれる続きの分布だ。</p>
+<div class="table-wrap"><table><thead><tr><th>層</th><th>最適化するもの</th><th>買えないもの</th></tr></thead><tbody><tr><td>事前訓練 LM</td><td>生テキスト上の次トークン予測</td><td>指示マナー</td></tr><tr><td>文脈内パターン完了</td><td>プロンプト例と整合する続き</td><td>タスク正解の保証</td></tr><tr><td>指示微調整</td><td>助手形応答の尤度</td><td>真実オラクル</td></tr><tr><td>嗜好つき方針</td><td>評価者ルール下の高評価応答</td><td>グラウンディング / 世界状態チェック</td></tr></tbody></table></div>
+<p>GPT-3 論文が示した「スケール＋文脈内例」だけでは、チャット製品の体験には足りない——ユーザーは単発の few-shot カードではなく、毎回の指示と安全基準を期待する。指示微調整と InstructGPT 系の嗜好最適化は、そのギャップを埋める製品層だ（<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Brown et al., 2020</a>；<a href="https://arxiv.org/abs/2203.02155" rel="noopener">Ouyang et al., 2022</a>）。重要なのは、これらが<strong>新しい真理モジュール</strong>ではなく、<strong>続きの分布を再形作する</strong>パイプラインだと見ること。アーキテクチャ図に「RLHF ブロック」と書いてあっても、中身は依然としてトークン列を条件にした次トークン予測（またはそれに等価な方針勾配）である。</p>
+<h3 id="出口命題">出口命題</h3>
+<p>スケールがプロンプトパターンを使えるようにし、嗜好訓練が界面を形作る——どちらも真実オラクルを載せない。</p>
+<p>流暢で役立つ答えは依然として誤りになりうるし、指示を載せる窓は有限のままだ。次章は、気分ではなく層でそれらの失敗を診断する。</p>
+<h2 id="流暢さが嘘をつくとき層に名前を付ける">流暢さが嘘をつくとき、層に名前を付ける</h2>
+<p>入口のミステリーが、今や名前を持って戻る。完璧に見えるが存在しない引用は、しばしば<strong>分布的もっともらしさ</strong>の成功だ——モデルは Web の参考文献方言に似たトークン列を出すが、論文が存在するかの外側チェックはない（<a href="https://arxiv.org/abs/2005.14165" rel="noopener">GPT-3</a> も <a href="https://arxiv.org/abs/2203.02155" rel="noopener">InstructGPT</a> も、尤度＋嗜好システムの予想される限界として不真実・偏った続きを扱う）。巨大貼付で制約の最初の箇条書きが消えるのは、しばしば<strong>有限コンテキスト窓</strong>——素朴な自己注意ミックスは長さに対し二次（<a href="https://arxiv.org/abs/1706.03762" rel="noopener">Attention Is All You Need</a>）、製品は切り詰めや圧縮を行い、早い ID は単にミキサに入らない。<strong>長い貼付で先頭指示が消える</strong>ミステリーはここで回収する。どちらも単一の幽霊的「AI の気分」として診断すれば能動性を無駄にする。層に名前を付けよ。</p>
+<h3 id="捏造引用の長い再構成">捏造引用の長い再構成</h3>
+<p>ユーザー：「Smith (2019) の underwater basket weaving の DOI を教えて」と入力。モデルは <code><a href="https://arxiv.org/abs/2203.02155" rel="noopener">著者名トークン列] + (2019) + [ジャーナル風語彙] + doi.org/10.xxxx/yyyy</code> のような続きに高い尤度を置きうる——Web 上の参考文献段落で何度も見たパターンだから。各断片は「もっともらしい」；<strong>結合の真偽</strong>は損失に登場しない。ユーザーが DOI をクリックできないまま信じるのは、外側の検証ループを省略した結果だ。InstructGPT 系でも、評価者が「捏造引用」を体系的に低評価しない限り、同型の失敗は残りうる（[Ouyang et al., 2022</a>）。</p>
+<h3 id="長い貼付の長い再構成">長い貼付の長い再構成</h3>
+<p>システムプロンプト 500 トークン、マニュアル抜粋 8000 トークン、ユーザー質問 200 トークン——合計が製品上限 8192 を超えれば、<strong>何かが切り落とされる</strong>。切り方は製品依存（先頭優先、末尾優先、要約）だが、切られたトークンは自己注意ミックスに入らない。先頭に書いた「JSON のみ返せ」は、末尾の質問と長い文書に押し出され、実効文脈から消えた——<strong>不服従</strong>ではなく<strong>不在</strong>。対策は層に沿う：制約の繰り返し、文書の要約、検索で関連部分だけを窓に載せる。</p>
+<figure class="article-figure"><img src="assets/llm/layer-map.svg" alt="" /><figcaption>見るべき構造: 症状ごとに疑う層が違う。『AIの気分』一枚岩で説明しない。（図: 教育用模式図）</figcaption></figure>
+<h3 id="分布的もっともらしさ">分布的もっともらしさ</h3>
+<p>次トークン予測は訓練風テキストへの局所適合を報酬する。真の答えが稀・未知・窓にないとき、最高質量の続きは文法的で自信ありげで、それでも誤りうる。それが<strong>分布的もっともらしさ</strong>としての幻覚——私的な世界モデルを持つ欺く主体の証拠ではない。再構成：「Smith &amp; Lee の2019年水中かご編み DOI…」を頼み、DOI 形の文字列が現れるのを見よ。断片（年、著者パターン、DOI 構文）は高質量；その結合は検証されなかった。<strong>捏造引用</strong>は、この層の典型症状だ。</p>
+<p>もう一つの典型：数値集計。モデルはスプレッドシートを持たず、トークン列だけを見る。「Q1–Q4 の合計」でも、桁の足し算は<strong>外側の検証ループ</strong>（Python、Excel）向きで、次トークン予測だけでは信頼できない。それでも報告書風の数字列は、分布的もっともらしさで出やすい——だから「Excel で再計算せよ」は贅沢ではなく層の設計に沿った要求だ。</p>
+<h3 id="有限コンテキスト窓">有限コンテキスト窓</h3>
+<p>展開中の LM はすべて境界付きトークンリストに注意する。GPT-3 の公開構成は2048トークン文脈（<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Brown et al.</a>）；現代製品は予算を拡大するが、予算は予算のまま。システムプロンプト、検索ドキュメント、ユーザー貼付が競合すれば、何かが落ちる。以前のターンを「覚える」チャット UI は外側システム——要約、埋め込み、データベース——の話であり、コアミキサが無限履歴を保持する証拠ではない。早い指示が無視されたら、不服従を疑う前に切り詰めと位置を検査せよ。</p>
+<p>長文貼付の実務テクニック（層の理解として）：重要制約を<strong>末尾にも</strong>繰り返す——自己注意は双方向に見えるが、実装と製品の切り詰めはしばしば<strong>先頭</strong>が落ちやすい。要約・検索で外側から窓を組み立てるのも、有限コンテキスト窓の補償であり、モデル内蔵の無限記憶ではない。RAG（検索拡張生成）を使う場合も、結局ミキサに入るのは有限トークン列だけだ——検索品質と窓配分がボトルネックになる。</p>
+<p>「ロングコンテキスト」と謳う製品を層で読む：窓長 <code>n</code> が増えても、<strong>自己注意が混ぜられるのは有限長の列</strong>という契約は同じ。128K トークンも有限だ。さらに、全ペア注意の計算・メモリコストは <code>n</code> が増えると実装側の制約にぶつかり、近似注意・階層的圧縮・要約キャッシュなどの<strong>外側または準外側</strong>の工夫が入る。それらを「モデルが全部覚えている」と混同しない——覚えているのではなく、<strong>今この forward に入った ID 列だけ</strong>がミキサの入力だ。</p>
+<details class="sim-panel" open><summary>シミュレーションを開く — 自己注意が混ぜられるのは有限長のトークン列だけ。窓から落ちた先頭指示は不在である。</summary><iframe class="sim-frame" src="assets/sims/llm/context-window/index.html" title="context-window" loading="lazy"></iframe></details>
+<h3 id="外側の検証ループ">外側の検証ループ</h3>
+<p>真偽追跡は、生成エンジンの<em>外側</em>に巻く任意インフラだ——開いて確かめる引用付き検索、コード実行、単体テスト、人間レビュー、計算機。これを<strong>外側の検証ループ</strong>と呼ぶ。交差エントロピーから暗示されない。教育上の要点は、LM 損失がそれを買うと期待するのをやめること。タスクが検証可能なら、散文の外で確かめよ。検証不能なら、流暢さを判決ではなく草稿として扱え。</p>
+<p>具体例：数学の最終答えは計算機か筆算で；文献は DOI や Google Scholar で；コードは実行とテストで；医療・法律の判断は資格者と規制ソースで。<strong>外側の検証ループ</strong>は贅沢ではなく、次トークン予測が最初から買わなかった能力の後付け配線だ。</p>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>最初に疑う層</th><th>弱い説明（拒否）</th></tr></thead><tbody><tr><td>偽引用 / 捏造引用</td><td>分布的もっともらしさ</td><td>「わざと嘘をついた」</td></tr><tr><td>長い貼付で早いルール消失</td><td>有限コンテキスト窓</td><td>「不服従した」</td></tr><tr><td>再生成で言い回しだけ変化</td><td>自己回帰サンプリング</td><td>「考えを変えた」</td></tr><tr><td>製品ごとの拒否 / 口調シフト</td><td>嗜好つき方針</td><td>「トークナイザが道徳を学んだ」</td></tr><tr><td>正しい数値や出典が必要</td><td>外側の検証ループ</td><td>「温度を上げれば真実が見つかる」</td></tr></tbody></table></div>
+<p>予告ミステリーの回収：<strong>捏造引用</strong> → チェックなしのもっともらしさ；<strong>再生成の言い回し差</strong> → サンプリング（前章）；<strong>先頭指示無視</strong> → 有限コンテキスト / 混合予算。</p>
+<p>診断の順序にも癖をつけよ。まず「検証可能か？」——可能なら外側の検証ループ。次に「制約は窓に入っているか？」——長い貼付なら有限コンテキスト窓。次に「骨格は同じで言葉だけ違うか？」——再生成なら自己回帰サンプリング。最後に「口調・拒否だけが違うか？」——嗜好つき方針。どの段階でも、最初に「わざと嘘をついた」と決めつけない——それは層地図を捨てるショートカットだ。</p>
+<p>梯子の上に立っている——トークンID、次トークン予測、自己注意ミックス、自己回帰サンプリング、文脈内パターン完了、嗜好つき方針、または外側の検証。記事の締めは、論文を開き直さず走れる判断規則を結晶化する。</p>
+<h3 id="出口命題">出口命題</h3>
+<p>失敗は予測・混合・サンプリング・嗜好・欠けた外側チェックに局所化される——単一の「AI の気分」ではない。</p>
+<p>残るのは、新しい日常ミステリーが来たとき、まず層を選び、再プロンプト・文脈短縮・サンプリング変更・製品切替・モデル外検証のどれをするか決めるポケットマップを持ち帰ることだ。</p>
+<h2 id="雰囲気ではなくポケットマップを持ち帰る">雰囲気ではなくポケットマップを持ち帰る</h2>
+<p>論文タイトルを暗唱する必要はない。能動性を保つのに必要なのは、層の地図と、幽霊と交渉する前にどの層が失敗したかを問う習慣だ。</p>
+<h3 id="判断規則">判断規則</h3>
+<ol><li><strong>流暢だが検証可能なら誤り</strong> → まず分布的もっともらしさを疑え。損失は局所的典型テキストを報酬した；世界状態チェックは要求しなかった。引用を開け、コードを走らせ、クリックできる出典を求めよ。</li><li><strong>長い貼付で早い指示が消える</strong> → 有限コンテキスト窓と、製品が切り詰めた・要約したものを疑え。制約を末尾近くに置き直し、短くし、検索せよ——温度だけ上げるな。</li><li><strong>再生成で言い回しは散るが骨格は同じ</strong> → 同じ条件付き分布上の自己回帰サンプリングを見ている。温度の尖りは多様性を変える；知識在庫は変えない。</li><li><strong>口調・拒否・「AI として…」枠が製品で違う</strong> → 嗜好つき方針と指示データを問え。界面の形成であり、トークナイザが道徳を学んだ証拠ではない。</li><li><strong>真実が要る、草稿の散文ではない</strong> → 外側の検証ループを足せ。検索・ツール・テスト・人間はマナーではなく、LM 損失が買わなかった欠けたチャネルだ。</li></ol>
+<p>#### 判断規則を物語で試す</p>
+<p><strong>ケース1（捏造引用）：</strong> レポート用に「2018年 Nature の CRISPR 論文を三つ」と頼み、完璧な著者リストと DOI が返った。層：まず外側の検証ループ（DOI 解決）。ダメなら分布的もっともらしさ——損失は Nature 風の続きを報酬しただけ。再プロンプトで「存在確認済みのみ」は、嗜好つき方針が拒否を学んでいれば効きうるが、保証ではない。</p>
+<p><strong>ケース2（再生成）：</strong> 同じメール下書きを二回生成し、件名は同じ、本文の挨拶だけ変わった。層：自己回帰サンプリング＋温度の尖り。信念更新説は捨てる。</p>
+<p><strong>ケース3（長い貼付）：</strong> 80ページ PDF 全文と「第3章だけ要約せよ」——要約が第5章寄り。層：有限コンテキスト窓。先頭の章番号指示が窓から落ちたか、注意予算が後半に偏ったかを疑う。対策：章だけ抽出してから投入。</p>
+<h3 id="いつ梯子を降りるか">いつ梯子を降りるか</h3>
+<p>ブレスト、言い換え、形式探索なら高所に留まれ——文脈内パターン完了と嗜好つきチャットで足りる。壊れたら困ることが賭けられているとき降りよ：コードが変な分割で壊れるなら ID とトークン化；制約がずれるなら自己注意ミックスと窓長；出力が反復的かカオスならサンプリング；<em>製品</em>挙動が変わったなら嗜好層；主張が世界と接触して生き残る必要があるならいつでも外側検証。</p>
+<p>間違った手は同じ層を強く押すこと——切り詰め窓に長い懇願プロンプト、欠けた事実に「もっと創造的に」。</p>
+<h3 id="生活への配置">生活への配置</h3>
+<p>声に出して、どの層で操作しているか言え：</p>
+<ul><li>言語を <strong>トークンID</strong> と <strong>埋め込み参照</strong> に入れている</li><li><strong>次トークン予測</strong>を訓練／利用している</li><li><strong>自己注意ミックス</strong>で制約をルーティングしている</li><li><strong>自己回帰サンプリング</strong>でテキストを出している</li><li><strong>文脈内パターン完了</strong>で操縦している</li><li><strong>嗜好つき方針</strong>に出会っている</li><li><strong>外側の検証ループ</strong>で確かめている</li></ul>
+<p>層に名前が付けられなければ、雰囲気領域に戻っている——流暢なシステムが能動性を取り戻すのはまさにそのときだ。</p>
+<p><strong>場面別の短いドリル：</strong> 論文引用を求められた → まず外側の検証ループ、次に分布的もっともらしさ。同じプロンプトで二回目が違う → 自己回帰サンプリングと温度の尖り。100ページ PDF を貼ってルール無視 → 有限コンテキスト窓と先頭指示の再配置。製品 A は拒否・製品 B は答える → 嗜好つき方針。コードが一文字違いで壊れる → トークンID 分割の確認。</p>
+<p>週次で一つでよい：<strong>今週触った LLM 出力の失敗例を一つ選び、声に出して層名を三つまで付ける。</strong> 習慣ができると、記事のポケットマップは暗記ではなく反射になる。失敗例がなければ、意図的に再生成を三回押し、言い回し差を観察する——それだけで第6章の教訓が体に入る。</p>
+<h3 id="一息でたどる連鎖">一息でたどる連鎖</h3>
+<p>離散テキストはトークンID とベクトルになる；次トークン予測が圧を供給する；自己注意ミックスが各位置を有限窓から借りさせる；サンプリングがスコアを不可逆な発話に変える；スケールがプロンプトをプログラムのように働かせる；嗜好訓練が助手界面を形作る；それらのどれも真実を載せない——だから重要なときは外側で検証する。</p>
+<p>それがメンタルモデルだ。引用が完璧に見え、再生成が新しい意見のように感じ、早いルールが長い貼付から静かに消える——次にそうなったとき、それを使え。あなたの仕事は、モデルの「魂」を探すことではなく、<strong>今どの層で何が保証されていないか</strong>を宣言し、保証が要るところに外側の検証を差し込むことだ。</p>
+<p>---</p>
+<p><strong>この記事で触れた主要文献（リンクは本文中にも出現）：</strong> <a href="https://arxiv.org/abs/1409.0473" rel="noopener">Bahdanau et al., 2014</a>（系列注意付き翻訳）；<a href="https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf" rel="noopener">Bengio et al., 2003</a>（ニューラル言語モデル）；<a href="https://arxiv.org/abs/1706.03762" rel="noopener">Vaswani et al., 2017</a>（Transformer）；<a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" rel="noopener">Radford et al., 2019</a>（GPT-2）；<a href="https://arxiv.org/abs/2005.14165" rel="noopener">Brown et al., 2020</a>（GPT-3）；<a href="https://arxiv.org/abs/2203.02155" rel="noopener">Ouyang et al., 2022</a>（InstructGPT）。いずれも、次トークン予測を中心に据えた設計と限界を読む入口として機能する。論文を開くときの問いは一つでよい：<strong>この結果は、どの層（トークンID、次トークン予測、自己注意ミックス、サンプリング、文脈内パターン完了、嗜好つき方針、外側検証）の話として書かれているか？</strong></p>
+<p>最後に、入口の三ミステリーを出口で一行ずつ回収する。<strong>捏造引用</strong>＝分布的もっともらしさ＋外側検証ループの欠如。<strong>再生成の言い回し差</strong>＝同一条件付き分布上の自己回帰サンプリング。<strong>長い貼付で先頭指示が消える</strong>＝有限コンテキスト窓による不在。これらを一つの「AI 気分」に畳まない限り、あなたはプロンプト・製品・検証のどこを触るべきか選べる——それがこのツアーの契約の完遂だ。第一原理から組み立てた以上、暗記ではなく<strong>層に降りる習慣</strong>が唯一の持ち帰りになる。次に LLM 出力に違和感を覚えたら、まず幽霊ではなく層を疑え。トークンID、次トークン予測、自己注意ミックス、自己回帰サンプリング、文脈内パターン完了、嗜好つき方針、外側の検証ループ——この七つの名前が、雰囲気を地図に変える。それが「LLM, from First Principles」の約束だ——魔法でも詐欺でもなく、制約の連鎖として読めること。能動性は、その連鎖を口に出せるかどうかから始まる。</p>
       </article>
 
     </main>
-    <aside class="toc" aria-label="Table of contents">
-      <p class="toc-label">Contents</p>
+    <aside class="toc" aria-label="目次">
+      <p class="toc-label">目次</p>
       <ol>
-<li><a href="#what-this-tour-will-and-will-not-do">What this tour will and will not do</a></li>
-<li><a href="#the-path-of-problems">The path of problems</a></li>
-<li><a href="#language-has-to-become-numbers-first">Language has to become numbers first</a></li>
-<li><a href="#the-pressure-is-what-token-comes-next">The pressure is &quot;what token comes next?&quot;</a></li>
-<li><a href="#every-position-must-borrow-from-the-whole-window">Every position must borrow from the whole window</a></li>
-<li><a href="#speech-is-sampled-one-token-at-a-time">Speech is sampled one token at a time</a></li>
-<li><a href="#prompts-become-programs-preferences-reshape-the-policy">Prompts become programs; preferences reshape the policy</a></li>
-<li><a href="#when-fluency-lies-name-the-layer">When fluency lies, name the layer</a></li>
-<li><a href="#carry-a-pocket-map-not-a-vibe">Carry a pocket map, not a vibe</a></li>
+<li><a href="#このツアーでやること-やらないこと">このツアーでやること / やらないこと</a></li>
+<li><a href="#理解の道筋問題の列">理解の道筋（問題の列）</a></li>
+<li><a href="#まず言語を数にしなければならない">まず言語を数にしなければならない</a></li>
+<li><a href="#圧力は次のトークンは何か">圧力は「次のトークンは何か？」</a></li>
+<li><a href="#窓のどこからでも借りられなければならない">窓のどこからでも借りられなければならない</a></li>
+<li><a href="#発話は1トークンずつサンプリングされる">発話は1トークンずつサンプリングされる</a></li>
+<li><a href="#プロンプトがプログラムになり嗜好が方針を形作る">プロンプトがプログラムになり、嗜好が方針を形作る</a></li>
+<li><a href="#流暢さが嘘をつくとき層に名前を付ける">流暢さが嘘をつくとき、層に名前を付ける</a></li>
+<li><a href="#雰囲気ではなくポケットマップを持ち帰る">雰囲気ではなくポケットマップを持ち帰る</a></li>
       </ol>
     </aside>
   </div>

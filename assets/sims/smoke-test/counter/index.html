@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulation</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>Claim:</strong> <!-- hard_claim --></p>
+    <div class="panel" id="stage"><!-- interactive surface --></div>
+    <div class="sim-row">
+      <button type="button" class="primary" id="act">Act</button>
+      <button type="button" id="reset">Reset</button>
+    </div>
+    <p class="hint">Educational toy — encodes one contrast, not a full product.</p>
+  </div>
+  <script>
+    const stage = document.getElementById("stage");
+    document.getElementById("act").onclick = () => {
+      stage.classList.toggle("lit");
+    };
+    document.getElementById("reset").onclick = () => {
+      stage.classList.remove("lit");
+    };
+  </script>
+</body>
+</html>
