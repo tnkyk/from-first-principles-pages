@@ -1,0 +1,89 @@
+:root {
+  --page: #151716;
+  --ink: #f2f3f0;
+  --ink-dim: #c2c3bf;
+  --ink-faint: #a9aaa5;
+  --ink-line: #393b38;
+  --ink-hover: #f2f3f014;
+  --accent: #35d0bb;
+  --accent-soft: #35d0bb29;
+  --code-bg: #1e201e;
+  --font-serif: "Lora", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --measure: 40rem;
+  --measure-wide: 56rem;
+  --radius: 4px;
+}
+
+
+
+html, body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+.sim {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.sim-claim {
+  color: var(--ink-dim);
+  font-size: 12px;
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
+}
+
+.sim-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+button, .btn {
+  appearance: none;
+  border: 1px solid var(--ink-line);
+  background: var(--ink-hover);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover, .btn:hover {
+  border-color: var(--ink-faint);
+}
+
+button.primary {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.panel {
+  border: 1px solid var(--ink-line);
+  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+  background: var(--page);
+}
+
+.lit {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.hint {
+  color: var(--ink-faint);
+  font-size: 12px;
+  margin-top: 0.5rem;
+}

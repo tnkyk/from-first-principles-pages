@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Temperature sample</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .row { display: flex; gap: 0.75rem; align-items: flex-end; height: 120px; margin-top: 0.5rem; }
+    .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; height: 100%; justify-content: flex-end; }
+    .col .stem { width: 100%; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 2px; }
+    .col span { font-family: var(--font-mono); font-size: 11px; color: var(--ink-dim); }
+    .out { font-family: var(--font-mono); font-size: 12px; color: var(--ink-dim); margin-top: 0.65rem; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>Claim:</strong> Raising temperature flattens the next-token distribution, increasing the chance of lower-probability tokens.</p>
+    <div class="panel" id="stage">
+      <label class="mono" style="color:var(--ink-dim);font-size:12px;">Temperature T = <span id="tlabel">1.00</span></label>
+      <input id="temp" type="range" min="0.2" max="2.5" step="0.05" value="1" style="width:100%;margin-top:0.35rem;" />
+      <div class="row" id="bars"></div>
+      <div class="out" id="out"></div>
+    </div>
+    <div class="sim-row">
+      <button type="button" class="primary" id="act">Sample once</button>
+      <button type="button" id="reset">Reset T=1</button>
+    </div>
+    <p class="hint">Educational toy — encodes one contrast, not a full product. Same logits; only sharpness changes.</p>
+  </div>
+  <script>
+    const labels = ["the", "a", "cat", "sat"];
+    const logits = [2.0, 0.5, 1.0, -1.0];
+    const bars = document.getElementById("bars");
+    const temp = document.getElementById("temp");
+    const tlabel = document.getElementById("tlabel");
+    const out = document.getElementById("out");
+
+    function softmax(T) {
+      const scaled = logits.map((z) => z / T);
+      const m = Math.max(...scaled);
+      const exps = scaled.map((z) => Math.exp(z - m));
+      const s = exps.reduce((a, b) => a + b, 0);
+      return exps.map((e) => e / s);
+    }
+
+    function render() {
+      const T = Number(temp.value);
+      tlabel.textContent = T.toFixed(2);
+      const p = softmax(T);
+      bars.innerHTML = "";
+      p.forEach((pi, i) => {
+        const col = document.createElement("div");
+        col.className = "col";
+        const stem = document.createElement("div");
+        stem.className = "stem";
+        stem.style.height = Math.max(2, pi * 100) + "%";
+        const lab = document.createElement("span");
+        lab.textContent = labels[i];
+        const pct = document.createElement("span");
+        pct.textContent = (pi * 100).toFixed(0) + "%";
+        col.appendChild(stem);
+        col.appendChild(lab);
+        col.appendChild(pct);
+        bars.appendChild(col);
+      });
+      return p;
+    }
+
+    function sample() {
+      const p = render();
+      let r = Math.random();
+      let i = 0;
+      for (; i < p.length; i++) {
+        r -= p[i];
+        if (r <= 0) break;
+      }
+      i = Math.min(i, p.length - 1);
+      out.textContent = "drew “" + labels[i] + "” — lower bars gain mass as T rises; knowledge did not.";
+    }
+
+    document.getElementById("act").onclick = sample;
+    document.getElementById("reset").onclick = () => { temp.value = 1; out.textContent = ""; render(); };
+    temp.addEventListener("input", () => { out.textContent = ""; render(); });
+    render();
+  </script>
+</body>
+</html>
