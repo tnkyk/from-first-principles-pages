@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-label="System composition tree with eight layers">
+  <rect width="900" height="560" fill="#f2f3f0"/>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Map 2 - System composition (dependency, not time)</text>
+  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Teaching name: tree. Reality: recombined DAG. A tech can sit on multiple layers.</text>
+
+  <rect x="320" y="72" width="260" height="44" rx="8" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="370" y="100" fill="#0d7a6c" font-family="Georgia, serif" font-size="16" font-weight="600">LLM system</text>
+  <path d="M450 116 V140" stroke="#0d7a6c" stroke-width="2"/>
+  <path d="M60 140 H840" stroke="#0d7a6c" stroke-width="2"/>
+
+  <g font-family="Georgia, serif" font-size="11">
+    <path d="M100 140 V158" stroke="#a85a2a" stroke-width="2"/>
+    <rect x="40" y="158" width="120" height="96" rx="6" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
+    <text x="52" y="182" fill="#a85a2a" font-weight="600">1 Data</text>
+    <text x="52" y="202" fill="#1a1c1a">web / code</text>
+    <text x="52" y="220" fill="#1a1c1a">synthetic</text>
+    <text x="52" y="238" fill="#1a1c1a">prefs / traces</text>
+
+    <path d="M220 140 V158" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="160" y="158" width="120" height="96" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="172" y="182" fill="#0d7a6c" font-weight="600">2 Learning</text>
+    <text x="172" y="202" fill="#1a1c1a">pretrain</text>
+    <text x="172" y="220" fill="#1a1c1a">SFT / RLHF</text>
+    <text x="172" y="238" fill="#1a1c1a">RLVR</text>
+
+    <path d="M340 140 V158" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="280" y="158" width="120" height="96" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="292" y="182" fill="#0d7a6c" font-weight="600">3 Structure</text>
+    <text x="292" y="202" fill="#1a1c1a">Dense / MoE</text>
+    <text x="292" y="220" fill="#1a1c1a">GQA / MLA</text>
+    <text x="292" y="238" fill="#1a1c1a">multimodal</text>
+
+    <path d="M460 140 V158" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="400" y="158" width="120" height="96" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="412" y="182" fill="#0d7a6c" font-weight="600">4 Inference</text>
+    <text x="412" y="202" fill="#1a1c1a">sampling</text>
+    <text x="412" y="220" fill="#1a1c1a">CoT / TTC</text>
+    <text x="412" y="238" fill="#1a1c1a">search</text>
+
+    <path d="M580 140 V158" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="520" y="158" width="120" height="96" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="532" y="182" fill="#0d7a6c" font-weight="600">5 Serving</text>
+    <text x="532" y="202" fill="#1a1c1a">KV / Flash</text>
+    <text x="532" y="220" fill="#1a1c1a">spec / quant</text>
+    <text x="532" y="238" fill="#1a1c1a">paging</text>
+
+    <path d="M700 140 V158" stroke="#a85a2a" stroke-width="2"/>
+    <rect x="640" y="158" width="120" height="96" rx="6" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
+    <text x="652" y="182" fill="#a85a2a" font-weight="600">6 External</text>
+    <text x="652" y="202" fill="#1a1c1a">RAG / Tool</text>
+    <text x="652" y="220" fill="#1a1c1a">MCP / Mem</text>
+    <text x="652" y="238" fill="#1a1c1a">Agent</text>
+
+    <path d="M820 140 V158" stroke="#a85a2a" stroke-width="2"/>
+    <rect x="760" y="158" width="120" height="96" rx="6" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
+    <text x="772" y="182" fill="#a85a2a" font-weight="600">7 Evaluate</text>
+    <text x="772" y="202" fill="#1a1c1a">bench</text>
+    <text x="772" y="220" fill="#1a1c1a">contam.</text>
+    <text x="772" y="238" fill="#1a1c1a">monitor</text>
+  </g>
+
+  <path d="M450 254 V278" stroke="#393b38" stroke-width="2"/>
+  <rect x="40" y="278" width="840" height="100" rx="8" fill="#fff" stroke="#393b38"/>
+  <text x="60" y="310" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">8 UI / institution / responsibility</text>
+  <text x="60" y="338" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">chat UX · permissions · audit trails · who is liable when generation fails</text>
+  <text x="60" y="360" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Separated from evaluation: scores are not the same as accountability.</text>
+
+  <rect x="40" y="400" width="840" height="120" rx="8" fill="#fff" stroke="#0d7a6c"/>
+  <text x="60" y="430" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">Three tags per technique (not one parent)</text>
+  <g font-family="Georgia, serif" font-size="13" fill="#1a1c1a">
+    <text x="60" y="458">Genealogy: what did it presuppose?</text>
+    <text x="60" y="480">Layer: where does it sit in a product?</text>
+    <text x="60" y="502">Motive: which constraint did it attack?</text>
+  </g>
+  <text x="420" y="458" fill="#4a4c48" font-family="Georgia, serif" font-size="12">GQA example: Transformer lineage /</text>
+  <text x="420" y="480" fill="#4a4c48" font-family="Georgia, serif" font-size="12">structure layer / KV-memory motive</text>
+  <text x="420" y="502" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Jamba: Mamba + Attention + MoE recombine</text>
+
+  <text x="24" y="545" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic. Agent is under External  not a child of Transformer.</text>
+</svg>
