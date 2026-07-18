@@ -271,7 +271,9 @@
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>いまの位置</th><th>備考</th></tr></thead><tbody><tr><td>SFT / Instruction Tuning</td><td><strong>製品チャットのほぼ必須層</strong></td><td>Base をそのまま出す系は研究・一部 API に限定されやすい</td></tr><tr><td>RLHF（RM + RL）</td><td>大規模ラボの標準パイプラインの一つ</td><td>実装コスト高；代替手法と併存</td></tr><tr><td>DPO 等の選好最適化</td><td>オープンウェイト／再現性重視の現場で広く採用</td><td>RLHF の短縮形として使われることが多い</td></tr></tbody></table></div>
 <p><strong>事実:</strong> ユーザーが触る「Chat モデル」の口調・拒否・指示追従の多くは後学習層の産物である。<strong>議論:</strong> 整列が能力を削るか（alignment tax）は下記カードへ——事実保証の話ではない。</p>
 <p>後学習を、同じエンジンに <strong>別の運転マニュアルとペナルティ表を載せた</strong> と捉えると誤解は減る。エンジン（事前学習の予測力）はそのまま、ハンドルとブレーキの感覚（口調・拒否）だけが調整された——それでも道路標識（事実）までは自動では書き換わらない。</p>
-<p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。<strong>第1部はここで終わる。</strong> これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図（Map）</strong> で読む。</p>
+<p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。演習に入る前に、第1部が辿った一本道を<strong>一枚の時間軸</strong>で固定する。横軸は発明の順番。各駅は「何が主流だったか／何が可能になったか／何が問題で次が生まれたか」である。</p>
+<figure class="article-figure"><img src="assets/llm-v3/part1-evolution-timeline.svg" alt="" /><figcaption>見るべき構造: 横軸は時間。各列は主流・可能・問題の三段で、問題欄が次の技術の誕生理由につながる。到達点は後学習を載せた Chat 骨格。 (Source: 教育用模式図; 第1部 C1–C6 の必要性連鎖)</figcaption></figure>
+<p><strong>第1部はここで終わる。</strong> これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図（Map）</strong> で読む。</p>
 <h2 id="演習1-機構の分類第1部のあと">演習1　機構の分類（第1部のあと）</h2>
 <p>知識確認ではない。次の主張を、自分の言葉で三つに分解する。</p>
 <p><strong>主張:</strong> 「LLM は文章の意味を理解しているから、正確な答えを返せる。」</p>

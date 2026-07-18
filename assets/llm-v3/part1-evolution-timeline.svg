@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-label="Part1 evolution timeline">
+  <rect width="1280" height="620" fill="#f2f3f0"/>
+
+  <text x="28" y="34" fill="#1a1c1a" font-family="Georgia, 'Noto Serif JP', serif" font-size="20" font-weight="600">第1部の一本道 — 時間軸で見る主流・可能・問題</text>
+  <text x="28" y="58" fill="#4a4c48" font-family="Georgia, 'Noto Serif JP', serif" font-size="13">横軸は時間（発明の順番）。各駅は「何が主流か／何が可能になったか／何が問題で次が生まれたか」。</text>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif" font-size="12">
+    <rect x="28" y="72" width="14" height="14" rx="2" fill="#fff" stroke="#393b38"/>
+    <text x="48" y="83" fill="#1a1c1a">主流だった形</text>
+    <rect x="168" y="72" width="14" height="14" rx="2" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="188" y="83" fill="#1a1c1a">可能になったこと</text>
+    <rect x="328" y="72" width="14" height="14" rx="2" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="348" y="83" fill="#1a1c1a">残った問題 → 次が生まれる理由</text>
+  </g>
+
+  <line x1="40" y1="118" x2="1240" y2="118" stroke="#0d7a6c" stroke-width="2.5"/>
+  <polygon points="1240,112 1256,118 1240,124" fill="#0d7a6c"/>
+  <text x="40" y="108" fill="#0d7a6c" font-family="Georgia, 'Noto Serif JP', serif" font-size="12" font-weight="600">時間</text>
+  <text x="1188" y="108" fill="#0d7a6c" font-family="Georgia, 'Noto Serif JP', serif" font-size="12">いま</text>
+
+  <g fill="#0d7a6c">
+    <circle cx="120" cy="118" r="5"/>
+    <circle cx="320" cy="118" r="5"/>
+    <circle cx="520" cy="118" r="5"/>
+    <circle cx="720" cy="118" r="5"/>
+    <circle cx="920" cy="118" r="5"/>
+    <circle cx="1120" cy="118" r="5"/>
+  </g>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif">
+    <text x="120" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">n-gram</text>
+    <text x="120" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">数え上げ LM</text>
+    <rect x="30" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="42" y="202" fill="#4a4c48" font-size="11">主流</text>
+    <text x="42" y="222" fill="#1a1c1a" font-size="12">固定長の直前履歴を</text>
+    <text x="42" y="240" fill="#1a1c1a" font-size="12">キーに次語を数える</text>
+    <rect x="30" y="264" width="180" height="88" rx="6" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="42" y="286" fill="#0d7a6c" font-size="11">可能</text>
+    <text x="42" y="306" fill="#1a1c1a" font-size="12">低遅延・解釈容易な</text>
+    <text x="42" y="324" fill="#1a1c1a" font-size="12">次トークン確率</text>
+    <text x="42" y="342" fill="#1a1c1a" font-size="12">（音声認識・補完）</text>
+    <rect x="30" y="364" width="180" height="104" rx="6" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="42" y="386" fill="#a85a2a" font-size="11">問題 → 次へ</text>
+    <text x="42" y="408" fill="#1a1c1a" font-size="12">組み合わせ爆発と疎性</text>
+    <text x="42" y="426" fill="#1a1c1a" font-size="12">未知の並びへ確率が</text>
+    <text x="42" y="444" fill="#1a1c1a" font-size="12">載らない</text>
+  </g>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif">
+    <text x="320" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">Neural LM</text>
+    <text x="320" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">埋め込み</text>
+    <rect x="230" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="242" y="202" fill="#4a4c48" font-size="11">主流</text>
+    <text x="242" y="222" fill="#1a1c1a" font-size="12">語をベクトル化し</text>
+    <text x="242" y="240" fill="#1a1c1a" font-size="12">パラメータを共有</text>
+    <rect x="230" y="264" width="180" height="88" rx="6" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="242" y="286" fill="#0d7a6c" font-size="11">可能</text>
+    <text x="242" y="306" fill="#1a1c1a" font-size="12">疎性の緩和と</text>
+    <text x="242" y="324" fill="#1a1c1a" font-size="12">似た文脈への一般化</text>
+    <text x="242" y="342" fill="#1a1c1a" font-size="12">（見たことない並び）</text>
+    <rect x="230" y="364" width="180" height="104" rx="6" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="242" y="386" fill="#a85a2a" font-size="11">問題 → 次へ</text>
+    <text x="242" y="408" fill="#1a1c1a" font-size="12">固定長窓が残る</text>
+    <text x="242" y="426" fill="#1a1c1a" font-size="12">遠い過去を各位置まで</text>
+    <text x="242" y="444" fill="#1a1c1a" font-size="12">運べない</text>
+  </g>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif">
+    <text x="520" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">RNN / LSTM</text>
+    <text x="520" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">再帰状態</text>
+    <rect x="430" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="442" y="202" fill="#4a4c48" font-size="11">主流</text>
+    <text x="442" y="222" fill="#1a1c1a" font-size="12">隠れ状態で可変長の</text>
+    <text x="442" y="240" fill="#1a1c1a" font-size="12">過去を圧縮して運ぶ</text>
+    <rect x="430" y="264" width="180" height="88" rx="6" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="442" y="286" fill="#0d7a6c" font-size="11">可能</text>
+    <text x="442" y="306" fill="#1a1c1a" font-size="12">理論上は任意長履歴</text>
+    <text x="442" y="324" fill="#1a1c1a" font-size="12">LSTM で長期依存の</text>
+    <text x="442" y="342" fill="#1a1c1a" font-size="12">学習が現実的に</text>
+    <rect x="430" y="364" width="180" height="104" rx="6" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="442" y="386" fill="#a85a2a" font-size="11">問題 → 次へ</text>
+    <text x="442" y="408" fill="#1a1c1a" font-size="12">学習が時間方向に逐次</text>
+    <text x="442" y="426" fill="#1a1c1a" font-size="12">並列しにくい／系列変換</text>
+    <text x="442" y="444" fill="#1a1c1a" font-size="12">では固定長要約が壁</text>
+  </g>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif">
+    <text x="720" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">Seq2Seq＋Attention</text>
+    <text x="720" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">参照の柔軟化</text>
+    <rect x="630" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="642" y="202" fill="#4a4c48" font-size="11">主流</text>
+    <text x="642" y="222" fill="#1a1c1a" font-size="12">Encoder–Decoder で</text>
+    <text x="642" y="240" fill="#1a1c1a" font-size="12">入力位置を都度参照</text>
+    <rect x="630" y="264" width="180" height="88" rx="6" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="642" y="286" fill="#0d7a6c" font-size="11">可能</text>
+    <text x="642" y="306" fill="#1a1c1a" font-size="12">機械翻訳などの</text>
+    <text x="642" y="324" fill="#1a1c1a" font-size="12">系列変換が伸びる</text>
+    <text x="642" y="342" fill="#1a1c1a" font-size="12">固定長ボトルネック緩和</text>
+    <rect x="630" y="364" width="180" height="104" rx="6" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="642" y="386" fill="#a85a2a" font-size="11">問題 → 次へ</text>
+    <text x="642" y="408" fill="#1a1c1a" font-size="12">RNN の逐次性は残る</text>
+    <text x="642" y="426" fill="#1a1c1a" font-size="12">学習時の並列化と</text>
+    <text x="642" y="444" fill="#1a1c1a" font-size="12">長系列効率が未解決</text>
+  </g>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif">
+    <text x="920" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">Transformer</text>
+    <text x="920" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">＋大規模事前学習</text>
+    <rect x="830" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="842" y="202" fill="#4a4c48" font-size="11">主流</text>
+    <text x="842" y="222" fill="#1a1c1a" font-size="12">Self-Attention 骨格で</text>
+    <text x="842" y="240" fill="#1a1c1a" font-size="12">Decoder-only が中心へ</text>
+    <rect x="830" y="264" width="180" height="88" rx="6" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="842" y="286" fill="#0d7a6c" font-size="11">可能</text>
+    <text x="842" y="306" fill="#1a1c1a" font-size="12">学習時の並列化</text>
+    <text x="842" y="324" fill="#1a1c1a" font-size="12">巨大コーパスで多タスク的</text>
+    <text x="842" y="342" fill="#1a1c1a" font-size="12">振る舞い（few-shot 等）</text>
+    <rect x="830" y="364" width="180" height="104" rx="6" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="842" y="386" fill="#a85a2a" font-size="11">問題 → 次へ</text>
+    <text x="842" y="408" fill="#1a1c1a" font-size="12">Base はウェブの続き当て</text>
+    <text x="842" y="426" fill="#1a1c1a" font-size="12">対話契約・意図追従・</text>
+    <text x="842" y="444" fill="#1a1c1a" font-size="12">安全境界は未最適化</text>
+  </g>
+
+  <g font-family="Georgia, 'Noto Serif JP', serif">
+    <text x="1120" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">後学習</text>
+    <text x="1120" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">SFT / RLHF / DPO</text>
+    <rect x="1030" y="180" width="180" height="72" rx="6" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
+    <text x="1042" y="202" fill="#0d7a6c" font-size="11">いまの主流到達点</text>
+    <text x="1042" y="222" fill="#1a1c1a" font-size="12">Chat チェックポイント</text>
+    <text x="1042" y="240" fill="#1a1c1a" font-size="12">として製品の前面に</text>
+    <rect x="1030" y="264" width="180" height="88" rx="6" fill="#e8f7f4" stroke="#0d7a6c"/>
+    <text x="1042" y="286" fill="#0d7a6c" font-size="11">可能</text>
+    <text x="1042" y="306" fill="#1a1c1a" font-size="12">口調・指示追従・</text>
+    <text x="1042" y="324" fill="#1a1c1a" font-size="12">拒否の定型を分布へ</text>
+    <text x="1042" y="342" fill="#1a1c1a" font-size="12">刻める</text>
+    <rect x="1030" y="364" width="180" height="104" rx="6" fill="#fff8f0" stroke="#a85a2a"/>
+    <text x="1042" y="386" fill="#a85a2a" font-size="11">第1部の出口で残る</text>
+    <text x="1042" y="408" fill="#1a1c1a" font-size="12">事実保証・知識更新・</text>
+    <text x="1042" y="426" fill="#1a1c1a" font-size="12">外界操作は別問題</text>
+    <text x="1042" y="444" fill="#1a1c1a" font-size="12">（第2部以降の地図へ）</text>
+  </g>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#a85a2a"/>
+    </marker>
+  </defs>
+  <g stroke="#a85a2a" stroke-width="1.5" fill="none" marker-end="url(#arr)">
+    <path d="M210 416 H226"/>
+    <path d="M410 416 H426"/>
+    <path d="M610 416 H626"/>
+    <path d="M810 416 H826"/>
+    <path d="M1010 416 H1026"/>
+  </g>
+
+  <rect x="28" y="492" width="1224" height="100" rx="8" fill="#fff" stroke="#393b38"/>
+  <text x="44" y="520" fill="#1a1c1a" font-family="Georgia, 'Noto Serif JP', serif" font-size="13" font-weight="600">読み方（第1部のまとめ）</text>
+  <text x="44" y="544" fill="#1a1c1a" font-family="Georgia, 'Noto Serif JP', serif" font-size="12">統計 LM から後学習まで、各段は「前の問題を解くために生まれた」。到達した主流骨格は Decoder-only Transformer ＋ 大規模事前学習 ＋ 後学習。</text>
+  <text x="44" y="566" fill="#4a4c48" font-family="Georgia, 'Noto Serif JP', serif" font-size="12">この先の MoE / FlashAttention / RAG / Agent などは「次の駅」ではなく、系譜の枝かシステム構成の層として読む（第2部）。</text>
+  <text x="44" y="580" fill="#4a4c48" font-family="Georgia, 'Noto Serif JP', serif" font-size="11">Source: 教育用模式図（第1部 C1–C6 の必要性連鎖の要約。年号は省略し発明順を示す）</text>
+</svg>
