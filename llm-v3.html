@@ -264,15 +264,15 @@
 <p>MoE と Agent を同じ親の下に並べると、後者だけ性質が違う。<strong>Agent は Transformer から派生した発明ではなく、Transformer（など）を利用するアプリケーション構成</strong>である。RAG・Tool・MCP・Memory も同様——系譜の子ではなく、構成の外層である。</p>
 <h3 id="tree-①技術史時間">Tree ①：技術史（時間）</h3>
 <p>第1部が辿った一本道は、ここまででよい。</p>
-<figure class="article-figure"><img src="assets/llm-v3/tech-history-tree.svg" alt="" /><figcaption>見るべき構造: 統計 LM から Transformer までは一本道。その先は研究系譜の枝。RAG/Agent はこの木に載せない。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/tech-history-tree-v2.svg" alt="" /><figcaption>見るべき構造: 統計 LM から Transformer までは一本道。その先は研究系譜の枝。RAG/Agent はこの木に載せない。 (Source: 教育用模式図)</figcaption></figure>
 <p>Transformer 以降は「次の駅」ではなく、<strong>動機ラベル付きの枝</strong>で読む。枝名が「なぜその技術が生まれたか」を先に言う。</p>
-<figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches.svg" alt="" /><figcaption>見るべき構造: 巨大化／長文／高速化／推論・整列／置換——枝は改善動機。Agent 等は意図的にこの図の外。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches-v2.svg" alt="" /><figcaption>見るべき構造: 巨大化／長文／高速化／推論・整列／置換——枝は改善動機。Agent 等は意図的にこの図の外。 (Source: 教育用模式図)</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>動機ラベル（枝名）</th><th>そこに載る技術の例</th><th>変えにくい骨格</th></tr></thead><tbody><tr><td>巨大化したい</td><td>Dense、MoE</td><td>Self-Attention＋自己回帰</td></tr><tr><td>長文を扱いたい</td><td>RoPE、YaRN、長文脈、GQA/MLA</td><td>有限窓という制約自体</td></tr><tr><td>推論を速くしたい</td><td>FlashAttention、KV Cache、投機的デコード、量子化</td><td>条件付き分布の意味</td></tr><tr><td>推論・整列を伸ばしたい</td><td>SFT/RLHF/DPO、CoT、TTC、RLVR</td><td>次トークン生成という手続き</td></tr><tr><td>骨格を疑う／置き換える</td><td>Mamba、Hybrid、Diffusion LM</td><td>（ここだけ幹が変わる提案）</td></tr></tbody></table></div>
 <p>展開の一例として、<strong>モデル構造</strong>だけを開くと Dense / MoE の部品棚になる。</p>
 <figure class="article-figure"><img src="assets/llm-v3/model-structure-layer.svg" alt="" /><figcaption>見るべき構造: Transformer の下に Dense / MoE / 位置表現などが並ぶ——系譜上の部品選択。 (Source: 教育用模式図)</figcaption></figure>
 <h3 id="tree-②システム構成時間ではない">Tree ②：システム構成（時間ではない）</h3>
 <p>いまの LLM <strong>製品</strong>を切る木は、年表ではない。技術名を受け取ったときの<strong>置き場</strong>である。</p>
-<figure class="article-figure"><img src="assets/llm-v3/system-composition-tree.svg" alt="" /><figcaption>見るべき構造: LLM システムの構成。Agent は External systems の下——Transformer の子ではない。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/system-composition-tree-v2.svg" alt="" /><figcaption>見るべき構造: LLM システムの構成。Agent は External systems の下——Transformer の子ではない。 (Source: 教育用模式図)</figcaption></figure>
 <figure class="article-figure"><img src="assets/llm-v3/llm-layers-overview.svg" alt="" /><figcaption>見るべき構造: 同じ六層をスタックとして見た図。年表ではなく構成の座標。 (Source: 教育用模式図)</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>層</th><th>そこで起きていること</th><th>例</th></tr></thead><tbody><tr><td>学習方法</td><td>何を目的に重みを更新するか</td><td>次トークン事前学習、SFT、RLHF、DPO、RLVR</td></tr><tr><td>モデル構造</td><td>どの計算グラフで表現を作るか</td><td>Dense Transformer、MoE、位置表現、MLA/GQA</td></tr><tr><td>推論方法</td><td>分布からどうトークン列を組み立てるか</td><td>temperature、CoT、test-time compute</td></tr><tr><td>推論高速化</td><td>同じ答えをより安く速く出すか</td><td>KV Cache、FlashAttention、量子化、投機的デコード</td></tr><tr><td>外部システム</td><td>モデル外の記憶・行為・検証</td><td>RAG、Tool use、MCP、Agent、メモリ</td></tr><tr><td>UI / 制度</td><td>人と組織がどう触り、誰が責任を負うか</td><td>チャット UI、権限、監査、法的責任</td></tr></tbody></table></div>
 <p><strong>事実:</strong> RAG / Tool / Agent はモデル外側の契約である。<strong>誤りやすい絵:</strong> <code>Transformer → MoE → Agent</code>。正しい絵は、系譜では <code>Transformer → MoE</code>、構成では <code>LLM system → External systems → Agent</code> である。</p>
@@ -387,7 +387,7 @@
 <h2 id="置換と併用の枝mambahybrid拡散lm">置換と併用の枝——Mamba・Hybrid・拡散LM</h2>
 <div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>置換／併用の枝（モデル構造の挑戦）</td></tr><tr><td>Tree ①の動機枝</td><td><strong>骨格を疑う／置き換える</strong>——高速化枝（同じ Attention を速くする）とは別</td></tr><tr><td>改善対象</td><td>全対全 Attention の二次コスト、KV メモリ、自己回帰の逐次性・誤り伝播</td></tr><tr><td>変えなかった骨格（主流）</td><td>2024–2026 の商用・オープンウェイト中心は依然 <strong>Decoder-only Transformer + 自己回帰</strong></td></tr><tr><td>新しいコスト</td><td>長系列での in-context 再現性、反復 denoise のレイテンシ、エコシステム未成熟</td></tr><tr><td>現在の位置づけ</td><td>研究枝／併用（主流を置き換えたとは言い切れない並行提案）</td></tr></tbody></table></div>
 <p>第3部のほとんどは、<strong>同じ Transformer 骨格のまま</strong> ある層を改善する話だった。本章だけ枝が違う。<strong>置換／併用の枝</strong> ——Attention や自己回帰そのものを疑い、別の系列変換や生成枠組みを提案する研究である。地図上、これらは歴史の「次の駅」ではなく、主流から <strong>並行して伸びる分岐</strong> である。</p>
-<figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches.svg" alt="" /><figcaption>見るべき構造: Tree ①の動機枝。本章は右端の Replace spine。高速化枝や MoE とは別の圧力。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches-v2.svg" alt="" /><figcaption>見るべき構造: Tree ①の動機枝。本章は右端の Replace spine。高速化枝や MoE とは別の圧力。 (Source: 教育用模式図)</figcaption></figure>
 <h3 id="state-space-model-と-mamba">State Space Model と Mamba</h3>
 <p><strong>State Space Model（状態空間モデル, SSM）</strong> は、連続時間の動力学を離散化し、隠れ状態の更新で系列を処理する枠組みである。RNN に似た逐次更新を持ちながら、特定の構造下では畳み込みと等価な並列計算が可能になる。Gu &amp; Dao の <strong>Mamba</strong>（2023）は、<strong>選択的状態空間（Selective State Space）</strong> により、入力に応じて状態遷移を選び分け、長系列で Transformer の二次計算量を避ける経路を示した（*1）。</p>
 <p>Mamba が主張するのは、長距離依存を <strong>Attention の全対全参照</strong> なしに扱える可能性である。ただし、大規模スケールでの汎用性、マルチモーダル統合、ツール呼び出しとの相性は、Transformer 主流に比べて実証が浅い領域が残る。第8章の FlashAttention が「同じ Attention を速くする」枝であるのに対し、Mamba は <strong>Attention ブロックの置換候補</strong> として読む。</p>
@@ -439,7 +439,7 @@
 <p>この立場を採ると、チャットは「賢い相手」ではなく、<strong>条件付き生成器＋あなたが足した境界</strong> として扱える。採らなくてもよい。代替として、「理解を獲得した内部表現」を重視する見方や、ベンチマーク至上主義もある。重要なのは、入口でどれか一つを押し付けないことではなく、<strong>終盤で明示し、選べるようにすること</strong> である。</p>
 <h3 id="二つの木の回収第2部">二つの木の回収（第2部）</h3>
 <p>第2部で分けた二つの木を、ここで一枚に重ねる。上半分は時間（技術史）、下半分は構成（システム）——辺の意味が違う。</p>
-<figure class="article-figure"><img src="assets/llm-v3/two-trees-overview.svg" alt="" /><figcaption>見るべき構造: 上＝技術史（時間・動機枝）、下＝システム構成（層）。Agent は下の External / App にだけ載る。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/two-trees-overview-v2.svg" alt="" /><figcaption>見るべき構造: 上＝技術史（時間・動機枝）、下＝システム構成（層）。Agent は下の External / App にだけ載る。 (Source: 教育用模式図)</figcaption></figure>
 <p>判断の既定座標は、まず <strong>どちらの木か</strong>、次に Tree ②の六層——学習方法／モデル構造／推論方法／推論高速化／外部システム／UI・制度——である。</p>
 <figure class="article-figure"><img src="assets/llm-v3/llm-layers-overview.svg" alt="" /><figcaption>見るべき構造: 構成側の座標。ニュースや論文の技術名を、まずこの六層のどこかに落とす。 (Source: 教育用模式図)</figcaption></figure>
 <p>層を混ぜると判断が濁る。「モデルが悪い」のか「Retriever が誤った」のか「デコードが揺れた」のか——介入が違う。MoE はモデル構造（かつ系譜では巨大化の枝）、FlashAttention は推論高速化、RAG と Agent は外部システム、と名指せれば、「だから何？」に答えられる。</p>

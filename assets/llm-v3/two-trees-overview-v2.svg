@@ -1,32 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="860" height="640" viewBox="0 0 860 640" role="img" aria-label="Two trees overview: history above, system composition below">
   <rect width="860" height="640" fill="#f2f3f0"/>
-  <text x="24" y="30" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">LLM techniques  two different trees</text>
+  <text x="24" y="30" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">LLM techniques - two different trees</text>
   <text x="24" y="52" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Top = time / invention. Bottom = composition / dependency. Same names, different jobs.</text>
 
-  <!-- TOP: history -->
   <rect x="24" y="70" width="812" height="280" rx="10" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="44" y="98" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">Tree 1  Technology history (time)</text>
+  <text x="44" y="98" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">Tree 1 - Technology history (time)</text>
 
   <g font-family="Georgia, serif" font-size="11" fill="#1a1c1a">
     <rect x="44" y="120" width="70" height="28" rx="4" fill="#e8f7f4" stroke="#0d7a6c"/>
     <text x="54" y="138">n-gram</text>
-    <text x="118" y="138" fill="#0d7a6c">’</text>
+    <text x="118" y="138" fill="#0d7a6c">&gt;</text>
     <rect x="134" y="120" width="58" height="28" rx="4" fill="#e8f7f4" stroke="#0d7a6c"/>
     <text x="144" y="138">NNLM</text>
-    <text x="196" y="138" fill="#0d7a6c">’</text>
+    <text x="196" y="138" fill="#0d7a6c">&gt;</text>
     <rect x="212" y="120" width="50" height="28" rx="4" fill="#e8f7f4" stroke="#0d7a6c"/>
     <text x="222" y="138">RNN</text>
-    <text x="266" y="138" fill="#0d7a6c">’</text>
+    <text x="266" y="138" fill="#0d7a6c">&gt;</text>
     <rect x="282" y="120" width="54" height="28" rx="4" fill="#e8f7f4" stroke="#0d7a6c"/>
     <text x="292" y="138">LSTM</text>
-    <text x="340" y="138" fill="#0d7a6c">’</text>
+    <text x="340" y="138" fill="#0d7a6c">&gt;</text>
     <rect x="356" y="120" width="70" height="28" rx="4" fill="#e8f7f4" stroke="#0d7a6c"/>
     <text x="364" y="138">Seq2Seq</text>
-    <text x="430" y="138" fill="#0d7a6c">’</text>
+    <text x="430" y="138" fill="#0d7a6c">&gt;</text>
     <rect x="446" y="120" width="70" height="28" rx="4" fill="#e8f7f4" stroke="#0d7a6c"/>
     <text x="454" y="138">Attention</text>
-    <text x="520" y="138" fill="#0d7a6c">’</text>
+    <text x="520" y="138" fill="#0d7a6c">&gt;</text>
     <rect x="536" y="116" width="110" height="36" rx="6" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
     <text x="548" y="138" fill="#0d7a6c" font-size="12" font-weight="600">Transformer</text>
   </g>
@@ -38,45 +37,39 @@
     <path d="M140 175 V190" stroke="#0d7a6c" stroke-width="1.5"/>
     <rect x="70" y="190" width="140" height="56" rx="5" fill="#f2f3f0" stroke="#0d7a6c"/>
     <text x="82" y="212" fill="#0d7a6c" font-weight="600">Scale</text>
-    <text x="82" y="232" fill="#1a1c1a">Dense · MoE</text>
+    <text x="82" y="232" fill="#1a1c1a">Dense / MoE</text>
 
     <path d="M300 175 V190" stroke="#0d7a6c" stroke-width="1.5"/>
     <rect x="230" y="190" width="140" height="56" rx="5" fill="#f2f3f0" stroke="#0d7a6c"/>
     <text x="242" y="212" fill="#0d7a6c" font-weight="600">Long context</text>
-    <text x="242" y="232" fill="#1a1c1a">RoPE · YaRN · &</text>
+    <text x="242" y="232" fill="#1a1c1a">RoPE / YaRN / ...</text>
 
     <path d="M460 175 V190" stroke="#0d7a6c" stroke-width="1.5"/>
     <rect x="390" y="190" width="140" height="56" rx="5" fill="#f2f3f0" stroke="#0d7a6c"/>
     <text x="402" y="212" fill="#0d7a6c" font-weight="600">Faster serve</text>
-    <text x="402" y="232" fill="#1a1c1a">Flash · KV · Spec</text>
+    <text x="402" y="232" fill="#1a1c1a">Flash / KV / Spec</text>
 
     <path d="M620 175 V190" stroke="#0d7a6c" stroke-width="1.5"/>
     <rect x="550" y="190" width="140" height="56" rx="5" fill="#f2f3f0" stroke="#0d7a6c"/>
     <text x="562" y="212" fill="#0d7a6c" font-weight="600">Reason / align</text>
-    <text x="562" y="232" fill="#1a1c1a">CoT · RLVR · &</text>
+    <text x="562" y="232" fill="#1a1c1a">CoT / RLVR / ...</text>
 
     <path d="M760 175 V190" stroke="#393b38" stroke-width="1.5"/>
     <rect x="700" y="190" width="120" height="56" rx="5" fill="#f2f3f0" stroke="#393b38"/>
     <text x="712" y="212" fill="#1a1c1a" font-weight="600">Replace</text>
-    <text x="712" y="232" fill="#1a1c1a">Mamba · Hybrid</text>
+    <text x="712" y="232" fill="#1a1c1a">Mamba / Hybrid</text>
   </g>
 
   <text x="44" y="280" fill="#4a4c48" font-family="Georgia, serif" font-size="12">+ multimodal encoders as representation extension. Branch labels = motives.</text>
-  <text x="44" y="304" fill="#a85a2a" font-family="Georgia, serif" font-size="12" font-weight="600">Not Tree-1 children: RAG · Tool · MCP · Memory · Agent ’ see Tree 2</text>
-  <text x="44" y="328" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Meaning of edges: solved the previous bottleneck / responds to the same research pressure.</text>
+  <text x="44" y="304" fill="#a85a2a" font-family="Georgia, serif" font-size="12" font-weight="600">Not Tree-1 children: RAG / Tool / MCP / Memory / Agent -&gt; see Tree 2</text>
+  <text x="44" y="328" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Meaning of edges: solved the previous bottleneck / same research pressure.</text>
 
-  <!-- arrow between -->
-  <path d="M430 350 V378" stroke="#393b38" stroke-width="2" marker-end="url(#arrow)"/>
-  <defs>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#393b38"/>
-    </marker>
-  </defs>
+  <path d="M430 350 V378" stroke="#393b38" stroke-width="2"/>
+  <polygon points="430,378 424,368 436,368" fill="#393b38"/>
   <text x="448" y="370" fill="#4a4c48" font-family="Georgia, serif" font-size="12">uses / is wrapped by</text>
 
-  <!-- BOTTOM: system -->
   <rect x="24" y="382" width="812" height="230" rx="10" fill="#fff" stroke="#a85a2a" stroke-width="2"/>
-  <text x="44" y="410" fill="#a85a2a" font-family="Georgia, serif" font-size="15" font-weight="600">Tree 2  System composition (layers, not time)</text>
+  <text x="44" y="410" fill="#a85a2a" font-family="Georgia, serif" font-size="15" font-weight="600">Tree 2 - System composition (layers, not time)</text>
 
   <g font-family="Georgia, serif" font-size="12">
     <rect x="44" y="430" width="120" height="70" rx="6" fill="#f2f3f0" stroke="#393b38"/>
@@ -97,10 +90,10 @@
 
     <rect x="588" y="430" width="220" height="70" rx="6" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
     <text x="602" y="458" fill="#a85a2a" font-weight="600">External / App</text>
-    <text x="602" y="480" fill="#1a1c1a">RAG · Tool · Agent &</text>
+    <text x="602" y="480" fill="#1a1c1a">RAG / Tool / Agent ...</text>
   </g>
 
-  <text x="44" y="540" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Agent lives here: Application wrapping a model  not next invention after MoE.</text>
-  <text x="44" y="568" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Meaning of edges: depends on / is composed of. Pick Tree 1 for history, Tree 2 for product debugging.</text>
-  <text x="44" y="592" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic synthesizing Parts IIII.</text>
+  <text x="44" y="540" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Agent lives here: Application wrapping a model - not next invention after MoE.</text>
+  <text x="44" y="568" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Meaning of edges: depends on / is composed of. Pick Tree 1 for history, Tree 2 for product debugging.</text>
+  <text x="44" y="592" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic synthesizing Parts I-III.</text>
 </svg>
