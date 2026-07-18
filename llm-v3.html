@@ -45,13 +45,13 @@
 <p>チャット欄に返ってくる流暢な日本語、コードの続き、要約らしい段落——体験は「賢い相手」との対話に見える。ところが、裏側の学習装置が直接最適化している対象は、もっと地味だ。記号列の各位置で、<strong>左側にすでにある列のあとに、次の記号が来る確率</strong>を当てる。翻訳用の損失、要約用の損失、真偽判定用の損失を最初から並べるのではなく、テキスト自身が教師になる。ここから先の技術史——埋め込み、再帰、注意、巨大事前学習——はすべて、この問いの上に積み重ねられた部品である。入口で固定すべきは、装置が何を「当てている」のか、そして何が獲得能力で何が保証外なのか、という境界だ。</p>
 <p>本章で固定する問いは一つだけである。<strong>言語モデルが直接最適化しているのは何か。</strong></p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
-<p>#### 条件付き次トークン予測 P(x_t | x_&lt;t)</p>
+<h3 id="条件付き次トークン予測-px-t-x-t">条件付き次トークン予測 P(x_t | x_&lt;t)</h3>
 <p><strong>条件付き次トークン予測</strong>とは、時刻 \(t\) において、それより左にあるすべての記号 \(x_1, \ldots, x_{t-1}\) が与えられたとき、次の記号 \(x_t\) が語彙のどの要素になるかを確率分布として出力する問題設定である。記号 \(w\) について \(P(x_t = w \mid x_1, \ldots, x_{t-1})\) を計算し、語彙全体に確率質量を配る。質問文か命令文か、引用か脚色か——損失関数は体裁を区別しない。与えられた接頭辞の ID 列が、次スロットのスコアベクトルに影響する、という約束だけが入っている。</p>
 <p>出力は長さ \(|V|\) のベクトルだ。各成分は非負で、和は 1 に正規化される（実装では生の <strong>logits</strong> を出し、softmax で確率へ変換する）。インデックス \(j\) の値は「語彙 ID \(j\) が直後に来る確率」として読む。ここで誤りやすいのは、高い確率を「正しい回答」や「理解の証明」と混同することだ。確率が大きいのは、訓練コーパスで似た接頭辞のあとにそのトークンがしばしば観測された、という統計的事実の表れにすぎない。</p>
 <figure class="article-figure"><img src="assets/llm-v3/next-token-dist.svg" alt="" /><figcaption>見るべき構造: 各ステップで語彙全体に確率が配られ、そこから1記号が選ばれる。 (Source: 教育用模式図; Shannon, 1951 の予測枠; Brown et al., 2020 の自己回帰設定)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 各ステップは語彙上の分布を出し、そこから1トークンを選ぶ</summary><iframe class="sim-frame" src="assets/sims/llm-v3/next-token/index.html" title="next-token" loading="lazy"></iframe></details>
 <p>訓練では、文書が実際に持っている次のトークン ID を正解とみなし、<strong>交差エントロピー</strong>で正解への確率質量を増やす。全位置・全文書で平均し、勾配降下が重みを更新する——これが<strong>尤度最大化</strong>の実務的な姿だ。Shannon は印刷英語の予測可能性を情報理論の枠で測り、言語は次の記号についてかなりの予測圧縮が可能だと示した（*1）。現代の言語モデルは、その「次を当てる」圧力をニューラルネットで大規模に実装した延長線上にある。</p>
-<p>#### 直接目的と獲得能力の分離</p>
+<h3 id="直接目的と獲得能力の分離">直接目的と獲得能力の分離</h3>
 <p><strong>直接目的</strong>は常に次トークンの対数尤度である。一方、翻訳・要約・コード補完・対話らしい応答といった振る舞いは、損失に明示的なラベルとして入っていない。それでも現れるのは、多くのスキルが「与えられた前文の statistically likely な続き」に圧縮可能だからだ、という経験的主張がある。Brown らの GPT-3 は、大規模な自己教師あり事前学習のあと、多様なプロンプトに対する few-shot 挙動を報告した（*2）。根底にあるのは依然として次トークンの当てゲームだ。接頭辞に例を並べると分布が曲がる——<strong>文脈内学習（in-context learning）</strong> と呼ばれる現象——があっても、推論時に重みは動かず、学習目標の形は変わらない。</p>
 <p>この分離を崩すと説明が破綻する。「翻訳を理解して学習した」のではなく、「この記号列のあとにはしばしばあの記号列が来た」という統計を、接頭辞の形で再利用できる、と読む方が層の言葉に忠実だ。獲得能力は、直接目的の副産物として<strong>起こりうる</strong>が、損失がその能力を個別に保証するわけではない。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
@@ -78,11 +78,11 @@
 <p>問題は組み合わせの爆発だ。語彙 \(|V|\)、履歴長 \(n\) なら、理論上の文脈パターンは \(|V|^{n-1}\) 通りになる。実コーパスはそのごく一部しか観測しない——大多数の n-gram は一度も出現せず、確率はゼロか平滑化の人為的な値に頼る。<strong>疎性</strong>とは、この「空きマス」の多さを指す。さらに、訓練時に見たことのない語順は、表からは確率を読み出せない。未知語・未知の複合語に対して、数え上げは構造的に弱い。</p>
 <p>たとえば三語履歴（トリグラム）で語彙が五万なら、理論上の文脈は \(5 \times 10^4\) の二乗オーダー——実データで埋まるのは氷山の一角だ。平滑化（加算平滑、バックオフ、Kneser–Ney など）は実務的な救済策だが、根本は「各文脈を独立した箱として数える」設計にある。似た意味の文脈同士が表上で共有されない。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
-<p>#### ニューラル言語モデル</p>
+<h3 id="ニューラル言語モデル">ニューラル言語モデル</h3>
 <p><strong>ニューラル言語モデル（Neural LM）</strong>は、離散の文脈 ID を、連続ベクトルへ写してから非線形変換で次トークン分布を出す。Bengio らの Neural Probabilistic Language Model は、高次元の one-hot 文脈をそのまま数え上げる代わりに、<strong>分散表現</strong>で語と文脈を低次元ベクトルに埋め、類似した文脈が近い領域に配置されるよう学習する（*1）。表の行数は語彙サイズだが、各行は固定長の実ベクトルであり、文脈全体の表現はそれらの関数になる。</p>
 <p>学習目標は前章と同じ——各位置の交差エントロピーだ。変わるのは、確率を出すまでの経路だけである。one-hot の巨大行列を直接推定するのではなく、埋め込み層と隠れ層が「文脈→次トークン」の写像を滑らかに近似する。訓練データに一度しか出ない n-gram でも、近いベクトル配置を通じて、似た文脈からの一般化が起こりうる。</p>
 <figure class="article-figure"><img src="assets/llm-v3/ngram-to-embedding.svg" alt="" /><figcaption>見るべき構造: 疎な n-gram 表から、語の埋め込みベクトルと共有表現への写像へ。 (Source: Bengio et al., 2003; 教育用模式図)</figcaption></figure>
-<p>#### 埋め込み（分散表現）</p>
+<h3 id="埋め込み分散表現">埋め込み（分散表現）</h3>
 <p><strong>埋め込み（embedding）</strong>とは、離散トークン ID を固定次元の実ベクトル \(e_w \in \mathbb{R}^d\) に対応づける表である。学習とともに、共起や続きの統計に応じてベクトルが動き、意味や用法が近い語は空間上で近づきやすい。数え上げ表では「犬が走った」と「犬が走る」は別行だが、埋め込み空間では主語・述語のベクトルが共有され、見たことのない活用形にもある程度対応できる——これが<strong>一般化</strong>の核だ。</p>
 <p>初期の Neural LM では、文脈は固定長の直前トークンの埋め込みを連結または畳み込んだものに限られた。すなわち、<strong>固定長履歴</strong>の制約は残る。遠い過去は切り捨てられ、n-gram と同様に「どこまで左を見るか」は設計者が決める窓の長さに縛られる。表現は滑らかになったが、可変長の長い依存をそのまま運ぶ仕組みではない。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
@@ -128,10 +128,10 @@
 <p>RNN と LSTM で可変長系列を状態に圧縮できるようになった。次の典型的な問題は<strong>系列変換</strong>だ。入力文を読み、別言語の出力文を生成する——機械翻訳が代表例である。<strong>Seq2Seq（Sequence-to-Sequence）</strong> は、入力系列を読む <strong>Encoder</strong> と、出力系列を書く <strong>Decoder</strong> を組み合わせる。<strong>Encoder–Decoder</strong> 構造として知られる。Sutskever らは LSTM を用いた Encoder–Decoder で翻訳性能を大きく押し上げた（*1）。ところが Decoder は、入力全体の情報を<strong>最後の固定長ベクトル</strong>だけから始めなければならない。文が長いほど、この<strong>固定長ボトルネック</strong>で情報が落ちる。Bahdanau らの <strong>Attention（注意）</strong> は、生成の各ステップで入力の各位置を直接参照し、ボトルネックを緩和する——ただしこの段階では <strong>RNN は残り</strong>、Attention は Transformer ではない。</p>
 <p>本章で固定する問いは一つだけである。<strong>固定長ベクトルに押し込んだ入力を、出力の各ステップでどう引き出すか。</strong></p>
 <h3 id="1-前の段階で困っていたこと">1. 前の段階で困っていたこと</h3>
-<p>#### Encoder–Decoder</p>
+<h3 id="encoderdecoder">Encoder–Decoder</h3>
 <p><strong>Encoder–Decoder</strong> は二段の再帰ネットだ。Encoder は入力トークン列 \(x_1, \ldots, x_m\) を左から読み、最終隠れ状態（またはその変種）を文脈ベクトル \(c\) に集約する。Decoder は \(c\) を初期状態として、出力 \(y_1, \ldots, y_n\) を一トークンずつ生成する。各 Decoder ステップで、前の出力と \(c\) から次の出力トークン分布を出す。学習目標は、教師ありの出力列に対する交差エントロピー（<strong>teacher forcing</strong>）だ。</p>
 <p>この設計は翻訳・要約・対話の「入力全体→出力列」パターンに合う。しかし情報の流れに非対称がある。入力は \(m\) ステップかけて読み込まれるが、Decoder が参照できるのは、要約された一点 \(c\) だけ——長い入力の後半の語が、生成の早い段階で効きにくい。</p>
-<p>#### 固定長ボトルネック</p>
+<h3 id="固定長ボトルネック">固定長ボトルネック</h3>
 <p><strong>固定長ボトルネック</strong>とは、可変長の入力系列全体が、長さ \(d\) の単一ベクトル \(c \in \mathbb{R}^d\) に押し込まれることによる情報制約だ。\(m\) が大きいほど、各入力位置が \(c\) に割り当てられる「次元あたりの帯域」は薄くなる。実験的には、文が長くなるほど翻訳品質が落ちる傾向が報告された——特に入力後半の内容が出力に反映されにくい。</p>
 <p>ボトルネックは意図的な設計でもある。Decoder の条件を常に同じ形（固定次元ベクトル）に保てば、実装が単純になる。しかし言語変換タスクでは、出力の各位置が入力の異なる部分——動詞の一致、固有名詞の位置、修飾関係——に依存する。一点圧縮では、<strong>入力位置への選択的アクセス</strong>が足りない。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
@@ -170,7 +170,7 @@
 <p><strong>FFN</strong> は通常、中間次元を拡大した二層 MLP である。Attention が系列内で情報を再配分するのに対し、FFN は各位置の表現を局所的に非線形変換する。パラメータの相当部分は FFN に載るモデルも多い。</p>
 <p><strong>Residual Connection</strong> と LayerNorm は、十数層から百層近いスタックを学習可能にする実装の骨格である。サブ層の出力を入力に足すことで、層が「恒等写像に近い更新」から始められる。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
-<p>#### 学習と生成：並列化できるのはどちらか</p>
+<h3 id="学習と生成並列化できるのはどちらか">学習と生成：並列化できるのはどちらか</h3>
 <p>Transformer の導入で最も誤解されやすいのは、「速いから全部並列」と捉えることだ。正確には、<strong>学習時</strong> と <strong>生成時</strong> で制約が異なる。</p>
 <p><strong>学習時</strong>、正解テキスト全体が与えられる。各位置の損失を同時に計算できる——因果マスクがあっても、位置 1 から $n$ までの表現は一度の forward で並列に求まる。RNN が時間 $t$ の計算を $t-1$ の完了後にしか始められないのに対し、Transformer は <strong>位置方向を並列化</strong> できる。</p>
 <figure class="article-figure"><img src="assets/llm-v3/rnn-vs-transformer-train.svg" alt="" /><figcaption>見るべき構造: 学習時——RNN は時間方向が逐次、Transformer は位置方向を並列に損失計算できる。 (Source: 教育用模式図)</figcaption></figure>
@@ -178,7 +178,7 @@
 <figure class="article-figure"><img src="assets/llm-v3/rnn-vs-transformer-decode.svg" alt="" /><figcaption>見るべき構造: 生成時——RNN も Transformer も自己回帰の逐次性は残る。 (Source: 教育用模式図)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 学習では位置並列化できるが、自己回帰生成の逐次性はアーキテクチャを替えても残る</summary><iframe class="sim-frame" src="assets/sims/llm-v3/parallel-vs-sequential/index.html" title="parallel-vs-sequential" loading="lazy"></iframe></details>
 <p>この対比が、後の「学習は GPU で一気に、チャットは一文字ずつ」という製品体感の技術的根拠である。Transformer は RNN の時間方向ボトルネックを外したが、<strong>生成の逐次性</strong> は因果マスクと自己回帰の定義から消えない。</p>
-<p>#### 因果マスクと自己回帰ループ</p>
+<h3 id="因果マスクと自己回帰ループ">因果マスクと自己回帰ループ</h3>
 <p>Decoder 側の Self-Attention には <strong>因果マスク（causal mask）</strong> をかける。位置 <em>i</em> は <em>i</em> より右の key に重みを置けない。softmax 前に未来位置のスコアを $-\infty$ 相当で落とし、重みをゼロにする。これにより、学習時も推論時も「まだ書いていない未来」を条件に入れない。</p>
 <figure class="article-figure"><img src="assets/llm-v3/autoregressive-loop.svg" alt="" /><figcaption>見るべき構造: 出たトークンが次ステップの条件に戻る。未来位置はマスクで遮断される。 (Source: 教育用模式図; Vaswani et al., 2017 因果デコーダ)</figcaption></figure>
 <p>混ぜた表現から最終位置に語彙全体の logits が出る。そこから <strong>1 トークン</strong> を選び、列の末尾に付ける。選ばれたトークンは確定し、次のステップの接頭辞に含まれる。チャット UI で文字が左から流れるのは演出ではなく、このループの観測面である。</p>
@@ -197,21 +197,21 @@
 <p>前章の出口は「学習は並列化できるが生成は逐次」だった。本章は、その骨格の上に <strong>何を積み上げたら LLM と呼ぶのか</strong> を見る。Decoder-only への寄せ、スケーリング則、サブワード <strong>トークン化</strong>、有限 <strong>文脈窓</strong>、そして重みを動かさない <strong>文脈内学習（In-context Learning, ICL）</strong> が、現行レジームの柱である。</p>
 <p>本章で固定する問いは一つだけである。<strong>同じ骨格の上に何を積み上げたら LLM と呼ぶのか。</strong></p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
-<p>#### Decoder-only 事前学習</p>
+<h3 id="decoder-only-事前学習">Decoder-only 事前学習</h3>
 <p>Vaswani らの原論文は Encoder–Decoder だが、GPT 系（Radford ら）以降の主流は <strong>Decoder-only</strong> である。単一の因果 Transformer スタックが、左から右への <strong>自己回帰</strong> でテキスト全体をモデル化する。翻訳のように「入力列」と「出力列」を分ける必要がない <strong>一般言語モデリング</strong> に直結する。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/gpt3-1.png" alt="" /><figcaption>見るべき構造: GPT-3 は Decoder-only の自己回帰 Transformer。 (Source: Brown et al., 2020, Fig.1)</figcaption></figure>
 <p>訓練データはウェブ文書、書籍、コードなどの生テキストが多い。各位置で「次に来るトークン」の尤度を上げる——目的は C0 で固定した <strong>条件付き次トークン予測</strong> のままである。チャットの「意図」や「安全」は、この段階の損失には入っていない。</p>
-<p>#### スケーリング則</p>
+<h3 id="スケーリング則">スケーリング則</h3>
 <p>Kaplan ら（*2）は、モデルサイズ $N$、データ量 $D$、計算量 $C$ と検証損失の間に <strong>べき乗則</strong> が見えると報告した。同じアーキテクチャ族の中では、大きくするほど損失が下がりうる——ただし $N$・$D$・$C$ のバランスを外すと改善が頭打ちになる。</p>
 <p>これは「大きければ何でもできる」という予言ではない。同じ骨格でスケールを上げたとき検証損失がべき乗で改善する、という <strong>経験則</strong> である。実務では、モデルを大きくするか、同じサイズでもデータを増やすか、計算予算を増やすか——三つのレバーが絡み合う。Chinchilla 系の議論（Hoffmann ら）は、同じ計算予算なら「小さめのモデル＋より多くのトークン」の方が損失が良い場合があると示し、単純なパラメータ競争だけではないことを突きつけた。</p>
 <p>業界が 100B 級へ進んだ動機の一つが Kaplan 型の法則にある。一方、データの重複、低品質コーパスの混入、評価ベンチへの過適合、推論時のメモリと遅延は、スケールの「上」に乗る別の制約として残る。スケーリングは <strong>損失とベンチの相関</strong> を動かしうるが、個別タスクの正しさや安全を自動保証するわけではない。</p>
 <p>Chinchilla 系の議論は、同じ計算予算の配分を問い直した。しかし 2020 年代後半の性能改善を、アーキテクチャの進歩だけに帰するのは早計だ。<strong>性能改善の主要な計算予算は、事前学習・後学習・推論時のどこへ移っているのか</strong>——という問いが、スケール論の次に立つ。合成データ、蒸留、ベンチ汚染（contamination）、データ品質の選別は、パラメータ数や層数と独立にベンチを動かしうる。MoE や長文窓と同時に起きた改善のうち、どれが骨格でどれがデータ・学習レシピかは、単一の曲線では切り分けにくい。</p>
-<p>#### トークン化：単語の前にサブワード</p>
+<h3 id="トークン化単語の前にサブワード">トークン化：単語の前にサブワード</h3>
 <p>生テキストはそのまま行列に入らない。<strong>Byte Pair Encoding（BPE）</strong> などのサブワード <strong>トークン化</strong> で離散 ID 列に変換する（Sennrich ら, 2016）（*3）。語彙は数万規模に抑えつつ、未知語はより小さな断片に分割される。</p>
 <figure class="article-figure"><img src="assets/llm-v3/token-pipeline.svg" alt="" /><figcaption>見るべき構造: 生テキスト → トークン化 → ID 列 → 埋め込み → Transformer。 (Source: 教育用模式図; Sennrich et al., 2016)</figcaption></figure>
 <p>トークン境界はモデルが見る「単語」の単位を決める。日本語のように空白が薄い言語では、同じ文字列でもトークン分割が性能やコストに効く。トークン化は <strong>表現層</strong> の設計であり、Attention の式そのものではないが、LLM システムでは避けて通れない。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
-<p>#### 文脈窓と In-context Learning</p>
+<h3 id="文脈窓と-in-context-learning">文脈窓と In-context Learning</h3>
 <p>GPT-3（Brown ら, 2020）は 1750 億パラメータ規模で、<strong>勾配更新なし</strong> の zero-shot / one-shot / few-shot 条件付けに応じてタスク性能が伸びうることを示した（*4）。これが <strong>文脈内学習（ICL）</strong> として知られる現象である。例示を接頭辞に並べるだけで、重みは固定のまま <strong>条件付き分布</strong> の形が変わる。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/gpt3-4.png" alt="" /><figcaption>見るべき構造: fine-tuning（重み更新）と zero/one/few-shot（接頭辞のみ）の対比。 (Source: Brown et al., 2020, Fig.1.2)</figcaption></figure>
 <p><strong>fine-tuning</strong> は学習フェーズでパラメータを動かす。<strong>few-shot</strong> は推論時の <strong>文脈窓</strong> 内の列操作である——混同すると「例を足したから学習した」と誤解する。</p>
@@ -241,10 +241,10 @@
 <p><strong>Base Model</strong>（基盤モデル）は、大規模コーパスで因果言語モデリングを終えた時点の重みである。「次のトークン」を当てる能力は高いが、質問に答える・有害依頼を断る・一貫したアシスタント口調を保つ——といった <strong>対話契約</strong> は最適化されていない。</p>
 <p><strong>Chat Model</strong>（チャットモデル）は、Base の上に <strong>後学習</strong> を載せたチェックポイントである。骨格は同じ Transformer 系 <strong>自己回帰</strong> 生成のまま。変わるのは学習データの形と、段階ごとの目的関数である。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
-<p>#### Supervised Fine-Tuning（SFT）と Instruction Tuning</p>
+<h3 id="supervised-fine-tuningsftと-instruction-tuning">Supervised Fine-Tuning（SFT）と Instruction Tuning</h3>
 <p><strong>教師あり微調整（Supervised Fine-Tuning, SFT）</strong> は、人間が書いた「指示 → 望ましい応答」の対を大量に見せ、応答側のトークン列を正解として尤度を上げる段階である。指示追従を主目的にした SFT は <strong>Instruction Tuning</strong> と呼ばれることが多い。</p>
 <p>入力にユーザ風の指示列、出力にラベラーが書いたアシスタント風の続きを置き、続き部分の次トークン損失だけを下げる。アーキテクチャも <strong>因果自己回帰</strong> のループもサンプリング手順も変わらない。</p>
-<p>#### RLHF：選好から方策へ</p>
+<h3 id="rlhf選好から方策へ">RLHF：選好から方策へ</h3>
 <p>SFT だけでは、同じ指示に対する複数の妥当な応答のうち「より良い」方は決まらない。有害依頼を断るべきか、意図を汲んで答えるべきかの境界も、示范だけでは一義にならない。</p>
 <p>Ouyang らの <strong>InstructGPT</strong>（*1）は、三段パイプラインを示した。</p>
 <ol><li><strong>SFT</strong> — 示范による微調整</li><li><strong>報酬モデル（Reward Model, RM）</strong> — ラベラーによる応答比較から選好を学習</li><li><strong>強化学習（RL）</strong> — RM のスコアを最大化するよう方策を PPO で更新</li></ol>
@@ -254,7 +254,7 @@
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/ouyang-2.png" alt="" /><figcaption>見るべき構造: SFT → 比較で報酬モデル → PPO で方策更新。 (Source: Ouyang et al., 2022, Fig.2)</figcaption></figure>
 <figure class="article-figure"><img src="assets/llm-v3/training-stack.svg" alt="" /><figcaption>見るべき構造: 事前学習の上に SFT→RM→RL が積み上がり、目的関数がずれる。 (Source: 教育用模式図; Ouyang et al., 2022)</figcaption></figure>
 <p>Ouyang らは、<strong>パラメータ 1.3B の InstructGPT が、175B の未調整 GPT-3 より人間評価で選好される</strong> 例も報告した。サイズだけでは説明できない <strong>後学習層</strong> の効果である。同時に <strong>alignment tax（整列の代償）</strong> も報告されている——整列後に一部の NLP ベンチでスコアが下がるタスクがある。</p>
-<p>#### Direct Preference Optimization（DPO）</p>
+<h3 id="direct-preference-optimizationdpo">Direct Preference Optimization（DPO）</h3>
 <p>RLHF は RM と PPO の実装・安定化コストが高い。<strong>Direct Preference Optimization（DPO）</strong>（Rafailov ら, 2023）（*2）は、選好データから <strong>明示的な RM+RL なし</strong> に方策を最適化する手法として提案された。目的は同じく「人間が選んだ応答を増やす」だが、パイプラインが短く、再現しやすい。</p>
 <p>DPO も <strong>事実性の保証</strong> ではない。選好データに含まれる文体・文化・安全方針の偏りが、そのまま分布に刻まれる。ラベラーが気づかない plausible な偽は、報酬を取り続けうる。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>

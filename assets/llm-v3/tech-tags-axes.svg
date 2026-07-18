@@ -16,15 +16,15 @@
     <rect x="295" y="90" width="230" height="200" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
     <text x="315" y="124" fill="#0d7a6c" font-size="16" font-weight="600">Layer</text>
     <text x="315" y="154" fill="#1a1c1a" font-size="13">Where in a product?</text>
-    <text x="315" y="184" fill="#4a4c48" font-size="12">data · learning · structure</text>
-    <text x="315" y="206" fill="#4a4c48" font-size="12">inference · serving</text>
-    <text x="315" y="228" fill="#4a4c48" font-size="12">external · eval · UI</text>
+    <text x="315" y="184" fill="#4a4c48" font-size="12">data / learning / structure</text>
+    <text x="315" y="206" fill="#4a4c48" font-size="12">inference / serving</text>
+    <text x="315" y="228" fill="#4a4c48" font-size="12">external / eval / UI</text>
     <text x="315" y="260" fill="#4a4c48" font-size="12">Multi-layer OK (e.g. RLVR)</text>
 
     <rect x="550" y="90" width="230" height="200" rx="8" fill="#fff" stroke="#a85a2a" stroke-width="2"/>
     <text x="570" y="124" fill="#a85a2a" font-size="16" font-weight="600">Motive</text>
     <text x="570" y="154" fill="#1a1c1a" font-size="13">Which constraint?</text>
-    <text x="570" y="184" fill="#4a4c48" font-size="12">scale · long context</text>
+    <text x="570" y="184" fill="#4a4c48" font-size="12">scale / long context</text>
     <text x="570" y="206" fill="#4a4c48" font-size="12">latency / memory</text>
     <text x="570" y="228" fill="#4a4c48" font-size="12">capability / verify</text>
     <text x="570" y="260" fill="#4a4c48" font-size="12">data scarcity / replace</text>
@@ -32,5 +32,5 @@
 
   <rect x="40" y="310" width="740" height="70" rx="8" fill="#e8f7f4" stroke="#0d7a6c"/>
   <text x="60" y="340" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">Worked example: GQA</text>
-  <text x="60" y="364" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Genealogy: Transformer/Attention · Layer: model structure · Motive: KV cache / memory bandwidth</text>
+  <text x="60" y="364" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Genealogy: Transformer/Attention | Layer: model structure | Motive: KV cache</text>
 </svg>

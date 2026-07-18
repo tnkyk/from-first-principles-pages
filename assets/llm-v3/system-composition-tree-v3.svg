@@ -63,7 +63,7 @@
   <path d="M450 254 V278" stroke="#393b38" stroke-width="2"/>
   <rect x="40" y="278" width="840" height="100" rx="8" fill="#fff" stroke="#393b38"/>
   <text x="60" y="310" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">8 UI / institution / responsibility</text>
-  <text x="60" y="338" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">chat UX · permissions · audit trails · who is liable when generation fails</text>
+  <text x="60" y="338" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">chat UX / permissions / audit trails / liability when generation fails</text>
   <text x="60" y="360" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Separated from evaluation: scores are not the same as accountability.</text>
 
   <rect x="40" y="400" width="840" height="120" rx="8" fill="#fff" stroke="#0d7a6c"/>
@@ -77,5 +77,5 @@
   <text x="420" y="480" fill="#4a4c48" font-family="Georgia, serif" font-size="12">structure layer / KV-memory motive</text>
   <text x="420" y="502" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Jamba: Mamba + Attention + MoE recombine</text>
 
-  <text x="24" y="545" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic. Agent is under External  not a child of Transformer.</text>
+  <text x="24" y="545" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic. Agent is under External - not a child of Transformer.</text>
 </svg>

@@ -46,5 +46,5 @@
     <text x="296" y="556" fill="#4a4c48" font-size="12">product UX / permissions / audit / legal liability</text>
   </g>
 
-  <text x="40" y="620" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Example: RLVR sits on layers 1-2-4-7  not algorithm alone. RAG is layer 6, not Tree-1 child of Transformer.</text>
+  <text x="40" y="620" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Example: RLVR sits on layers 1-2-4-7 - not algorithm alone. RAG is layer 6, not Tree-1 child of Transformer.</text>
 </svg>

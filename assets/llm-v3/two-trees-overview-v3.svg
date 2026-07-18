@@ -52,7 +52,7 @@
   </g>
   <text x="44" y="258" fill="#a85a2a" font-family="Georgia, serif" font-size="12" font-weight="600">Not Map-1 children: RAG / Tool / MCP / Agent -&gt; Map 2 layer 6</text>
   <text x="44" y="282" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Recombination example: Jamba = Mamba + Attention + MoE (multiple parents).</text>
-  <text x="44" y="306" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Edges mean: solved prior bottleneck / same research pressure  not exclusive parenthood.</text>
+  <text x="44" y="306" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Edges mean: solved prior bottleneck / same research pressure - not exclusive parenthood.</text>
 
   <path d="M430 330 V358" stroke="#393b38" stroke-width="2"/>
   <polygon points="430,358 424,348 436,348" fill="#393b38"/>
@@ -88,8 +88,8 @@
     <text x="750" y="464" fill="#1a1c1a">liability</text>
   </g>
 
-  <text x="44" y="520" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Tags (always): genealogy · layer · motive. One name can score on several axes.</text>
-  <text x="44" y="548" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Agent lives in layer 6. Evaluation (layer 7) is how claims are checked  distinct from UI liability (8).</text>
+  <text x="44" y="520" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Tags (always): genealogy / layer / motive. One name can score on several axes.</text>
+  <text x="44" y="548" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Agent lives in layer 6. Evaluation (layer 7) is how claims are checked - distinct from UI liability (8).</text>
   <text x="44" y="576" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Budget question across maps: is improvement from pretrain, post-train, or test-time compute?</text>
   <text x="44" y="610" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic synthesizing Parts I-V (v3.4).</text>
   <text x="44" y="640" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Pick Map 1 for history pressure, Map 2 for product debugging, tags when names recombine.</text>
