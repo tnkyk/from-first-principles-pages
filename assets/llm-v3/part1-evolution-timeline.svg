@@ -2,10 +2,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="620" viewBox="0 0 1280 620" role="img" aria-label="Part1 evolution timeline">
   <rect width="1280" height="620" fill="#f2f3f0"/>
 
-  <text x="28" y="34" fill="#1a1c1a" font-family="Georgia, 'Noto Serif JP', serif" font-size="20" font-weight="600">第1部の一本道 — 時間軸で見る主流・可能・問題</text>
-  <text x="28" y="58" fill="#4a4c48" font-family="Georgia, 'Noto Serif JP', serif" font-size="13">横軸は時間（発明の順番）。各駅は「何が主流か／何が可能になったか／何が問題で次が生まれたか」。</text>
+  <text x="28" y="34" fill="#1a1c1a" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="20" font-weight="600">第1部の一本道 — 時間軸で見る主流・可能・問題</text>
+  <text x="28" y="58" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="13">横軸は時間（発明の順番）。各駅は「何が主流か／何が可能になったか／何が問題で次が生まれたか」。</text>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif" font-size="12">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">
     <rect x="28" y="72" width="14" height="14" rx="2" fill="#fff" stroke="#393b38"/>
     <text x="48" y="83" fill="#1a1c1a">主流だった形</text>
     <rect x="168" y="72" width="14" height="14" rx="2" fill="#e8f7f4" stroke="#0d7a6c"/>
@@ -16,8 +16,8 @@
 
   <line x1="40" y1="118" x2="1240" y2="118" stroke="#0d7a6c" stroke-width="2.5"/>
   <polygon points="1240,112 1256,118 1240,124" fill="#0d7a6c"/>
-  <text x="40" y="108" fill="#0d7a6c" font-family="Georgia, 'Noto Serif JP', serif" font-size="12" font-weight="600">時間</text>
-  <text x="1188" y="108" fill="#0d7a6c" font-family="Georgia, 'Noto Serif JP', serif" font-size="12">いま</text>
+  <text x="40" y="108" fill="#0d7a6c" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12" font-weight="600">時間</text>
+  <text x="1188" y="108" fill="#0d7a6c" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">いま</text>
 
   <g fill="#0d7a6c">
     <circle cx="120" cy="118" r="5"/>
@@ -28,7 +28,7 @@
     <circle cx="1120" cy="118" r="5"/>
   </g>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif">
     <text x="120" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">n-gram</text>
     <text x="120" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">数え上げ LM</text>
     <rect x="30" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
@@ -47,7 +47,7 @@
     <text x="42" y="444" fill="#1a1c1a" font-size="12">載らない</text>
   </g>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif">
     <text x="320" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">Neural LM</text>
     <text x="320" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">埋め込み</text>
     <rect x="230" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
@@ -66,7 +66,7 @@
     <text x="242" y="444" fill="#1a1c1a" font-size="12">運べない</text>
   </g>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif">
     <text x="520" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">RNN / LSTM</text>
     <text x="520" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">再帰状態</text>
     <rect x="430" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
@@ -85,7 +85,7 @@
     <text x="442" y="444" fill="#1a1c1a" font-size="12">では固定長要約が壁</text>
   </g>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif">
     <text x="720" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">Seq2Seq＋Attention</text>
     <text x="720" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">参照の柔軟化</text>
     <rect x="630" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
@@ -104,7 +104,7 @@
     <text x="642" y="444" fill="#1a1c1a" font-size="12">長系列効率が未解決</text>
   </g>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif">
     <text x="920" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">Transformer</text>
     <text x="920" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">＋大規模事前学習</text>
     <rect x="830" y="180" width="180" height="72" rx="6" fill="#fff" stroke="#393b38"/>
@@ -123,7 +123,7 @@
     <text x="842" y="444" fill="#1a1c1a" font-size="12">安全境界は未最適化</text>
   </g>
 
-  <g font-family="Georgia, 'Noto Serif JP', serif">
+  <g font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif">
     <text x="1120" y="148" text-anchor="middle" fill="#0d7a6c" font-size="14" font-weight="600">後学習</text>
     <text x="1120" y="166" text-anchor="middle" fill="#4a4c48" font-size="11">SFT / RLHF / DPO</text>
     <rect x="1030" y="180" width="180" height="72" rx="6" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
@@ -156,8 +156,8 @@
   </g>
 
   <rect x="28" y="492" width="1224" height="100" rx="8" fill="#fff" stroke="#393b38"/>
-  <text x="44" y="520" fill="#1a1c1a" font-family="Georgia, 'Noto Serif JP', serif" font-size="13" font-weight="600">読み方（第1部のまとめ）</text>
-  <text x="44" y="544" fill="#1a1c1a" font-family="Georgia, 'Noto Serif JP', serif" font-size="12">統計 LM から後学習まで、各段は「前の問題を解くために生まれた」。到達した主流骨格は Decoder-only Transformer ＋ 大規模事前学習 ＋ 後学習。</text>
-  <text x="44" y="566" fill="#4a4c48" font-family="Georgia, 'Noto Serif JP', serif" font-size="12">この先の MoE / FlashAttention / RAG / Agent などは「次の駅」ではなく、系譜の枝かシステム構成の層として読む（第2部）。</text>
-  <text x="44" y="580" fill="#4a4c48" font-family="Georgia, 'Noto Serif JP', serif" font-size="11">Source: 教育用模式図（第1部 C1–C6 の必要性連鎖の要約。年号は省略し発明順を示す）</text>
+  <text x="44" y="520" fill="#1a1c1a" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="13" font-weight="600">読み方（第1部のまとめ）</text>
+  <text x="44" y="544" fill="#1a1c1a" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">統計 LM から後学習まで、各段は「前の問題を解くために生まれた」。到達した主流骨格は Decoder-only Transformer ＋ 大規模事前学習 ＋ 後学習。</text>
+  <text x="44" y="566" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">この先の MoE / FlashAttention / RAG / Agent などは「次の駅」ではなく、系譜の枝かシステム構成の層として読む（第2部）。</text>
+  <text x="44" y="580" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="11">Source: 教育用模式図（第1部 C1–C6 の必要性連鎖の要約。年号は省略し発明順を示す）</text>
 </svg>
