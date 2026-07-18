@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tokenize-split</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .tok { display: inline-block; margin: 0.2rem; padding: 0.25rem 0.45rem; border: 1px solid var(--ink-line); border-radius: 3px; font-family: var(--font-mono); }
+    .tok.alt { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 同じ文でも分割が変わるとモデルが見る単位列が変わる</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <button type="button" class="primary" id="modeA">分割 A</button>
+      <button type="button" id="modeB">分割 B</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint" id="hint">教育用の対比です。実際の製品トークナイザではありません。</p>
+  </div>
+  <script>
+    const text = "unhappiness";
+    const A = ["un", "happiness"];
+    const B = ["unh", "app", "iness"];
+    const stage = document.getElementById("stage");
+    const hint = document.getElementById("hint");
+    function render(parts, alt) {
+      stage.innerHTML = "<div class='mono' style='margin-bottom:0.5rem'>入力: " + text + "</div>" +
+        parts.map(p => "<span class='tok" + (alt ? " alt" : "") + "'>" + p + "</span>").join("") +
+        "<div class='mono' style='margin-top:0.65rem;color:var(--ink-dim)'>長さ = " + parts.length + " トークン</div>";
+      hint.textContent = alt
+        ? "分割 B: 境界が変わると列の長さと各記号が変わる。"
+        : "分割 A: モデルはこの単位列だけを見る。";
+    }
+    document.getElementById("modeA").onclick = () => render(A, false);
+    document.getElementById("modeB").onclick = () => render(B, true);
+    document.getElementById("reset").onclick = () => render(A, false);
+    render(A, false);
+  </script>
+</body>
+</html>

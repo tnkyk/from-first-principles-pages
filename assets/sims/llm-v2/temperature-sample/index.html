@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>temperature-sample</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.3rem 0; }
+    .bar { height: 12px; background: var(--accent-soft); border: 1px solid var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 温度は分布の鋭さを変え、選ばれるトークンの散らばりを変える（真偽スイッチではない）</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <label class="mono">温度 <input id="temp" type="range" min="10" max="200" value="100" /></label>
+      <button type="button" class="primary" id="sample">10回サンプル</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint" id="hint">logits は固定。温度だけが変わります。</p>
+  </div>
+  <script>
+    const logits = [2.2, 1.1, 0.6, 0.2];
+    const labels = ["事実A", "事実B", "言い回しC", "言い回しD"];
+    let counts = [0,0,0,0];
+    function softmax(T) {
+      const x = logits.map(l => l / T);
+      const m = Math.max(...x);
+      const e = x.map(v => Math.exp(v - m));
+      const s = e.reduce((a,b)=>a+b,0);
+      return e.map(v => v/s);
+    }
+    function draw() {
+      const T = (+document.getElementById("temp").value) / 100;
+      const p = softmax(T);
+      let html = "<div class='mono' style='margin-bottom:0.4rem'>T = " + T.toFixed(2) + "</div>";
+      for (let i=0;i<p.length;i++) {
+        html += "<div class='bar-row'><span class='mono' style='width:5rem'>" + labels[i] +
+          "</span><div class='bar' style='width:" + (p[i]*260) + "px'></div>" +
+          "<span class='mono' style='color:var(--ink-dim)'>" + p[i].toFixed(2) +
+          " / 回数 " + counts[i] + "</span></div>";
+      }
+      document.getElementById("stage").innerHTML = html;
+      document.getElementById("hint").textContent =
+        "温度は散らばりを変えるだけです。どれが『正しい事実』かは分布が知りません。";
+    }
+    document.getElementById("sample").onclick = () => {
+      const T = (+document.getElementById("temp").value) / 100;
+      const p = softmax(T);
+      for (let n=0;n<10;n++) {
+        let r = Math.random();
+        for (let i=0;i<p.length;i++) { r -= p[i]; if (r<=0) { counts[i]++; break; } }
+      }
+      draw();
+    };
+    document.getElementById("reset").onclick = () => { counts=[0,0,0,0]; draw(); };
+    document.getElementById("temp").oninput = draw;
+    draw();
+  </script>
+</body>
+</html>
