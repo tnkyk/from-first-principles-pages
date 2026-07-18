@@ -33,7 +33,7 @@
 <p>読み方を二つだけ先に固定する。<strong>(1) 機構の定義・論文の観測は事実、能力・必然性・優位性の主張は議論</strong>——混ぜない。<strong>(2) 技術史の各駅のあとで、「いまどこに残っているか」を一度示す</strong>——消えた技術と、用途を変えて生き残った技術を分け、現代の製品名へ橋を架ける。</p>
 <p><strong>言語の続きを予測する技術は、どの問題を解決しながら現在の形になり、その過程で何を獲得し、何を未解決のまま残しているのか。</strong></p>
 <p>この問いに答えるために、次の六つの問題を順に解いていく。前半は骨格が替わる技術史、後半は層の地図と論争である。機構名のカタログではない。</p>
-<ol><li><strong>記号列に確率を与え、次の記号を予測する、とは何を最適化しているのか。</strong> 直接目的と獲得能力と保証を分ける。</li><li><strong>数え上げから RNN、Attention、Transformer へ——何がボトルネックになり、何が消えたのか。</strong> 骨格交代の連鎖を辿り、各駅の「いまどこに残るか」も示す。</li><li><strong>大規模事前学習と後学習は、何を変え、何を変えなかったのか。</strong> ここまでが第1部の到達点である。</li><li><strong>いまの LLM は何層でできているのか。</strong> MoE や FlashAttention を「次の駅」にせず、層と枝で位置づける。</li><li><strong>各層の最新技術は、何を改善し、何を変えていないのか。</strong> 構造・高速化・推論方法・外部システム・置換枝を分けて見る。</li><li><strong>いま何が論争で、自分はどの立場を採るか。</strong> 事実と意見を分け、利用の線を自分で引く。</li></ol>
+<ol><li><strong>記号列に確率を与え、次の記号を予測する、とは何を最適化しているのか。</strong> 直接目的と獲得能力と保証を分ける。</li><li><strong>数え上げから RNN、Attention、Transformer へ——何がボトルネックになり、何が消えたのか。</strong> 骨格交代の連鎖を辿り、各駅の「いまどこに残るか」も示す。</li><li><strong>大規模事前学習と後学習は、何を変え、何を変えなかったのか。</strong> ここまでが第1部の到達点である。</li><li><strong>いまの LLM は何層でできているのか。</strong> 技術史の木（時間）とシステム構成の木（組み立て）を分け、MoE や Agent を同じ種類の枝に置かない。</li><li><strong>各層の最新技術は、何を改善し、何を変えていないのか。</strong> 構造・高速化・推論方法・外部システム・置換枝を、動機ラベル付きで見る。</li><li><strong>いま何が論争で、自分はどの立場を採るか。</strong> 事実と意見を分け、利用の線を自分で引く。</li></ol>
 <h2 id="第1部-技術史問題が骨格を替えた">第1部　技術史——問題が骨格を替えた</h2>
 <p>ここから先は、言語モデルの<strong>骨格そのものが交代した</strong>道だけを辿る。数え上げがニューラル表現へ、再帰が Attention へ、Encoder–Decoder が Decoder-only の大規模事前学習へ——各段階で「前の解法がどこで潰れたか」が次の部品を強制する。部品の高速化や MoE のような層内改善は、まだ登場させない。</p>
 <h2 id="言語モデルとは何か">言語モデルとは何か</h2>
@@ -255,33 +255,43 @@
 <p>後学習を、同じエンジンに <strong>別の運転マニュアルとペナルティ表を載せた</strong> と捉えると誤解は減る。エンジン（事前学習の予測力）はそのまま、ハンドルとブレーキの感覚（口調・拒否）だけが調整された——それでも道路標識（事実）までは自動では書き換わらない。</p>
 <p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図</strong>で読む。</p>
 <h2 id="第2部-現在のllmは何層でできているか">第2部　現在のLLMは何層でできているか</h2>
-<p>第1部で到達した主流骨格——Decoder-only Transformer、大規模事前学習、後学習——の上に、いまの製品は何層も積み上がっている。ここからは年表を進めるのではなく、<strong>地図</strong>を手に入れる。新しい技術名を聞いたとき、「Transformer の次」と短絡せず、どの層の、改善なのか置換なのかを問うための道具である。</p>
+<p>第1部で到達した主流骨格——Decoder-only Transformer、大規模事前学習、後学習——の先に、名前が大量に増える。ここからは年表を一本で進めるのではなく、<strong>二つの木</strong>を手に入れる。ひとつは技術史・研究系譜（時間）、もうひとつはシステム構成（組み立て）。新しい技術名を聞いたとき、「Transformer の次」と短絡せず、どちらの木の、どの動機／層の、改善なのか置換なのかを問う。</p>
 <h2 id="現在のllmは何層でできているか">現在のLLMは何層でできているか</h2>
 <p>第1部の出口までで、主流の骨格はほぼ見える。<strong>Decoder-only Transformer</strong> が系列を変換し、巨大コーパスで次トークンを当て、後学習で対話の口調と拒否境界を載せる。ところがニュースや製品発表に出てくる名前——MoE、FlashAttention、KV Cache、RLVR、RAG、Agent、Mamba——を、この一本道の「次の駅」として並べると、地図が壊れる。</p>
-<p>MoE は Transformer の後継ではない。多くの実装では、同じ Attention 骨格のまま <strong>FFN（フィードフォワード）経路を専門家の集合に差し替える</strong>部品である。FlashAttention は Attention の計算を速くしたのであって、Attention を廃したわけではない。Mamba は、長系列で Attention を置き換えようとする<strong>別の枝</strong>である。同じ「新しい」でも、仕事が違う。</p>
-<h3 id="六層の地図">六層の地図</h3>
-<p>いまの LLM 製品を、次の六層で切る。これは年表ではない。技術名を受け取ったときの<strong>置き場</strong>である。</p>
-<figure class="article-figure"><img src="assets/llm-v3/llm-layers-overview.svg" alt="" /><figcaption>見るべき構造: LLM という表層の下に、学習方法／モデル構造／推論方法／推論高速化／外部システム／UI・制度がある。 (Source: 教育用模式図)</figcaption></figure>
+<p>壊れる理由は、名前が一つの「木」に載っていないからではない。<strong>種類の違う木が混ざる</strong>からである。ここからは図を二つに分ける。</p>
+<h3 id="二つの木系譜と構成">二つの木——系譜と構成</h3>
+<div class="table-wrap"><table><thead><tr><th>木</th><th>何の木か</th><th>辺の意味</th><th>例</th></tr></thead><tbody><tr><td><strong>Tree ① 技術史・研究系譜</strong></td><td>時間／発明のつながり</td><td>「前のボトルネックを解いた」「同じ研究圧力への応答」</td><td>RNN → Transformer；Transformer の下に MoE / FlashAttention</td></tr><tr><td><strong>Tree ② システム構成</strong></td><td>製品の組み立て（時間ではない）</td><td>「依存する／層として載る」</td><td>モデルの上に学習・推論・高速化；外に RAG / Agent</td></tr></tbody></table></div>
+<p>MoE と Agent を同じ親の下に並べると、後者だけ性質が違う。<strong>Agent は Transformer から派生した発明ではなく、Transformer（など）を利用するアプリケーション構成</strong>である。RAG・Tool・MCP・Memory も同様——系譜の子ではなく、構成の外層である。</p>
+<h3 id="tree-①技術史時間">Tree ①：技術史（時間）</h3>
+<p>第1部が辿った一本道は、ここまででよい。</p>
+<figure class="article-figure"><img src="assets/llm-v3/tech-history-tree.svg" alt="" /><figcaption>見るべき構造: 統計 LM から Transformer までは一本道。その先は研究系譜の枝。RAG/Agent はこの木に載せない。 (Source: 教育用模式図)</figcaption></figure>
+<p>Transformer 以降は「次の駅」ではなく、<strong>動機ラベル付きの枝</strong>で読む。枝名が「なぜその技術が生まれたか」を先に言う。</p>
+<figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches.svg" alt="" /><figcaption>見るべき構造: 巨大化／長文／高速化／推論・整列／置換——枝は改善動機。Agent 等は意図的にこの図の外。 (Source: 教育用模式図)</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>動機ラベル（枝名）</th><th>そこに載る技術の例</th><th>変えにくい骨格</th></tr></thead><tbody><tr><td>巨大化したい</td><td>Dense、MoE</td><td>Self-Attention＋自己回帰</td></tr><tr><td>長文を扱いたい</td><td>RoPE、YaRN、長文脈、GQA/MLA</td><td>有限窓という制約自体</td></tr><tr><td>推論を速くしたい</td><td>FlashAttention、KV Cache、投機的デコード、量子化</td><td>条件付き分布の意味</td></tr><tr><td>推論・整列を伸ばしたい</td><td>SFT/RLHF/DPO、CoT、TTC、RLVR</td><td>次トークン生成という手続き</td></tr><tr><td>骨格を疑う／置き換える</td><td>Mamba、Hybrid、Diffusion LM</td><td>（ここだけ幹が変わる提案）</td></tr></tbody></table></div>
+<p>展開の一例として、<strong>モデル構造</strong>だけを開くと Dense / MoE の部品棚になる。</p>
+<figure class="article-figure"><img src="assets/llm-v3/model-structure-layer.svg" alt="" /><figcaption>見るべき構造: Transformer の下に Dense / MoE / 位置表現などが並ぶ——系譜上の部品選択。 (Source: 教育用模式図)</figcaption></figure>
+<h3 id="tree-②システム構成時間ではない">Tree ②：システム構成（時間ではない）</h3>
+<p>いまの LLM <strong>製品</strong>を切る木は、年表ではない。技術名を受け取ったときの<strong>置き場</strong>である。</p>
+<figure class="article-figure"><img src="assets/llm-v3/system-composition-tree.svg" alt="" /><figcaption>見るべき構造: LLM システムの構成。Agent は External systems の下——Transformer の子ではない。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/llm-layers-overview.svg" alt="" /><figcaption>見るべき構造: 同じ六層をスタックとして見た図。年表ではなく構成の座標。 (Source: 教育用模式図)</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>層</th><th>そこで起きていること</th><th>例</th></tr></thead><tbody><tr><td>学習方法</td><td>何を目的に重みを更新するか</td><td>次トークン事前学習、SFT、RLHF、DPO、RLVR</td></tr><tr><td>モデル構造</td><td>どの計算グラフで表現を作るか</td><td>Dense Transformer、MoE、位置表現、MLA/GQA</td></tr><tr><td>推論方法</td><td>分布からどうトークン列を組み立てるか</td><td>temperature、CoT、test-time compute</td></tr><tr><td>推論高速化</td><td>同じ答えをより安く速く出すか</td><td>KV Cache、FlashAttention、量子化、投機的デコード</td></tr><tr><td>外部システム</td><td>モデル外の記憶・行為・検証</td><td>RAG、Tool use、MCP、Agent、メモリ</td></tr><tr><td>UI / 制度</td><td>人と組織がどう触り、誰が責任を負うか</td><td>チャット UI、権限、監査、法的責任</td></tr></tbody></table></div>
-<p>展開の一例として、<strong>モデル構造</strong>だけを開くとこうなる。</p>
-<figure class="article-figure"><img src="assets/llm-v3/model-structure-layer.svg" alt="" /><figcaption>見るべき構造: Transformer の下に Dense / MoE / 位置表現などが並ぶ。歴史の駅名ではなく、構造層の選択肢。 (Source: 教育用模式図)</figcaption></figure>
-<h3 id="後継層内改善置換枝">後継・層内改善・置換枝</h3>
-<p>技術を三つに分類する。混同すると「Transformer の次が MoE」が生まれる。</p>
-<div class="table-wrap"><table><thead><tr><th>型</th><th>意味</th><th>例</th></tr></thead><tbody><tr><td>骨格の後継（第1部）</td><td>前の主流解法が潰れて、別骨格が中心になる</td><td>RNN → Transformer</td></tr><tr><td>層内改善</td><td>同じ骨格のまま、ある層のコストや品質を動かす</td><td>MoE、FlashAttention、KV Cache、RoPE</td></tr><tr><td>置換／併用の枝</td><td>主流骨格を置き換える、または混ぜる提案</td><td>Mamba、Hybrid、Diffusion LM</td></tr></tbody></table></div>
-<figure class="article-figure"><img src="assets/llm-v3/transformer-branches.svg" alt="" /><figcaption>見るべき構造: Transformer から、高速化の枝と置換の枝が分かれる。MoE は幹の内側の部品。 (Source: 教育用模式図)</figcaption></figure>
+<p><strong>事実:</strong> RAG / Tool / Agent はモデル外側の契約である。<strong>誤りやすい絵:</strong> <code>Transformer → MoE → Agent</code>。正しい絵は、系譜では <code>Transformer → MoE</code>、構成では <code>LLM system → External systems → Agent</code> である。</p>
+<h3 id="混同を避ける三分法系譜側">混同を避ける三分法（系譜側）</h3>
+<p>Tree ① の中だけでも、次の三つを混ぜない。</p>
+<div class="table-wrap"><table><thead><tr><th>型</th><th>意味</th><th>例</th></tr></thead><tbody><tr><td>骨格の後継</td><td>前の主流解法が潰れて、別骨格が中心になる</td><td>RNN → Transformer</td></tr><tr><td>層内・動機枝の改善</td><td>同じ骨格のまま、ある圧力に応答する</td><td>MoE、FlashAttention、RoPE</td></tr><tr><td>置換／併用の枝</td><td>主流骨格を置き換える、または混ぜる提案</td><td>Mamba、Hybrid、Diffusion LM</td></tr></tbody></table></div>
 <h3 id="ニュース診断の型">ニュース診断の型</h3>
-<p>「DeepSeek が MoE を採用」と聞いたとき、必要なのは製品名の暗記ではない。次の三つを順に問う。</p>
-<ol><li><strong>層はどこか</strong> — モデル構造（活性パラメータと総パラメータの分離）。</li><li><strong>改善対象は何か</strong> — 密な巨大化における学習・推論の計算効率。賢さの魔法ではない。</li><li><strong>変えなかったものは何か</strong> — 多くの場合、Self-Attention と自己回帰生成という骨格は残る。</li></ol>
+<p>「DeepSeek が MoE を採用」と聞いたとき、まず <strong>どちらの木の話か</strong> を選ぶ。</p>
+<ol><li><strong>Tree ①か Tree ②か</strong> — 発明・系譜の話か、製品のどの層が動いたかの話か。</li><li><strong>層／動機はどこか</strong> — MoE なら系譜では「巨大化」、構成では「モデル構造」。</li><li><strong>変えなかったものは何か</strong> — 多くの場合、Self-Attention と自己回帰生成という骨格は残る。</li></ol>
 <p>「だから何？」への短い答えは、こうなる。<em>同じ（または近い）品質帯を、トークンあたりの活性計算量を抑えて狙う構造選択であり、Transformer 時代の終焉宣言ではない。</em></p>
-<p>同様に、FlashAttention なら推論高速化層、RAG なら外部システム層、RLVR なら学習方法と推論方法の境目——層が違えば、読むべき指標も違う（遅延、活性 FLOPs、検索再現率、検証可能報酬の正答率）。</p>
+<p>FlashAttention なら Tree ①で「速くしたい」、Tree ②で推論高速化層。RAG なら Tree ①には載せない——Tree ②の外部システム層だけ。RLVR なら学習方法と推論方法の境目。層が違えば、読むべき指標も違う。</p>
 <h3 id="ここから先の読み方">ここから先の読み方</h3>
-<p>第1部の各駅末尾にあった <strong>「いまどこに残っているか」</strong> は、技術史を現代へつなぐ表だった。本章の六層マップは、それとは役割が違う——<strong>いま聞いた新しい名前を、どの層の改善／置換として置くか</strong> の座標である。歴史表で「LSTM は音声に残る」と言えたら、ニュースで「FlashAttention」と出たときは、まずこの地図で層を名指す。</p>
-<p>第3部は、六層のうち特に動きの激しい層を順に見る。順序は歴史の必然ではない。各章の冒頭で「対象レイヤー／改善対象／変えなかった骨格」を固定する。第4部で論争を束ね、第5部で自分の立場を選ぶ。事実（機構と観測）と議論（優位性・必然性・能力の解釈）は混ぜない——第5部の三分法と同じ線である。</p>
-<p>地図を持たないまま部品名を増やすと、また一本道の幻に戻る。ここでの出口は一つだけだ。<strong>新しい技術名は、まず層を名指し、次に改善か置換かを問う。</strong></p>
+<p>第1部の各駅末尾にあった <strong>「いまどこに残っているか」</strong> は、技術史を現代へつなぐ表だった。本章の二つの木は、それとは役割が違う——<strong>新しい名前を、系譜のどの動機枝か／構成のどの層か</strong> に落とす道具である。</p>
+<p>第3部は、Tree ②の各層（と Tree ①の動機枝）を順に見る。順序は歴史の必然ではない。各章の冒頭で「対象レイヤー／改善対象／変えなかった骨格」を固定する。第4部で論争を束ね、第5部で自分の立場を選ぶ——そこで二つの木を一枚に重ねた図を回収する。</p>
+<p>地図を持たないまま部品名を増やすと、また一本道の幻に戻る。ここでの出口は一つだけだ。<strong>新しい技術名は、まずどちらの木か、次に動機または層を名指し、改善か置換かを問う。</strong></p>
 <h2 id="第3部-各層の最新技術">第3部　各層の最新技術</h2>
 <p>地図の各層で、いま何が改善されているかを見る。順序は歴史の「次の駅」ではない。モデル構造、推論高速化、推論方法、外部システム、そして骨格の置換枝——それぞれが<strong>別の改善対象</strong>を持つ。章の冒頭で必ず「どの層か／何を改善するか／何は変えないか」を固定する。</p>
 <h2 id="モデル構造の部品denseとmoe">モデル構造の部品——DenseとMoE</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>モデル構造</td></tr><tr><td>改善対象</td><td>密なスケールにおける容量と活性計算の分離——総パラメータを増やしつつ、各 forward で動かす重みを抑える</td></tr><tr><td>変えなかった骨格</td><td>Decoder-only Transformer の <strong>Self-Attention</strong> と <strong>因果自己回帰</strong> 生成</td></tr><tr><td>新しいコスト</td><td>ルーティング偏り、Expert 間通信、負荷分散、活性パスの再現性</td></tr><tr><td>現在の位置づけ</td><td>主流部品（大規模オープンウェイト・商用の一部で採用）。例: Mixtral、DeepSeek（MoE 系）、Grok、Qwen MoE 系など——いずれも <strong>Transformer 骨格上の構造選択</strong></td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>モデル構造（Tree ②）</td></tr><tr><td>Tree ①の動機枝</td><td><strong>巨大化したい</strong>（Dense / MoE）——Transformer 系譜の内側</td></tr><tr><td>改善対象</td><td>密なスケールにおける容量と活性計算の分離——総パラメータを増やしつつ、各 forward で動かす重みを抑える</td></tr><tr><td>変えなかった骨格</td><td>Decoder-only Transformer の <strong>Self-Attention</strong> と <strong>因果自己回帰</strong> 生成</td></tr><tr><td>新しいコスト</td><td>ルーティング偏り、Expert 間通信、負荷分散、活性パスの再現性</td></tr><tr><td>現在の位置づけ</td><td>主流部品（大規模オープンウェイト・商用の一部で採用）。例: Mixtral、DeepSeek（MoE 系）、Grok、Qwen MoE 系など——いずれも <strong>Transformer 骨格上の構造選択</strong></td></tr></tbody></table></div>
 <p>第1部の出口で骨格は固定された。<strong>Decoder-only Transformer</strong> が系列を変換し、事前学習と後学習が分布を形作る。ニュースで「MoE 採用」と出ても、それは Transformer の<strong>後継</strong>ではない。多くの実装では、Attention ブロックはそのままに、層内の <strong>FFN（Feed-Forward Network、フィードフォワードネットワーク）</strong> 経路だけを複数の専門家に差し替え、<strong>疎活性化（sparse activation）</strong> で幅を増やす——<strong>モデル構造層</strong>の部品選択である。</p>
 <h3 id="dense密な-ffn-が標準形">Dense：密な FFN が標準形</h3>
 <p><strong>Dense（密）</strong> モデルでは、Transformer の各層に <strong>単一の FFN</strong> が載る。全パラメータが毎回の forward で候補となり、活性計算量は総パラメータ数とほぼ一致する。Llama や GPT 系の古典的な大規模言語モデルは、この形が基準である。</p>
@@ -309,7 +319,7 @@
 <h3 id="論争カードmoe-vs-dense短く">論争カード：MoE vs Dense（短く）</h3>
 <div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>MoE 優位</td><td>同品質帯で活性 FLOPs を抑え、総容量を稼げる。Mixtral は密 70B 級との比較例として引用される（*2）</td></tr><tr><td>Dense 優位</td><td>実装・デバッグ・再現性が単純。通信とルーティング偏りの運用コストが小さい</td></tr><tr><td>線引き</td><td>「どちらが賢いか」ではなく、<strong>容量と活性計算を分離したいか</strong> の工学判断。詳細は第4部</td></tr></tbody></table></div>
 <h2 id="推論を速くする同じ骨格のまま">推論を速くする——同じ骨格のまま</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論高速化</td></tr><tr><td>改善対象</td><td>自己回帰生成の遅延・メモリ・スループット——同じ条件付き分布をより安く届ける</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みと <strong>条件付き次トークン予測</strong> の意味；モデル構造（Dense/MoE）そのもの</td></tr><tr><td>新しいコスト</td><td>量子化誤差、投機受理率の頭打ち、キャッシュ管理の複雑さ、実装依存の品質差</td></tr><tr><td>現在の位置づけ</td><td>主流部品（本番推論の標準装備）。KV Cache・GQA・FlashAttention・量子化はほぼ既定；投機的デコードはレイテンシ要件の高い提供で採用</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論高速化（Tree ②）</td></tr><tr><td>Tree ①の動機枝</td><td><strong>推論を速くしたい</strong>——同じ骨格の提供改善（Agent や RAG とは別の木）</td></tr><tr><td>改善対象</td><td>自己回帰生成の遅延・メモリ・スループット——同じ条件付き分布をより安く届ける</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みと <strong>条件付き次トークン予測</strong> の意味；モデル構造（Dense/MoE）そのもの</td></tr><tr><td>新しいコスト</td><td>量子化誤差、投機受理率の頭打ち、キャッシュ管理の複雑さ、実装依存の品質差</td></tr><tr><td>現在の位置づけ</td><td>主流部品（本番推論の標準装備）。KV Cache・GQA・FlashAttention・量子化はほぼ既定；投機的デコードはレイテンシ要件の高い提供で採用</td></tr></tbody></table></div>
 <p>前章は <strong>モデル構造</strong> ——FFN を Dense にするか MoE にするか——を見た。本章は別の枝である。<strong>推論高速化</strong>は、同じ骨格・同じチェックポイントで、トークンを一つずつ出す手続きを速く・軽くする層だ。ベンチの「賢さ」が跳ね上がったわけではない。遅延が下がった、同時セッションが増えた、GPU 枚数が減った——<strong>提供</strong>の問題である。</p>
 <h3 id="kv-cache再計算を避ける">KV Cache：再計算を避ける</h3>
 <p>自己回帰生成では、各デコードステップで過去トークンへの注意が必要になる。毎回ゼロから計算すれば、長さに比例してコストが膨らむ。<strong>KV Cache（キー・バリューキャッシュ）</strong> は、すでに計算した層のキー（K）と値（V）を保持し、新しいトークン分だけ注意を更新する仕組みである。長い生成ほどキャッシュが膨らみ、バッチ同時実行と合わさると GPU メモリの主因になる——ここから先の部品は、そのメモリと帯域を削る。</p>
@@ -328,7 +338,7 @@
 <h3 id="速くなっても変わらないもの">速くなっても変わらないもの</h3>
 <p>KV 最適化はメモリを節約しても、<strong>文脈窓</strong> の有限性は消えない。量子化は誤差を導入しうる。投機的デコードは草稿の品質に依存する。いずれも「うまく動けば速い・安い」であり、事実照合・幻覚抑制・整列の保証は買わない。製品が速くなったからといって、パラメータ内にない知識が生まれるわけでもない。</p>
 <h2 id="推論のアルゴリズム探索と考える時間">推論のアルゴリズム——探索と考える時間</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論方法</td></tr><tr><td>改善対象</td><td>一発の次トークン列では踏み切れない多段推論——分布からどう切り出し、どれだけ列を伸ばすか</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みは固定のまま <strong>次トークン予測</strong> で列を伸ばす；真偽を保証する外部検証は別</td></tr><tr><td>新しいコスト</td><td>レイテンシ、トークン課金、overthinking、報酬ハッキング、再現性の低下</td></tr><tr><td>現在の位置づけ</td><td>主流部品（チャット既定のサンプリング）＋急速に製品化された推論時拡張（CoT/TTC/RLVR）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論方法（Tree ②；学習方法と境を接する）</td></tr><tr><td>Tree ①の動機枝</td><td><strong>推論・整列を伸ばしたい</strong>——CoT / TTC / RLVR（後学習と隣接）</td></tr><tr><td>改善対象</td><td>一発の次トークン列では踏み切れない多段推論——分布からどう切り出し、どれだけ列を伸ばすか</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みは固定のまま <strong>次トークン予測</strong> で列を伸ばす；真偽を保証する外部検証は別</td></tr><tr><td>新しいコスト</td><td>レイテンシ、トークン課金、overthinking、報酬ハッキング、再現性の低下</td></tr><tr><td>現在の位置づけ</td><td>主流部品（チャット既定のサンプリング）＋急速に製品化された推論時拡張（CoT/TTC/RLVR）</td></tr></tbody></table></div>
 <p>前章までで、同じ骨格を <strong>速く</strong> 届ける層を見た。本章は <strong>推論方法</strong> ——固定された分布から、どのトークン列を選び、どれだけ長く生成するか——である。製品 UI に「考え中」と出ても、裏側は依然としてトークンを逐次生成している。人間の黙考とは別の機構だ。</p>
 <h3 id="分布からの切り出しsampling">分布からの切り出し：Sampling</h3>
 <p>各ステップでモデルは語彙上の logits を出し、softmax で確率分布に変換する。そこから次のトークンを一つ選ぶ手続きが <strong>デコード（Decoding）</strong> である。<strong>Greedy decoding</strong> は毎步 argmax——最も確率の高いトークンだけを取る。決定的で安いが、局所最適に閉じやすい。</p>
@@ -352,9 +362,9 @@
 <h3 id="論争の所在短く">論争の所在（短く）</h3>
 <p>CoT は推論そのものか痕跡か、RLVR は新能力か既存列の再重み付けか——これらは第4部で束ねる。ここでは事実だけ固定する：<strong>探索と推論時予算は正答率を変えうる</strong> が、正しさの保証や「新しい推理モジュール」の定義までは単体では約束しない。</p>
 <h2 id="外部システムragツールエージェント">外部システム——RAG・ツール・エージェント</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>外部システム</td></tr><tr><td>改善対象</td><td>凍結した重みと有限の文脈窓では触れない——知識更新・計算実行・長期状態・検証境界</td></tr><tr><td>変えなかった骨格</td><td>モデル内部は依然として <strong>条件付き次トークン予測</strong> ；ツールの実行そのものはモデル外</td></tr><tr><td>新しいコスト</td><td>検索品質、権限設計、オーケストレーション、監査、幻覚と参照の不一致</td></tr><tr><td>現在の位置づけ</td><td>主流部品（製品の RAG・Tool use は標準オプション化）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>外部システム（Tree ②）</td></tr><tr><td>Tree ①での位置</td><td><strong>載せない</strong>——RAG / Tool / MCP / Memory / Agent は Transformer の研究系譜の子ではない</td></tr><tr><td>改善対象</td><td>凍結した重みと有限の文脈窓では触れない——知識更新・計算実行・長期状態・検証境界</td></tr><tr><td>変えなかった骨格</td><td>モデル内部は依然として <strong>条件付き次トークン予測</strong> ；ツールの実行そのものはモデル外</td></tr><tr><td>新しいコスト</td><td>検索品質、権限設計、オーケストレーション、監査、幻覚と参照の不一致</td></tr><tr><td>現在の位置づけ</td><td>主流部品（製品の RAG・Tool use は標準オプション化）</td></tr></tbody></table></div>
 <p>推論方法を振っても、パラメータ内にない事実は生まれない。社内規程の最新版、いまの株価、手元の CSV の集計——文脈窓と凍結した重みだけでは触れない。Chat Model の後学習は口調と拒否境界を寄せても、世界の更新や計算機の実行は組み込まれていない。</p>
-<p><strong>RAG（Retrieval-Augmented Generation、検索拡張生成）</strong>、<strong>Function calling / Tool use</strong>、<strong>Agent</strong> オーケストレーションは、閉じた次トークン予測ループに <strong>外側の情報と行為</strong> を接続する <strong>アプリケーション層</strong> である。モデル性能とシステム性能を混同しない——ここが本章の契約である。</p>
+<p>ここで木を取り違えない。<strong>誤:</strong> <code>Transformer → MoE → Agent</code>。<strong>正:</strong> 系譜ではモデル側の枝が止まり、構成では <code>LLM system → External systems → Agent</code> になる。<strong>RAG（Retrieval-Augmented Generation、検索拡張生成）</strong>、<strong>Function calling / Tool use</strong>、<strong>Agent</strong> オーケストレーションは、閉じた次トークン予測ループに <strong>外側の情報と行為</strong> を接続する <strong>アプリケーション層</strong> である——Transformer から「生えた」発明ではない。モデル性能とシステム性能を混同しない——ここが本章の契約である。</p>
 <h3 id="rag外側メモリを窓に載せる">RAG：外側メモリを窓に載せる</h3>
 <p><strong>RAG</strong> とは、Lewis ら（2020）が示した Retriever + Generator の二部構成である。質問が来ると Retriever が外部コーパス——社内 Wiki、論文 DB、Web インデックス——から関連文書を取り出し、Generator（通常は事前学習済み言語モデル）がそれらを文脈窓内の接頭辞に連結したうえで次トークン予測により回答を生成する（*1）。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/rag-1.png" alt="" /><figcaption>見るべき構造: Retriever が文書を取り、Generator がそれに条件付けて生成する。 (Source: Lewis et al., 2020, Fig.1)</figcaption></figure>
@@ -375,9 +385,9 @@
 <p>画像・音声を同じチャットに載せる <strong>マルチモーダル</strong> 化は、独立の「次の歴史」ではない。<strong>表現層</strong> ——Encoder で視覚特徴を列に写し、既存のデコーダが条件付き生成する——の拡張である。Early Fusion、Late Fusion、統一トークン化など経路は異なるが、下流の保証構造は自動では書き換わらない。幻覚・グラウンディング・検証は、テキストのみの契約の延長として残る。</p>
 <figure class="article-figure"><img src="assets/llm-v3/multimodal-paths.svg" alt="" /><figcaption>見るべき構造: モダリティ接続の三経路。いずれも生成核は条件付き次トークン予測に帰着しうる。 (Source: 教育用模式図)</figcaption></figure>
 <h2 id="置換と併用の枝mambahybrid拡散lm">置換と併用の枝——Mamba・Hybrid・拡散LM</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>置換／併用の枝（モデル構造の挑戦）</td></tr><tr><td>改善対象</td><td>全対全 Attention の二次コスト、KV メモリ、自己回帰の逐次性・誤り伝播</td></tr><tr><td>変えなかった骨格（主流）</td><td>2024–2026 の商用・オープンウェイト中心は依然 <strong>Decoder-only Transformer + 自己回帰</strong></td></tr><tr><td>新しいコスト</td><td>長系列での in-context 再現性、反復 denoise のレイテンシ、エコシステム未成熟</td></tr><tr><td>現在の位置づけ</td><td>研究枝／併用（主流を置き換えたとは言い切れない並行提案）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>置換／併用の枝（モデル構造の挑戦）</td></tr><tr><td>Tree ①の動機枝</td><td><strong>骨格を疑う／置き換える</strong>——高速化枝（同じ Attention を速くする）とは別</td></tr><tr><td>改善対象</td><td>全対全 Attention の二次コスト、KV メモリ、自己回帰の逐次性・誤り伝播</td></tr><tr><td>変えなかった骨格（主流）</td><td>2024–2026 の商用・オープンウェイト中心は依然 <strong>Decoder-only Transformer + 自己回帰</strong></td></tr><tr><td>新しいコスト</td><td>長系列での in-context 再現性、反復 denoise のレイテンシ、エコシステム未成熟</td></tr><tr><td>現在の位置づけ</td><td>研究枝／併用（主流を置き換えたとは言い切れない並行提案）</td></tr></tbody></table></div>
 <p>第3部のほとんどは、<strong>同じ Transformer 骨格のまま</strong> ある層を改善する話だった。本章だけ枝が違う。<strong>置換／併用の枝</strong> ——Attention や自己回帰そのものを疑い、別の系列変換や生成枠組みを提案する研究である。地図上、これらは歴史の「次の駅」ではなく、主流から <strong>並行して伸びる分岐</strong> である。</p>
-<figure class="article-figure"><img src="assets/llm-v3/transformer-branches.svg" alt="" /><figcaption>見るべき構造: Transformer から高速化の枝（第8章）と置換の枝（本章）が分かれる。MoE は幹の内側。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches.svg" alt="" /><figcaption>見るべき構造: Tree ①の動機枝。本章は右端の Replace spine。高速化枝や MoE とは別の圧力。 (Source: 教育用模式図)</figcaption></figure>
 <h3 id="state-space-model-と-mamba">State Space Model と Mamba</h3>
 <p><strong>State Space Model（状態空間モデル, SSM）</strong> は、連続時間の動力学を離散化し、隠れ状態の更新で系列を処理する枠組みである。RNN に似た逐次更新を持ちながら、特定の構造下では畳み込みと等価な並列計算が可能になる。Gu &amp; Dao の <strong>Mamba</strong>（2023）は、<strong>選択的状態空間（Selective State Space）</strong> により、入力に応じて状態遷移を選び分け、長系列で Transformer の二次計算量を避ける経路を示した（*1）。</p>
 <p>Mamba が主張するのは、長距離依存を <strong>Attention の全対全参照</strong> なしに扱える可能性である。ただし、大規模スケールでの汎用性、マルチモーダル統合、ツール呼び出しとの相性は、Transformer 主流に比べて実証が浅い領域が残る。第8章の FlashAttention が「同じ Attention を速くする」枝であるのに対し、Mamba は <strong>Attention ブロックの置換候補</strong> として読む。</p>
@@ -427,17 +437,19 @@
 <p>ここで初めて、著者の <strong>利用上の圧縮モデル</strong> を提示する。これは技術の正式分解ではない。壊れにくい委任判断のための、一つの見方である。</p>
 <p><strong>大規模言語モデル単体を、「膨大なパターンの検索」と「条件に合わせた翻訳」に近い装置として扱う。</strong> 重みは過去コーパスの統計を圧縮し、プロンプトはクエリであり、出力は「らしい続き」への写像である。これだけでは冷たい。だから実務では、同じ見方に <strong>文脈窓</strong>（いま条件に入っている接頭辞の有限性）、<strong>外側のワークフロー</strong>（検索・ツール・人間の検証・権限設計）、<strong>推論時計算</strong>（難問に時間予算を足す）を一体のスタンスとして載せる。四つは別レイヤーの正式名称ではなく、<strong>信頼をどこで設計するか</strong> を指す道具である。</p>
 <p>この立場を採ると、チャットは「賢い相手」ではなく、<strong>条件付き生成器＋あなたが足した境界</strong> として扱える。採らなくてもよい。代替として、「理解を獲得した内部表現」を重視する見方や、ベンチマーク至上主義もある。重要なのは、入口でどれか一つを押し付けないことではなく、<strong>終盤で明示し、選べるようにすること</strong> である。</p>
-<h3 id="地図の使い方第2部の回収">地図の使い方（第2部の回収）</h3>
-<p>第2部の六層——学習方法／モデル構造／推論方法／推論高速化／外部システム／UI・制度——を、判断の既定座標にする。</p>
-<figure class="article-figure"><img src="assets/llm-v3/llm-layers-overview.svg" alt="" /><figcaption>見るべき構造: ニュースや論文の技術名は、まずこの六層のどこかに落とす。 (Source: 教育用模式図)</figcaption></figure>
-<p>層を混ぜると判断が濁る。「モデルが悪い」のか「Retriever が誤った」のか「デコードが揺れた」のか——介入が違う。MoE はモデル構造、FlashAttention は推論高速化、RAG は外部システム、と名指せれば、「だから何？」に答えられる。</p>
+<h3 id="二つの木の回収第2部">二つの木の回収（第2部）</h3>
+<p>第2部で分けた二つの木を、ここで一枚に重ねる。上半分は時間（技術史）、下半分は構成（システム）——辺の意味が違う。</p>
+<figure class="article-figure"><img src="assets/llm-v3/two-trees-overview.svg" alt="" /><figcaption>見るべき構造: 上＝技術史（時間・動機枝）、下＝システム構成（層）。Agent は下の External / App にだけ載る。 (Source: 教育用模式図)</figcaption></figure>
+<p>判断の既定座標は、まず <strong>どちらの木か</strong>、次に Tree ②の六層——学習方法／モデル構造／推論方法／推論高速化／外部システム／UI・制度——である。</p>
+<figure class="article-figure"><img src="assets/llm-v3/llm-layers-overview.svg" alt="" /><figcaption>見るべき構造: 構成側の座標。ニュースや論文の技術名を、まずこの六層のどこかに落とす。 (Source: 教育用模式図)</figcaption></figure>
+<p>層を混ぜると判断が濁る。「モデルが悪い」のか「Retriever が誤った」のか「デコードが揺れた」のか——介入が違う。MoE はモデル構造（かつ系譜では巨大化の枝）、FlashAttention は推論高速化、RAG と Agent は外部システム、と名指せれば、「だから何？」に答えられる。</p>
 <h3 id="モデル単体では保証されないもの">モデル単体では保証されないもの</h3>
 <p>「できない」と言い切ると、能力の有無まで否定してしまう。ここでは <strong>単体では保証されない</strong> と線を引く。</p>
 <div class="table-wrap"><table><thead><tr><th>領域</th><th>単体では保証されない理由（層）</th></tr></thead><tbody><tr><td>事実の正しさ</td><td>事前学習・次トークン予測：尤度と真理の乖離</td></tr><tr><td>最新情報</td><td>事前学習のカットオフ；窓外は存在しない</td></tr><tr><td>長文の一貫した遵守</td><td>文脈窓・位置効果；要約による書き換え</td></tr><tr><td>計算・照会の正確性</td><td>ツール未使用時は prose による模倣</td></tr><tr><td>権限・副作用のない行為</td><td>アプリ層の実行と承認なし</td></tr><tr><td>再現性のある出力</td><td>推論層の Sampling</td></tr><tr><td>画像・音声の接地</td><td>表現層の拡張は参照の証明ではない</td></tr></tbody></table></div>
 <p>保証が要るときは、層を上げる——検索、ツール、テスト、人間——のではなく、<strong>設計として外側に渡す</strong>。</p>
 <h3 id="判断規則">判断規則</h3>
 <p>新しい主張や製品宣伝に直面したとき、次の順で問う。</p>
-<ol><li><strong>歴史かマップか</strong> — 骨格交代の話か、層内改善か、置換枝か。</li><li><strong>層を名指す</strong> — 学習方法／モデル構造／推論方法／推論高速化／外部システム／UI・制度。</li><li><strong>棚を分ける</strong> — 観測事実か、強い推論か、立場か。混ぜない。</li><li><strong>「単体では保証されない」で線を引く</strong> — 能力否定と保証否定を混同しない。</li><li><strong>著者の検索＋翻訳は一つの立場</strong> — 技術の正式分解として再エクスポートしない。</li><li><strong>論争 ID に落とす</strong> — 第4部のどの問いに近いかを一言で言えるか。</li></ol>
+<ol><li><strong>どちらの木か</strong> — Tree ①（技術史・系譜）か Tree ②（システム構成）か。Agent を Tree ①の子に置かない。</li><li><strong>歴史か動機枝か</strong> — 骨格交代か、巨大化／高速化などの動機枝か、置換枝か。</li><li><strong>層を名指す</strong> — 学習方法／モデル構造／推論方法／推論高速化／外部システム／UI・制度。</li><li><strong>棚を分ける</strong> — 観測事実か、強い推論か、立場か。混ぜない。</li><li><strong>「単体では保証されない」で線を引く</strong> — 能力否定と保証否定を混同しない。</li><li><strong>著者の検索＋翻訳は一つの立場</strong> — 技術の正式分解として再エクスポートしない。</li><li><strong>論争 ID に落とす</strong> — 第4部のどの問いに近いかを一言で言えるか。</li></ol>
 <p>症状から層への短い対応表。</p>
 <div class="table-wrap"><table><thead><tr><th>症状</th><th>まず疑う層</th></tr></thead><tbody><tr><td>言い回しだけ変わる再生成</td><td>推論（Sampling）</td></tr><tr><td>長い貼り付け後にルール消失</td><td>文脈窓・製品側要約</td></tr><tr><td>存在しない引用・数値</td><td>事前学習＋幻覚；外側検証未実施</td></tr><tr><td>「検索した」表示でも誤り</td><td>アプリケーション（RAG）と prose の合成</td></tr><tr><td>ツール結果と本文の不一致</td><td>アプリケーション（Tool use）</td></tr><tr><td>「考え中」でも誤答</td><td>推論（test-time compute）；照合は別</td></tr><tr><td>画像を見ていない説明</td><td>表現（マルチモーダル）＋幻覚</td></tr></tbody></table></div>
 <h3 id="life-placement">life placement</h3>
