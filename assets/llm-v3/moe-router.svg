@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="Mixture-of-Experts（疎活性）">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="Mixture-of-Experts (sparse activation)">
   <rect width="720" height="280" fill="#f2f3f0"/>
-  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Mixture-of-Experts（疎活性）</text>
-  
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Mixture-of-Experts (sparse activation)</text>
   <rect x="40" y="100" width="120" height="50" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="70" y="132" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">トークン</text>
+  <text x="70" y="132" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">Token</text>
   <path d="M170 125 H220" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="230" y="90" width="130" height="70" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
   <text x="255" y="132" fill="#0d7a6c" font-family="Georgia, serif" font-size="16">Router</text>
@@ -15,10 +14,9 @@
   <rect x="430" y="115" width="100" height="40" rx="5" fill="#35d0bb" stroke="#0d7a6c"/>
   <text x="455" y="141" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Expert 5</text>
   <rect x="430" y="170" width="100" height="40" rx="5" fill="#ddd" stroke="#393b38"/>
-  <text x="448" y="196" fill="#4a4c48" font-family="Georgia, serif" font-size="13">他は休止</text>
+  <text x="448" y="196" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Idle</text>
   <path d="M540 125 H590" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="600" y="100" width="90" height="50" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="618" y="132" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">合成</text>
-  <text x="40" y="245" fill="#4a4c48" font-family="Georgia, serif" font-size="13">総パラメータ大・活性パラメータ小 · Mixtral 8x7B (Jiang et al., 2024)</text>
-
+  <text x="618" y="132" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">Combine</text>
+  <text x="40" y="245" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Large total params · small active params · Mixtral 8x7B (Jiang et al., 2024)</text>
 </svg>

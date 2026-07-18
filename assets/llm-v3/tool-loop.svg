@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="ツール呼び出しループ">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="Tool-use loop">
   <rect width="720" height="260" fill="#f2f3f0"/>
-  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">ツール呼び出しループ</text>
-  
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Tool-use loop</text>
   <rect x="40" y="80" width="150" height="55" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="70" y="114" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">ユーザ質問</text>
+  <text x="62" y="114" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">User question</text>
   <path d="M200 108 H250" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="260" y="70" width="170" height="75" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="280" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">モデル</text>
-  <text x="280" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">tool_use を返す</text>
+  <text x="280" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">Model</text>
+  <text x="280" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">returns tool_use</text>
   <path d="M440 108 H490" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="500" y="70" width="180" height="75" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="520" y="105" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">アプリ実行</text>
-  <text x="520" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">tool_result を戻す</text>
-  <text x="40" y="190" fill="#4a4c48" font-family="Georgia, serif" font-size="14">モデルは実行せず、構造化呼び出しだけを出す（信頼境界）</text>
-  <text x="40" y="225" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · Anthropic Tool use ドキュメントの往復</text>
-
+  <text x="520" y="105" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">App executes</text>
+  <text x="520" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">returns tool_result</text>
+  <text x="40" y="190" fill="#4a4c48" font-family="Georgia, serif" font-size="14">The model does not execute; it only emits structured calls (trust boundary)</text>
+  <text x="40" y="225" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Teaching schematic · Anthropic tool-use request/response loop</text>
 </svg>

@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="テスト時計算（reasoning）">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="Test-time compute (reasoning)">
   <rect width="720" height="280" fill="#f2f3f0"/>
-  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">テスト時計算（reasoning）</text>
-  
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Test-time compute (reasoning)</text>
   <rect x="50" y="80" width="200" height="70" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="70" y="122" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">難問プロンプト</text>
+  <text x="70" y="122" fill="#1a1c1a" font-family="Georgia, serif" font-size="15">Hard prompt</text>
   <path d="M260 115 H310" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="320" y="60" width="240" height="110" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="340" y="95" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">長い CoT（考える時間）</text>
-  <text x="340" y="120" fill="#4a4c48" font-family="Georgia, serif" font-size="12">自己検証・方針切替</text>
+  <text x="340" y="95" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">Long CoT (“thinking time”)</text>
+  <text x="340" y="120" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Self-check · strategy switch</text>
   <text x="340" y="145" fill="#4a4c48" font-family="Georgia, serif" font-size="12">test-time compute ↑</text>
   <path d="M570 115 H610" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="620" y="80" width="70" height="70" rx="6" fill="#35d0bb" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="635" y="122" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">答</text>
-  <text x="50" y="210" fill="#4a4c48" font-family="Georgia, serif" font-size="13">推論時計算を増やして成績を伸ばす · OpenAI o1 (2024) / DeepSeek-R1 (2025)</text>
-  <text x="50" y="240" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · RL で CoT を鍛えるレジーム</text>
-
+  <text x="632" y="122" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">Answer</text>
+  <text x="50" y="210" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Spend more inference compute to raise scores · OpenAI o1 (2024) / DeepSeek-R1 (2025)</text>
+  <text x="50" y="240" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Teaching schematic · RL regimes that train CoT</text>
 </svg>

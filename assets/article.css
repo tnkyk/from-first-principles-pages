@@ -49,11 +49,6 @@ a:hover {
 
 .site-header {
   border-bottom: 1px solid var(--ink-line);
-  padding: 0.85rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
   font-family: var(--font-serif);
   font-size: 1rem;
   position: sticky;
@@ -61,6 +56,16 @@ a:hover {
   background: color-mix(in srgb, var(--page) 92%, transparent);
   backdrop-filter: blur(8px);
   z-index: 40;
+}
+
+.site-header-inner {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .site-header .brand {
@@ -167,6 +172,17 @@ h1.title {
   background: var(--code-bg);
   padding: 0.1em 0.35em;
   border-radius: 3px;
+}
+
+.article-body .katex {
+  font-size: 1.05em;
+}
+
+.article-body .katex-display {
+  max-width: var(--measure);
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .article-body pre {
@@ -364,7 +380,7 @@ figcaption {
 }
 
 .catalog {
-  width: min(100%, 48rem);
+  width: min(100%, 72rem);
   margin: 0 auto;
   padding: 2.5rem 1.25rem 4rem;
 }

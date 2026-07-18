@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="推論向け強化学習">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="RL for reasoning">
   <rect width="720" height="280" fill="#f2f3f0"/>
-  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">推論向け強化学習</text>
-  
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">RL for reasoning</text>
   <rect x="60" y="80" width="200" height="55" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
   <text x="80" y="114" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">Base LM</text>
   <path d="M270 108 H320" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="330" y="70" width="240" height="75" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="350" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">検証可能報酬で RL</text>
-  <text x="350" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">GRPO 等 · SFT 無しでも可</text>
+  <text x="350" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="15">RL with verifiable reward</text>
+  <text x="350" y="128" fill="#4a4c48" font-family="Georgia, serif" font-size="12">GRPO etc. · SFT optional</text>
   <path d="M580 108 H620" stroke="#0d7a6c" stroke-width="3"/>
   <rect x="630" y="80" width="60" height="55" rx="6" fill="#35d0bb" stroke="#0d7a6c"/>
   <text x="640" y="114" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">R1</text>
-  <text x="60" y="190" fill="#4a4c48" font-family="Georgia, serif" font-size="13">R1-Zero: 大規模 RL のみで長い CoT が出現。可読性のため cold-start+多段も使う。</text>
-  <text x="60" y="225" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · DeepSeek-R1 (2025) / OpenAI o1 系譜</text>
-
+  <text x="60" y="190" fill="#4a4c48" font-family="Georgia, serif" font-size="13">R1-Zero: long CoT emerges from large-scale RL alone; cold-start + multi-stage for readability.</text>
+  <text x="60" y="225" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Teaching schematic · DeepSeek-R1 (2025) / OpenAI o1 lineage</text>
 </svg>
