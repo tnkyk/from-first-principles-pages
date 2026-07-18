@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>next-token</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .bar-row { display: flex; align-items: center; gap: 0.5rem; margin: 0.35rem 0; }
+    .bar { height: 14px; background: var(--accent-soft); border: 1px solid var(--accent); }
+    .pick { color: var(--accent); font-family: var(--font-mono); margin-top: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 各ステップは語彙上の分布を出し、そこから1トークンを選ぶ</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <button type="button" class="primary" id="sample">1トークン選ぶ</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">条件「東京の」に対する玩具分布です。</p>
+  </div>
+  <script>
+    const vocab = [
+      { t: "天気", p: 0.42 },
+      { t: "首都", p: 0.24 },
+      { t: "街", p: 0.18 },
+      { t: "人", p: 0.10 },
+      { t: "猫", p: 0.06 },
+    ];
+    const stage = document.getElementById("stage");
+    let last = null;
+    function draw() {
+      let html = "<div class='mono' style='margin-bottom:0.5rem'>条件: 東京の</div>";
+      for (const v of vocab) {
+        html += "<div class='bar-row'><span class='mono' style='width:3rem'>" + v.t +
+          "</span><div class='bar' style='width:" + (v.p * 280) + "px'></div>" +
+          "<span class='mono' style='color:var(--ink-dim)'>" + v.p.toFixed(2) + "</span></div>";
+      }
+      html += "<div class='pick'>" + (last ? "選ばれたトークン: " + last : "まだ選んでいません") + "</div>";
+      stage.innerHTML = html;
+    }
+    function sample() {
+      let r = Math.random();
+      for (const v of vocab) {
+        r -= v.p;
+        if (r <= 0) { last = v.t; break; }
+      }
+      draw();
+    }
+    document.getElementById("sample").onclick = sample;
+    document.getElementById("reset").onclick = () => { last = null; draw(); };
+    draw();
+  </script>
+</body>
+</html>
