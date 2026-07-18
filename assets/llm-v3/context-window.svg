@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="240" viewBox="0 0 720 240" role="img" aria-label="有限文脈窓">
+  <rect width="720" height="240" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">有限文脈窓</text>
+  
+  <rect x="30" y="90" width="110" height="70" rx="6" fill="#ddd" stroke="#393b38" stroke-width="2"/>
+  <text x="48" y="130" fill="#4a4c48" font-family="Georgia, serif" font-size="14">窓の外</text>
+  <rect x="160" y="80" width="380" height="90" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="3"/>
+  <text x="200" y="130" fill="#1a1c1a" font-family="Georgia, serif" font-size="16">窓内だけが条件付けに使われる</text>
+  <rect x="560" y="90" width="120" height="70" rx="6" fill="#ddd" stroke="#393b38" stroke-width="2"/>
+  <text x="580" y="130" fill="#4a4c48" font-family="Georgia, serif" font-size="14">未生成</text>
+  <text x="40" y="210" fill="#4a4c48" font-family="Georgia, serif" font-size="13">押し出された接頭辞は前方計算に存在しない · Brown et al., 2020</text>
+
+</svg>

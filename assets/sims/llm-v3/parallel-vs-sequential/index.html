@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>parallel vs sequential</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    body { font-family: Georgia, serif; background: #f2f3f0; color: #1a1c1a; margin: 0; padding: 12px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .card { flex: 1; min-width: 220px; background: #fff; border: 1px solid #393b38; border-radius: 6px; padding: 12px; }
+    .card h3 { margin: 0 0 8px; font-size: 14px; color: #0d7a6c; }
+    .step { font-family: "IBM Plex Mono", monospace; font-size: 13px; margin: 4px 0; padding: 4px 6px; border-radius: 4px; background: #e8f7f4; }
+    .step.wait { background: #eee; color: #666; }
+    button { margin-top: 10px; padding: 6px 12px; border: 1px solid #0d7a6c; background: #0d7a6c; color: #fff; border-radius: 4px; cursor: pointer; }
+    .note { font-size: 12px; color: #4a4c48; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <p><strong>hard claim:</strong> 学習時の位置並列と、生成時の自己回帰逐次は別の制約である</p>
+  <div class="row">
+    <div class="card">
+      <h3>学習（教師トークンが全位置にある）</h3>
+      <div id="train"></div>
+    </div>
+    <div class="card">
+      <h3>生成（出力が次の条件になる）</h3>
+      <div id="decode"></div>
+    </div>
+  </div>
+  <button id="run" type="button">ステップを進める</button>
+  <p class="note">学習側は t=1..4 を同時に「計算可能」と表示できる。生成側は y₁ が決まるまで y₂ を開始できない。</p>
+  <script>
+    const trainEl = document.getElementById("train");
+    const decodeEl = document.getElementById("decode");
+    let t = 0;
+    function render() {
+      const positions = [1,2,3,4];
+      trainEl.innerHTML = positions.map(i => {
+        const ready = t >= 1;
+        return `<div class="step ${ready ? "" : "wait"}">位置 ${i}: ${ready ? "損失計算 OK（並列可）" : "待機"}</div>`;
+      }).join("");
+      decodeEl.innerHTML = positions.map(i => {
+        const ready = t >= i;
+        return `<div class="step ${ready ? "" : "wait"}">y${i}: ${ready ? "確定" : (t === i-1 ? "次に計算" : "まだ不可")}</div>`;
+      }).join("");
+    }
+    document.getElementById("run").onclick = () => { t = Math.min(4, t + 1); render(); };
+    render();
+  </script>
+</body>
+</html>

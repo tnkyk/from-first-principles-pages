@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="温度と分布の鋭さ">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">温度と分布の鋭さ</text>
+  
+  <text x="50" y="70" fill="#4a4c48" font-family="Georgia, serif" font-size="14">低い温度 — 鋭い</text>
+  <rect x="50" y="90" width="28" height="100" fill="#0d7a6c"/>
+  <rect x="90" y="150" width="28" height="40" fill="#35d0bb" stroke="#0d7a6c"/>
+  <rect x="130" y="170" width="28" height="20" fill="#35d0bb" stroke="#0d7a6c"/>
+  <text x="320" y="70" fill="#4a4c48" font-family="Georgia, serif" font-size="14">高い温度 — 平たい</text>
+  <rect x="320" y="120" width="28" height="70" fill="#0d7a6c"/>
+  <rect x="360" y="130" width="28" height="60" fill="#35d0bb" stroke="#0d7a6c"/>
+  <rect x="400" y="140" width="28" height="50" fill="#35d0bb" stroke="#0d7a6c"/>
+  <rect x="440" y="150" width="28" height="40" fill="#35d0bb" stroke="#0d7a6c"/>
+  <text x="50" y="230" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">散らばりは変わる。真偽スイッチではない。</text>
+
+</svg>
