@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520" role="img" aria-label="Transformer research branches labeled by motive">
+  <rect width="860" height="520" fill="#f2f3f0"/>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Tree 1 detail  motives after Transformer</text>
+  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Each branch answers what pressure created this technique?  still research genealogy.</text>
+
+  <rect x="340" y="78" width="180" height="48" rx="8" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="372" y="108" fill="#0d7a6c" font-family="Georgia, serif" font-size="16" font-weight="600">Transformer</text>
+  <path d="M430 126 V150" stroke="#0d7a6c" stroke-width="2"/>
+  <path d="M80 150 H780" stroke="#0d7a6c" stroke-width="2"/>
+
+  <!-- five columns -->
+  <g font-family="Georgia, serif">
+    <path d="M120 150 V175" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="40" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
+    <text x="52" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Scale capacity</text>
+    <text x="52" y="222" fill="#4a4c48" font-size="11">è'W_D</text>
+    <text x="52" y="248" fill="#1a1c1a" font-size="13">Dense</text>
+    <text x="52" y="270" fill="#1a1c1a" font-size="13">MoE (sparse FFN)</text>
+    <text x="52" y="292" fill="#4a4c48" font-size="11">same Attention spine</text>
+
+    <path d="M280 150 V175" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="200" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
+    <text x="212" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Long context</text>
+    <text x="212" y="222" fill="#4a4c48" font-size="11">w‡’qD_D</text>
+    <text x="212" y="248" fill="#1a1c1a" font-size="13">RoPE · YaRN</text>
+    <text x="212" y="270" fill="#1a1c1a" font-size="13">GQA / MLA (KV)</text>
+    <text x="212" y="292" fill="#4a4c48" font-size="11">positions &amp; memory shape</text>
+
+    <path d="M440 150 V175" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="360" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
+    <text x="372" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Serve faster</text>
+    <text x="372" y="222" fill="#4a4c48" font-size="11">¨Ö’OW_D</text>
+    <text x="372" y="248" fill="#1a1c1a" font-size="13">FlashAttention</text>
+    <text x="372" y="270" fill="#1a1c1a" font-size="13">KV Cache · Spec · Quant</text>
+    <text x="372" y="292" fill="#4a4c48" font-size="11">delivery, not smarter</text>
+
+    <path d="M600 150 V175" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="520" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
+    <text x="532" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Better answers</text>
+    <text x="532" y="222" fill="#4a4c48" font-size="11">¨Ö’8pW_D</text>
+    <text x="532" y="248" fill="#1a1c1a" font-size="13">SFT / RLHF / DPO</text>
+    <text x="532" y="270" fill="#1a1c1a" font-size="13">CoT · TTC · RLVR</text>
+    <text x="532" y="292" fill="#4a4c48" font-size="11">train &amp; decode methods</text>
+
+    <path d="M760 150 V175" stroke="#393b38" stroke-width="2"/>
+    <rect x="680" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#393b38" stroke-width="1.5"/>
+    <text x="692" y="200" fill="#1a1c1a" font-size="13" font-weight="600">Replace spine</text>
+    <text x="692" y="222" fill="#4a4c48" font-size="11">¨<’‘F</text>
+    <text x="692" y="248" fill="#1a1c1a" font-size="13">Mamba / SSM</text>
+    <text x="692" y="270" fill="#1a1c1a" font-size="13">Hybrid · Diff LM</text>
+    <text x="692" y="292" fill="#4a4c48" font-size="11">parallel branch</text>
+  </g>
+
+  <!-- exclusion callout -->
+  <rect x="40" y="340" width="780" height="120" rx="8" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
+  <text x="60" y="372" fill="#a85a2a" font-family="Georgia, serif" font-size="15" font-weight="600">Do not hang these under Transformer</text>
+  <text x="60" y="398" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">RAG · Tool use · MCP · Memory · Agent</text>
+  <text x="60" y="424" fill="#4a4c48" font-family="Georgia, serif" font-size="13">They use a Transformer (or other) model. Place them on Tree 2  system composition / application layer.</text>
+  <text x="60" y="446" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Wrong picture: Transformer ’ Agent. Right picture: LLM system ’ External systems ’ Agent.</text>
+
+  <text x="24" y="500" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic. Motives are pedagogical labels, not exclusive taxonomy.</text>
+</svg>

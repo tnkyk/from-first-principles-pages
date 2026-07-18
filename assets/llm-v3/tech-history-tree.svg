@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="420" viewBox="0 0 860 420" role="img" aria-label="Technology history tree: linear then Transformer research branches">
+  <rect width="860" height="420" fill="#f2f3f0"/>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Tree 1  Technology history (time / invention)</text>
+  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">One trunk until Transformer. Then research branches  not product layers.</text>
+
+  <!-- linear trunk -->
+  <g font-family="Georgia, serif" font-size="12" fill="#1a1c1a">
+    <rect x="24" y="80" width="88" height="36" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="36" y="102">n-gram</text>
+    <path d="M112 98 H128" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="128" y="80" width="72" height="36" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="140" y="102">NNLM</text>
+    <path d="M200 98 H216" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="216" y="80" width="72" height="36" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="232" y="102">RNN</text>
+    <path d="M288 98 H304" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="304" y="80" width="72" height="36" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="318" y="102">LSTM</text>
+    <path d="M376 98 H392" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="392" y="80" width="88" height="36" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="404" y="102">Seq2Seq</text>
+    <path d="M480 98 H496" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="496" y="80" width="88" height="36" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="508" y="102">Attention</text>
+    <path d="M584 98 H600" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="600" y="74" width="140" height="48" rx="8" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
+    <text x="618" y="104" fill="#0d7a6c" font-size="15" font-weight="600">Transformer</text>
+  </g>
+
+  <!-- vertical from Transformer -->
+  <path d="M670 122 V150" stroke="#0d7a6c" stroke-width="2"/>
+  <path d="M200 150 H820" stroke="#0d7a6c" stroke-width="2"/>
+
+  <!-- research branches -->
+  <g font-family="Georgia, serif">
+    <path d="M240 150 V170" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="160" y="170" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
+    <text x="176" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Scale the model</text>
+    <text x="176" y="216" fill="#1a1c1a" font-size="12">Dense · MoE</text>
+    <text x="176" y="234" fill="#4a4c48" font-size="11">in-backbone parts</text>
+
+    <path d="M400 150 V170" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="320" y="170" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
+    <text x="336" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Handle long context</text>
+    <text x="336" y="216" fill="#1a1c1a" font-size="12">RoPE · YaRN · long ctx</text>
+    <text x="336" y="234" fill="#4a4c48" font-size="11">still Transformer family</text>
+
+    <path d="M560 150 V170" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="480" y="170" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
+    <text x="496" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Run faster</text>
+    <text x="496" y="216" fill="#1a1c1a" font-size="12">FlashAttn · KV · Spec</text>
+    <text x="496" y="234" fill="#4a4c48" font-size="11">same distribution, cheaper</text>
+
+    <path d="M720 150 V170" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="640" y="170" width="180" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
+    <text x="656" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Stretch reasoning</text>
+    <text x="656" y="216" fill="#1a1c1a" font-size="12">CoT · TTC · RLVR</text>
+    <text x="656" y="234" fill="#4a4c48" font-size="11">train / decode methods</text>
+  </g>
+
+  <!-- second row -->
+  <g font-family="Georgia, serif">
+    <path d="M320 150 V260" stroke="#393b38" stroke-width="2"/>
+    <rect x="240" y="260" width="160" height="70" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="256" y="284" fill="#1a1c1a" font-size="12" font-weight="600">Replace / hybrid</text>
+    <text x="256" y="306" fill="#1a1c1a" font-size="12">Mamba · Hybrid · Diff LM</text>
+    <text x="256" y="324" fill="#4a4c48" font-size="11">parallel research branch</text>
+
+    <path d="M520 150 V260" stroke="#0d7a6c" stroke-width="2"/>
+    <rect x="440" y="260" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
+    <text x="456" y="284" fill="#0d7a6c" font-size="12" font-weight="600">Widen modalities</text>
+    <text x="456" y="306" fill="#1a1c1a" font-size="12">vision / audio encoders</text>
+    <text x="456" y="324" fill="#4a4c48" font-size="11">representation extension</text>
+  </g>
+
+  <rect x="640" y="260" width="200" height="90" rx="6" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
+  <text x="656" y="286" fill="#a85a2a" font-family="Georgia, serif" font-size="12" font-weight="600">Not on this tree</text>
+  <text x="656" y="308" fill="#1a1c1a" font-family="Georgia, serif" font-size="12">RAG · Tool · MCP</text>
+  <text x="656" y="326" fill="#1a1c1a" font-family="Georgia, serif" font-size="12">Memory · Agent</text>
+  <text x="656" y="344" fill="#4a4c48" font-family="Georgia, serif" font-size="11">’ Tree 2 (system)</text>
+
+  <text x="24" y="400" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Branch labels = motives (why), not next station after Transformer. Agent is application composition, not a Transformer child.</text>
+</svg>
