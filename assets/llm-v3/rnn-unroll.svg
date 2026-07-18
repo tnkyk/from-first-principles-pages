@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="240" viewBox="0 0 780 240" role="img" aria-label="RNNnB“U‹">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="240" viewBox="0 0 780 240" role="img" aria-label="RNN unrolled in time">
   <rect width="780" height="240" fill="#f2f3f0"/>
-  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">RNN  N»’ Œ¶KxaŠY</text>
-  <text x="24" y="56" fill="#4a4c48" font-family="Georgia, serif" font-size="13">XÍ’B“¹kU‹Y‹h_t = f(h_{t-1}, x_t)</text>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">RNN â€” carrying the past in a hidden state</text>
+  <text x="24" y="56" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Same weights unrolled in time: h_t = f(h_{t-1}, x_t).</text>
 
   <rect x="60" y="100" width="70" height="44" rx="4" fill="#fff" stroke="#393b38"/>
-  <text x="82" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x</text>
+  <text x="82" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x1</text>
   <rect x="200" y="100" width="70" height="44" rx="4" fill="#fff" stroke="#393b38"/>
-  <text x="222" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x‚</text>
+  <text x="222" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x2</text>
   <rect x="340" y="100" width="70" height="44" rx="4" fill="#fff" stroke="#393b38"/>
-  <text x="362" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">xƒ</text>
+  <text x="362" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x3</text>
   <rect x="480" y="100" width="70" height="44" rx="4" fill="#fff" stroke="#393b38"/>
-  <text x="502" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x„</text>
+  <text x="502" y="128" fill="#1a1c1a" font-family="IBM Plex Mono, monospace" font-size="16">x4</text>
 
   <path d="M95 144 v20" stroke="#393b38"/>
   <path d="M235 144 v20" stroke="#393b38"/>
@@ -19,16 +19,16 @@
   <path d="M515 144 v20" stroke="#393b38"/>
 
   <rect x="60" y="164" width="70" height="44" rx="4" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="82" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h</text>
+  <text x="82" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h1</text>
   <rect x="200" y="164" width="70" height="44" rx="4" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="222" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h‚</text>
+  <text x="222" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h2</text>
   <rect x="340" y="164" width="70" height="44" rx="4" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="362" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">hƒ</text>
+  <text x="362" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h3</text>
   <rect x="480" y="164" width="70" height="44" rx="4" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="502" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h„</text>
+  <text x="502" y="192" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">h4</text>
 
   <path d="M130 186 H200" stroke="#0d7a6c" stroke-width="2"/>
   <path d="M270 186 H340" stroke="#0d7a6c" stroke-width="2"/>
   <path d="M410 186 H480" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="560" y="190" fill="#4a4c48" font-family="Georgia, serif" font-size="13"> !X</text>
+  <text x="560" y="190" fill="#4a4c48" font-family="Georgia, serif" font-size="13">â† sequential dependence</text>
 </svg>

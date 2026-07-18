@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="260" viewBox="0 0 780 260" role="img" aria-label="¨Öúänd">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="260" viewBox="0 0 780 260" role="img" aria-label="Serving stack layers">
   <rect width="780" height="260" fill="#f2f3f0"/>
-  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">¨Öúä  âUgojD³¹Ènd</text>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Serving stack â€” cost layers, not â€œsmartnessâ€</text>
 
   <rect x="40" y="60" width="220" height="160" rx="8" fill="#fff" stroke="#393b38"/>
   <text x="56" y="90" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">MoE</text>
-  <text x="56" y="120" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">ÏÑéáü¿h</text>
-  <text x="56" y="142" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">;'Ñéáü¿’â</text>
-  <text x="56" y="174" fill="#4a4c48" font-family="Georgia, serif" font-size="12">°³¹È: áûëüÆ£ó°</text>
+  <text x="56" y="120" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Separate total params</text>
+  <text x="56" y="142" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">from active params</text>
+  <text x="56" y="174" fill="#4a4c48" font-family="Georgia, serif" font-size="12">New cost: routing / comms</text>
 
   <rect x="280" y="60" width="220" height="160" rx="8" fill="#fff" stroke="#393b38"/>
   <text x="296" y="90" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">KV Cache / GQA</text>
-  <text x="296" y="120" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">N»Èü¯ón Key/Value ’</text>
-  <text x="296" y="142" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">)(W—’‰Y</text>
-  <text x="296" y="174" fill="#4a4c48" font-family="Georgia, serif" font-size="12">°³¹È: áâê/ß</text>
+  <text x="296" y="120" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Reuse past Key/Value</text>
+  <text x="296" y="142" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">to cut recompute</text>
+  <text x="296" y="174" fill="#4a4c48" font-family="Georgia, serif" font-size="12">New cost: memory bandwidth</text>
 
   <rect x="520" y="60" width="220" height="160" rx="8" fill="#fff" stroke="#393b38"/>
-  <text x="536" y="90" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">ÏP / •_„Ç³üÉ</text>
-  <text x="536" y="120" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">p$¾¦„I?âÇëg</text>
-  <text x="536" y="142" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Eöû¹ëü×ÃÈ’9„</text>
-  <text x="536" y="174" fill="#4a4c48" font-family="Georgia, serif" font-size="12">°³¹È: ¾¦û<ªüĞüØÃÉ</text>
+  <text x="536" y="90" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">Quant / Speculative</text>
+  <text x="536" y="120" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Lower precision or draft</text>
+  <text x="536" y="142" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">models for latency</text>
+  <text x="536" y="174" fill="#4a4c48" font-family="Georgia, serif" font-size="12">New cost: accuracy / verify</text>
 </svg>

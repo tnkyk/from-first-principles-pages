@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="780" height="300" viewBox="0 0 780 300" role="img" aria-label="B: Transformerg‚êñŞ0n!'o‹‹">
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="300" viewBox="0 0 780 300" role="img" aria-label="Decoding: autoregressive sequentiality remains">
   <rect width="780" height="300" fill="#f2f3f0"/>
-  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">B  Transformer g‚!'o‹‹</text>
-  <text x="24" y="58" fill="#4a4c48" font-family="Georgia, serif" font-size="14">fÒBk&W_no;kûMnnæêñŞ0go!Èü¯óLz~‹~g!x2jD</text>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">Generation â€” sequentiality remains in Transformers</text>
+  <text x="24" y="58" fill="#4a4c48" font-family="Georgia, serif" font-size="14">Training parallelized positions; autoregressive decode still waits for each token.</text>
 
   <rect x="40" y="100" width="120" height="48" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="70" y="130" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">e›¥-</text>
+  <text x="60" y="130" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">input prefix</text>
 
   <path d="M160 124 H200" stroke="#0d7a6c" stroke-width="2"/>
   <rect x="200" y="100" width="100" height="48" rx="6" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="225" y="130" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">y</text>
+  <text x="225" y="130" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">y1</text>
 
   <path d="M300 124 H340" stroke="#0d7a6c" stroke-width="2"/>
   <rect x="340" y="90" width="160" height="68" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
-  <text x="355" y="118" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">e› + y</text>
-  <text x="355" y="140" fill="#4a4c48" font-family="Georgia, serif" font-size="12">’aök—</text>
+  <text x="355" y="118" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">input + y1</text>
+  <text x="355" y="140" fill="#4a4c48" font-family="Georgia, serif" font-size="12">recompute conditioned</text>
 
   <path d="M500 124 H540" stroke="#0d7a6c" stroke-width="2"/>
   <rect x="540" y="100" width="100" height="48" rx="6" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="565" y="130" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">y‚</text>
+  <text x="565" y="130" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">y2</text>
 
   <path d="M640 124 H680" stroke="#0d7a6c" stroke-width="2"/>
   <rect x="680" y="100" width="70" height="48" rx="6" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
-  <text x="698" y="130" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">yƒ</text>
+  <text x="698" y="130" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="16">y3</text>
 
-  <text x="40" y="200" fill="#1a1c1a" font-family="Georgia, serif" font-size="14" font-weight="600">‹‹yMî</text>
-  <text x="40" y="228" fill="#4a4c48" font-family="Georgia, serif" font-size="13">ûfÒ: Y+BŠncãÈü¯óLhMnkBŠàœŞ¹¯gMn¹’&k1—gM‹</text>
-  <text x="40" y="252" fill="#4a4c48" font-family="Georgia, serif" font-size="13">û: ênú›L!naökj‹_y’y‚’yƒ o,ê„k!</text>
-  <text x="40" y="276" fill="#4a4c48" font-family="Georgia, serif" font-size="13">ûKV Cache Io—’‰YL!Lz~‹~g!xLQjD6êSoˆHjD</text>
+  <text x="40" y="200" fill="#1a1c1a" font-family="Georgia, serif" font-size="14" font-weight="600">Key difference</text>
+  <text x="40" y="228" fill="#4a4c48" font-family="Georgia, serif" font-size="13">â€¢ Train: teacher tokens at all positions; loss can be computed in parallel under causal mask.</text>
+  <text x="40" y="252" fill="#4a4c48" font-family="Georgia, serif" font-size="13">â€¢ Decode: own outputs become next inputs, so y1â†’y2â†’y3 is inherently sequential.</text>
+  <text x="40" y="276" fill="#4a4c48" font-family="Georgia, serif" font-size="13">â€¢ KV Cache reduces recompute, but cannot remove â€œwait for next tokenâ€.</text>
 </svg>
