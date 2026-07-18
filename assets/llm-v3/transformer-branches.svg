@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="360" viewBox="0 0 820 360" role="img" aria-label="Transformer branches: speedup vs replacement">
+  <rect width="820" height="360" fill="#f2f3f0"/>
+  <text x="24" y="34" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Branches from Transformer — not one timeline</text>
+  <text x="24" y="58" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Same trunk, different jobs: accelerate vs replace.</text>
+
+  <rect x="310" y="140" width="180" height="56" rx="8" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="340" y="175" fill="#0d7a6c" font-family="Georgia, serif" font-size="18" font-weight="600">Transformer</text>
+
+  <path d="M400 140 C400 90, 200 90, 200 110" stroke="#0d7a6c" stroke-width="2" fill="none"/>
+  <path d="M400 196 C400 250, 200 250, 200 230" stroke="#393b38" stroke-width="2" fill="none"/>
+  <path d="M490 168 H620" stroke="#0d7a6c" stroke-width="2"/>
+
+  <rect x="40" y="70" width="280" height="90" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
+  <text x="56" y="98" fill="#0d7a6c" font-family="Georgia, serif" font-size="15" font-weight="600">Speedup branch (same backbone)</text>
+  <text x="56" y="122" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">FlashAttention · KV Cache · GQA</text>
+  <text x="56" y="144" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Quantization · Speculative Decoding</text>
+
+  <rect x="40" y="210" width="280" height="90" rx="8" fill="#fff" stroke="#393b38" stroke-width="1.5"/>
+  <text x="56" y="238" fill="#1a1c1a" font-family="Georgia, serif" font-size="15" font-weight="600">Replacement / hybrid branch</text>
+  <text x="56" y="262" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Mamba (SSM) · Jamba Hybrid</text>
+  <text x="56" y="284" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Diffusion LMs (e.g. LLaDA)</text>
+
+  <rect x="620" y="130" width="170" height="80" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
+  <text x="636" y="160" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">In-backbone parts</text>
+  <text x="636" y="184" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">MoE · RoPE · MLA</text>
+  <text x="636" y="204" fill="#4a4c48" font-family="Georgia, serif" font-size="12">still Transformer family</text>
+
+  <text x="40" y="340" fill="#4a4c48" font-family="Georgia, serif" font-size="12">MoE is an in-backbone part (often swapping FFN), not the historical successor of Transformer.</text>
+</svg>
