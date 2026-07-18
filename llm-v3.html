@@ -30,9 +30,10 @@
 <h2 id="入口">入口</h2>
 <p>なぜ、次の文字を予測するだけの技術が、翻訳・要約・プログラミング・推論・ツール操作まで行えるようになったのか。チャット欄は「会話」に見えるが、裏側は条件付き次トークンの連鎖である。その連鎖が、どの問題を解きながら今の形になったのか——製品の宣伝文句でも、用語のカタログでも、画面の流暢さだけでは見えない。</p>
 <p>ここで失うのは、製品を盲信するか一括否定するかの二択である。技術を段階的に理解し、最新の争点まで辿り着き、世の中の主張を自分で評価できる主体性が、賭け金になっている。入口で結論を固定せず、問題の連鎖を先に通す。解釈は最後に、読者自身が選び直せる形で残す。</p>
+<p>読み方を二つだけ先に固定する。<strong>(1) 機構の定義・論文の観測は事実、能力・必然性・優位性の主張は議論</strong>——混ぜない。<strong>(2) 技術史の各駅のあとで、「いまどこに残っているか」を一度示す</strong>——消えた技術と、用途を変えて生き残った技術を分け、現代の製品名へ橋を架ける。</p>
 <p><strong>言語の続きを予測する技術は、どの問題を解決しながら現在の形になり、その過程で何を獲得し、何を未解決のまま残しているのか。</strong></p>
 <p>この問いに答えるために、次の六つの問題を順に解いていく。前半は骨格が替わる技術史、後半は層の地図と論争である。機構名のカタログではない。</p>
-<ol><li><strong>記号列に確率を与え、次の記号を予測する、とは何を最適化しているのか。</strong> 直接目的と獲得能力と保証を分ける。</li><li><strong>数え上げから RNN、Attention、Transformer へ——何がボトルネックになり、何が消えたのか。</strong> 骨格交代の連鎖だけを辿る。</li><li><strong>大規模事前学習と後学習は、何を変え、何を変えなかったのか。</strong> ここまでが第1部の到達点である。</li><li><strong>いまの LLM は何層でできているのか。</strong> MoE や FlashAttention を「次の駅」にせず、層と枝で位置づける。</li><li><strong>各層の最新技術は、何を改善し、何を変えていないのか。</strong> 構造・高速化・推論方法・外部システム・置換枝を分けて見る。</li><li><strong>いま何が論争で、自分はどの立場を採るか。</strong> 事実と意見を分け、利用の線を自分で引く。</li></ol>
+<ol><li><strong>記号列に確率を与え、次の記号を予測する、とは何を最適化しているのか。</strong> 直接目的と獲得能力と保証を分ける。</li><li><strong>数え上げから RNN、Attention、Transformer へ——何がボトルネックになり、何が消えたのか。</strong> 骨格交代の連鎖を辿り、各駅の「いまどこに残るか」も示す。</li><li><strong>大規模事前学習と後学習は、何を変え、何を変えなかったのか。</strong> ここまでが第1部の到達点である。</li><li><strong>いまの LLM は何層でできているのか。</strong> MoE や FlashAttention を「次の駅」にせず、層と枝で位置づける。</li><li><strong>各層の最新技術は、何を改善し、何を変えていないのか。</strong> 構造・高速化・推論方法・外部システム・置換枝を分けて見る。</li><li><strong>いま何が論争で、自分はどの立場を採るか。</strong> 事実と意見を分け、利用の線を自分で引く。</li></ol>
 <h2 id="第1部-技術史問題が骨格を替えた">第1部　技術史——問題が骨格を替えた</h2>
 <p>ここから先は、言語モデルの<strong>骨格そのものが交代した</strong>道だけを辿る。数え上げがニューラル表現へ、再帰が Attention へ、Encoder–Decoder が Decoder-only の大規模事前学習へ——各段階で「前の解法がどこで潰れたか」が次の部品を強制する。部品の高速化や MoE のような層内改善は、まだ登場させない。</p>
 <h2 id="言語モデルとは何か">言語モデルとは何か</h2>
@@ -81,6 +82,10 @@
 <h3 id="改善と未解決">改善と未解決</h3>
 <p>改善点は明確だ。組み合わせ爆発をそのまま表に刻む必要がなく、未知の語順にも非ゼロの確率を割り当てやすい。サブワード分割（BPE 等）と組み合わせれば、未見の表層形も既知の断片の組み合わせとして扱える余地が広がる——ただしそれは記号化層の話であり、本章の中核はベクトル共有による一般化だ。</p>
 <p>未解決は履歴の長さだ。埋め込みは「各トークンをベクトル化する」部品であり、「十トークン前の指示を今の位置まで運ぶ」部品ではない。窓を広げればパラメータと計算は増えるが、線形に過去全体は載らない。チャットで「箇条書きで三項目」と書いたとき、三項目目の語彙選択は十トークン以上前の指示に従ってほしい——固定長窓では、そこで情報が切れる。</p>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<p>技術史の駅は、現代で完全に消えるとは限らない。ここで一度、地図を現代に合わせる。</p>
+<div class="table-wrap"><table><thead><tr><th>技術</th><th>いまも使われる場所</th><th>現行 LLM（大規模チャット／生成）では</th></tr></thead><tbody><tr><td>n-gram / 平滑化 LM</td><td>音声認識の言語モデル層、検索クエリ補完、低遅延のスペル／入力予測、一部の配信パイプライン</td><td>主流ではない（骨格はニューラル）</td></tr><tr><td>埋め込み＋ニューラル LM</td><td>下流の埋め込み検索、分類、小型オンデバイス LM の前史</td><td>表現の部品として残るが、単独の「次トークン LM」としては Transformer 系に置き換わった</td></tr></tbody></table></div>
+<p><strong>事実:</strong> 数え上げ LM は低遅延・解釈容易な用途で併存しうる。<strong>議論:</strong> 「大規模事前学習の時代に数え上げは遺物か」は用途定義に依存する（下記カード）。</p>
 <h3 id="次に立つ問題">次に立つ問題</h3>
 <p>ベクトル共有で疎性は緩和された。次の壁は、<strong>可変長の過去</strong>を一つの状態に圧縮しつつ、長い依存を学習できるか、という設計課題だ。逐次に状態を更新する <strong>RNN（再帰ニューラルネット）</strong> と、その改良である <strong>LSTM</strong> へ——技術史はそこに進む。</p>
 <p>辞書の各行を独立に数える代わりに、連続空間で語を隣り合わせに置く——地図の縮尺を変えただけで、まだ「左に何語見えるか」の上限は残っている。</p>
@@ -105,6 +110,10 @@
 <h3 id="改善と未解決">改善と未解決</h3>
 <p>改善: 固定長窓を超えて、可変長系列を単一状態へ要約できる。機械翻訳の Encoder–Decoder（次章）も、まず LSTM で系列を読む時代から始まった。長距離の依存関係——主語と述語が離れた文——へは、トリグラムよりはるかに届きやすい。</p>
 <p>未解決: <strong>学習時の逐次依存</strong>は残る。系列が長いほど展開グラフは深くなり、メモリと時間が増える。並列に全位置を処理する設計——のちの Self-Attention——への動機の一つがここにある。また、Encoder が全入力を読み終えてから Decoder が生成を始める <strong>Seq2Seq</strong> では、入力側も出力側も逐次であり、双方向のボトルネックが別形で現れる（次章）。</p>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<p>RNN / LSTM は「終わった技術」ではない。<strong>大規模 LLM の骨格としては主流を譲った</strong>が、系列モデリングの道具としては広い。</p>
+<div class="table-wrap"><table><thead><tr><th>技術</th><th>いまも使われる場所</th><th>現行 LLM では</th></tr></thead><tbody><tr><td>LSTM / GRU</td><td>音声認識・合成の一部スタック、時系列予測、センサー／制御、オンデバイスの小型系列モデル</td><td>主流骨格ではない（Decoder-only Transformer が中心）</td></tr><tr><td>素朴 RNN</td><td>教育・小規模実験、一部の古典パイプライン</td><td>ほぼ使われない</td></tr></tbody></table></div>
+<p><strong>事実:</strong> 2020 年代の汎用チャット／生成 LM の中心は Transformer 系である。<strong>議論ではない観測:</strong> 音声・時系列・制約の厳しい端末では、再帰系がコストとレイテンシの理由で選ばれ続ける場面がある。</p>
 <h3 id="次に立つ問題">次に立つ問題</h3>
 <p>系列を別系列へ写す <strong>Seq2Seq（Encoder–Decoder）</strong> では、Encoder が可変長入力を<strong>固定長ベクトル</strong>に圧縮する。文が長くなるほど、その一点に情報を詰め込む圧力が増す——<strong>固定長ボトルネック</strong>が顕在化する。Bahdanau の Attention が、この圧縮を出力時の参照で緩和する。</p>
 <p>再帰は「過去を一つの荷物にまとめて運ぶ」仕組みに似る——荷物の蓋は LSTM で少し開けられるが、運び手は依然として一人ずつ階段を上るしかない。</p>
@@ -126,6 +135,10 @@
 <h3 id="改善と未解決">改善と未解決</h3>
 <p>改善: 長い入力でも、生成ステップごとに関連箇所を選べる。翻訳・要約の品質が Encoder–Decoder 単体より安定しやすい。Attention の重みを可視化すると、語対応らしいパターンが見えることもある——ただし重み＝説明とは限らない（のちの論争カードへ）。</p>
 <p>未解決: <strong>RNN の逐次性</strong>は残る。Encoder は入力を左から順に読み、Decoder は出力を左から順に書く。学習も推論も、時間方向の依存鎖がボトルネックになる。Attention は参照の柔軟性を増したが、並列学習や長系列の計算効率の根本解ではない。図の段階3が示すように、次の問いは——<strong>再帰自体を捨て、系列全体を並列に変換できる設計は何か</strong>——へ移る。</p>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<p>Bahdanau 型の Encoder–Decoder Attention は、機械翻訳黄金期の標準だった。いまの位置は次のとおりだ。</p>
+<div class="table-wrap"><table><thead><tr><th>技術</th><th>いまも使われる場所</th><th>現行 LLM では</th></tr></thead><tbody><tr><td>RNN Seq2Seq + Attention</td><td>古典 MT パイプラインの理解、教育資料、一部の専用系列変換</td><td>汎用 LM の主流ではない</td></tr><tr><td>Encoder–Decoder Transformer</td><td>翻訳・要約の専用モデル、一部の seq2seq タスク</td><td>汎用チャットは <strong>Decoder-only</strong> が中心；Enc–Dec は用途分岐</td></tr></tbody></table></div>
+<p><strong>事実:</strong> 「Attention」という語はここから広まったが、<strong>現行 LLM の Self-Attention とは段階が違う</strong>（次章）。<strong>議論:</strong> Enc–Dec が翻訳専用で最適か、Decoder-only で十分かはタスク依存の工学判断である。</p>
 <h3 id="次に立つ問題">次に立つ問題</h3>
 <p>Encoder–Decoder Attention は「出力が入力のどこを見るか」を学習した。次章では、Encoder と Decoder の区別を超え、<strong>Self-Attention（QKV）</strong> ですべての位置が互いに混合し、RNN を使わない <strong>Transformer</strong> が系列変換と言語モデルの主流になる。学習時の並列化と、生成時の因果自己回帰の分離——そこが段階3の核心だ。</p>
 <p>ボトルネックの出口に立った参照装置は、まだ逐次の読み書きの上に載っている——全員が同時に全員を見る部屋へは、まだ入っていない。</p>
@@ -161,6 +174,9 @@
 <h3 id="何を解決し何を変えなかったか">何を解決し、何を変えなかったか</h3>
 <div class="table-wrap"><table><thead><tr><th>対象レイヤー</th><th>解決した問題</th><th>変えなかったもの</th><th>新しいコスト</th><th>現在の位置づけ</th></tr></thead><tbody><tr><td>アーキテクチャ（系列変換）</td><td>RNN の時間方向逐次学習；固定長ボトルネック（Attention 併用時）</td><td>次トークン予測の目的；自己回帰生成の逐次性</td><td>系列長 $n$ に対し注意が $O(n^2)$ の計算・記憶</td><td>2020年代の LLM 主流骨格；代替（SSM 等）は併存</td></tr><tr><td>表現（混合）</td><td>離れた依存の直接参照</td><td>埋め込み・分散表現の必要性</td><td>長文ほどメモリと遅延が増える</td><td>窓内の文脈統合の既定手段</td></tr><tr><td>学習（並列）</td><td>位置方向の並列損失計算</td><td>大規模データと計算資源の要求</td><td>長系列バッチのメモリピーク</td><td>事前学習スケールの前提技術</td></tr><tr><td>推論（生成）</td><td>—（逐次は残る）</td><td>1 トークンずつ確定する手順</td><td>接頭辞が伸びるほど各ステップのコスト増</td><td>KV Cache 等は次章以降の提供層</td></tr></tbody></table></div>
 <p>Attention は長距離依存の運搬を改善しうるが、<strong>文脈窓</strong> の外へは届かない。計算量の二乗スケールは、製品のコンテキスト上限や FlashAttention などの実装最適化議論の土台になる。</p>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<div class="table-wrap"><table><thead><tr><th>技術</th><th>いまの位置</th><th>製品・系の例（例示）</th></tr></thead><tbody><tr><td>Transformer（Self-Attention 骨格）</td><td><strong>現行 LLM の主流</strong></td><td>GPT 系、Claude 系、Gemini 系、Llama 系、Qwen 系 など</td></tr><tr><td>RNN Encoder–Decoder（前章）</td><td>LLM 骨格としては退場；専用系列タスクの遺産</td><td>—</td></tr></tbody></table></div>
+<p><strong>事実:</strong> 2020 年代の大規模言語モデル製品の中心計算グラフは、Transformer 系（多くは Decoder-only）である。<strong>議論:</strong> この主流が「最終形」かどうかは第4部の論争（Transformer は終わるのか）へ送る。FlashAttention や MoE は、この骨格の<strong>後継</strong>ではなく、のちの層マップで見る<strong>層内改善</strong>である。</p>
 <h3 id="未解決と次に生じた問題">未解決と次に生じた問題</h3>
 <p>Transformer 単体では、「どれだけ大きく事前学習すれば汎用能力が出るか」「Decoder-only に寄せたとき何が変わるか」はまだ開いていた。骨格が整ったあと、業界は <strong>スケール</strong> と <strong>データ</strong> の次元へ移った。同時に、注意の重みを見せても <strong>説明</strong> にはならない、という解釈論争も残る。</p>
 <h3 id="論争カードattention-の重みは説明になるか">論争カード：Attention の重みは説明になるか</h3>
@@ -195,6 +211,9 @@
 <h3 id="何がllm-化したか">何が「LLM 化」したか</h3>
 <div class="table-wrap"><table><thead><tr><th>要素</th><th>Transformer 単体</th><th>LLM レジーム</th></tr></thead><tbody><tr><td>骨格</td><td>系列変換ブロック</td><td>因果 Decoder-only が主流</td></tr><tr><td>学習</td><td>タスク依存のデータ</td><td>大規模一般コーパスでの長期事前学習</td></tr><tr><td>規模</td><td>数百万〜億級もあり得る</td><td>$N$・$D$・$C$ のスケールが性能の主要レバー</td></tr><tr><td>適応</td><td>fine-tuning が典型</td><td>ICL で重み固定のタスク切替が実用域に</td></tr><tr><td>制約</td><td>$O(n^2)$ 注意</td><td>有限文脈窓＋位置バイアス（Lost in the Middle）</td></tr></tbody></table></div>
 <p>Transformer が <strong>並列学習可能な骨格</strong> を与え、スケールとデータが <strong>汎用らしさ</strong> を押し上げ、有限窓と ICL が <strong>推論時の条件付け</strong> を可能にした——この三つが重なって「LLM」と呼ばれるチェックポイントが生まれた。</p>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<div class="table-wrap"><table><thead><tr><th>要素</th><th>いまの位置</th><th>備考</th></tr></thead><tbody><tr><td>Decoder-only + 大規模事前学習</td><td><strong>チャット／生成 LM の既定レジーム</strong></td><td>GPT / Claude / Gemini / Llama / Qwen など公開・商用の多く</td></tr><tr><td>Encoder–Decoder 専用モデル</td><td>翻訳・要約など用途分岐</td><td>汎用対話の中心ではない</td></tr><tr><td>文脈窓の拡大</td><td>製品ごとに伸長中だが<strong>有限</strong></td><td>Lost in the Middle は窓内でも残る</td></tr></tbody></table></div>
+<p><strong>事実:</strong> 「Transformer」と「LLM」は同義ではない——後者は骨格に加え、スケール・データ・有限窓・（次章の）後学習が重なったレジームである。<strong>議論:</strong> スケーリングがどこまで続くかは下記カードと第4部へ。</p>
 <h3 id="未解決スケールの先と意図とのずれ">未解決：スケールの先と意図とのずれ</h3>
 <p>スケーリングは損失とベンチを動かしうるが、<strong>事実性</strong>・<strong>有害出力</strong>・<strong>ユーザ意図</strong> との一致は事前学習の損失に含まれない。ウェブの続きとして尤もらしい toxic な列も、尤度の観点では「当たり」になりうる。次章の <strong>後学習</strong> は、このずれを製品層で部分的に埋める試みである。</p>
 <h3 id="論争カードスケーリングはまだ続くのか">論争カード：スケーリングはまだ続くのか</h3>
@@ -229,6 +248,9 @@
 <p>Ouyang ら自身も、RLHF 後なお単純な誤りが残ると報告している。口調が整った直後に算術を誤る——<strong>後学習は振る舞いの接口を変える</strong> が、知識更新と外界操作は別問題として残る。</p>
 <h3 id="論争カード整列は能力を削るかalignment-tax">論争カード：整列は能力を削るか（alignment tax）</h3>
 <div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>削る</td><td>拒否を強めるほど有用な依頼まで断る。丁寧さを増やすほど冗長。汎用ベンチで未調整 Base より下がるタスクがある</td></tr><tr><td>削らない／相殺</td><td>指示追従と有害性低減は製品価値そのもの。別ベンチ・別タスクでは整列後の方が上がる。1.3B 整列＞175B 未整列はサイズ信仰への反証</td></tr><tr><td>線引き</td><td>整列は <strong>一つの目的関数への最適化</strong> であり、全能のトレードオフ表ではない。何を「能力」と数えるかで評価は割れる</td></tr></tbody></table></div>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<div class="table-wrap"><table><thead><tr><th>技術</th><th>いまの位置</th><th>備考</th></tr></thead><tbody><tr><td>SFT / Instruction Tuning</td><td><strong>製品チャットのほぼ必須層</strong></td><td>Base をそのまま出す系は研究・一部 API に限定されやすい</td></tr><tr><td>RLHF（RM + RL）</td><td>大規模ラボの標準パイプラインの一つ</td><td>実装コスト高；代替手法と併存</td></tr><tr><td>DPO 等の選好最適化</td><td>オープンウェイト／再現性重視の現場で広く採用</td><td>RLHF の短縮形として使われることが多い</td></tr></tbody></table></div>
+<p><strong>事実:</strong> ユーザーが触る「Chat モデル」の口調・拒否・指示追従の多くは後学習層の産物である。<strong>議論:</strong> 整列が能力を削るか（alignment tax）は下記カードへ——事実保証の話ではない。</p>
 <h3 id="比喩最後に">比喩（最後に）</h3>
 <p>後学習を、同じエンジンに <strong>別の運転マニュアルとペナルティ表を載せた</strong> と捉えると誤解は減る。エンジン（事前学習の予測力）はそのまま、ハンドルとブレーキの感覚（口調・拒否）だけが調整された——それでも道路標識（事実）までは自動では書き換わらない。</p>
 <p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図</strong>で読む。</p>
@@ -253,12 +275,13 @@
 <p>「だから何？」への短い答えは、こうなる。<em>同じ（または近い）品質帯を、トークンあたりの活性計算量を抑えて狙う構造選択であり、Transformer 時代の終焉宣言ではない。</em></p>
 <p>同様に、FlashAttention なら推論高速化層、RAG なら外部システム層、RLVR なら学習方法と推論方法の境目——層が違えば、読むべき指標も違う（遅延、活性 FLOPs、検索再現率、検証可能報酬の正答率）。</p>
 <h3 id="ここから先の読み方">ここから先の読み方</h3>
-<p>第3部は、六層のうち特に動きの激しい層を順に見る。順序は歴史の必然ではない。各章の冒頭で「対象レイヤー／改善対象／変えなかった骨格」を固定する。第4部で論争を束ね、第5部で自分の立場を選ぶ。</p>
+<p>第1部の各駅末尾にあった <strong>「いまどこに残っているか」</strong> は、技術史を現代へつなぐ表だった。本章の六層マップは、それとは役割が違う——<strong>いま聞いた新しい名前を、どの層の改善／置換として置くか</strong> の座標である。歴史表で「LSTM は音声に残る」と言えたら、ニュースで「FlashAttention」と出たときは、まずこの地図で層を名指す。</p>
+<p>第3部は、六層のうち特に動きの激しい層を順に見る。順序は歴史の必然ではない。各章の冒頭で「対象レイヤー／改善対象／変えなかった骨格」を固定する。第4部で論争を束ね、第5部で自分の立場を選ぶ。事実（機構と観測）と議論（優位性・必然性・能力の解釈）は混ぜない——第5部の三分法と同じ線である。</p>
 <p>地図を持たないまま部品名を増やすと、また一本道の幻に戻る。ここでの出口は一つだけだ。<strong>新しい技術名は、まず層を名指し、次に改善か置換かを問う。</strong></p>
 <h2 id="第3部-各層の最新技術">第3部　各層の最新技術</h2>
 <p>地図の各層で、いま何が改善されているかを見る。順序は歴史の「次の駅」ではない。モデル構造、推論高速化、推論方法、外部システム、そして骨格の置換枝——それぞれが<strong>別の改善対象</strong>を持つ。章の冒頭で必ず「どの層か／何を改善するか／何は変えないか」を固定する。</p>
 <h2 id="モデル構造の部品denseとmoe">モデル構造の部品——DenseとMoE</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>モデル構造</td></tr><tr><td>改善対象</td><td>密なスケールにおける容量と活性計算の分離——総パラメータを増やしつつ、各 forward で動かす重みを抑える</td></tr><tr><td>変えなかった骨格</td><td>Decoder-only Transformer の <strong>Self-Attention</strong> と <strong>因果自己回帰</strong> 生成</td></tr><tr><td>新しいコスト</td><td>ルーティング偏り、Expert 間通信、負荷分散、活性パスの再現性</td></tr><tr><td>現在の位置づけ</td><td>主流部品（大規模オープンウェイト・商用の一部で採用）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>モデル構造</td></tr><tr><td>改善対象</td><td>密なスケールにおける容量と活性計算の分離——総パラメータを増やしつつ、各 forward で動かす重みを抑える</td></tr><tr><td>変えなかった骨格</td><td>Decoder-only Transformer の <strong>Self-Attention</strong> と <strong>因果自己回帰</strong> 生成</td></tr><tr><td>新しいコスト</td><td>ルーティング偏り、Expert 間通信、負荷分散、活性パスの再現性</td></tr><tr><td>現在の位置づけ</td><td>主流部品（大規模オープンウェイト・商用の一部で採用）。例: Mixtral、DeepSeek（MoE 系）、Grok、Qwen MoE 系など——いずれも <strong>Transformer 骨格上の構造選択</strong></td></tr></tbody></table></div>
 <p>第1部の出口で骨格は固定された。<strong>Decoder-only Transformer</strong> が系列を変換し、事前学習と後学習が分布を形作る。ニュースで「MoE 採用」と出ても、それは Transformer の<strong>後継</strong>ではない。多くの実装では、Attention ブロックはそのままに、層内の <strong>FFN（Feed-Forward Network、フィードフォワードネットワーク）</strong> 経路だけを複数の専門家に差し替え、<strong>疎活性化（sparse activation）</strong> で幅を増やす——<strong>モデル構造層</strong>の部品選択である。</p>
 <h3 id="dense密な-ffn-が標準形">Dense：密な FFN が標準形</h3>
 <p><strong>Dense（密）</strong> モデルでは、Transformer の各層に <strong>単一の FFN</strong> が載る。全パラメータが毎回の forward で候補となり、活性計算量は総パラメータ数とほぼ一致する。Llama や GPT 系の古典的な大規模言語モデルは、この形が基準である。</p>
@@ -278,12 +301,15 @@
 <h3 id="新しく表面化するコスト">新しく表面化するコスト</h3>
 <p>MoE は Expert をデバイス間に分割すると <strong>通信</strong> がボトルネックになる。Router の選択が偏れば特定 Expert だけが飽和し、<strong>負荷分散（load balancing）</strong> 補助損失や容量制約が必要になる。学習中のルーティングと推論時のルーティングがずれると、同じプロンプトでも再現条件を変えると活性パスが変わり、サンプリング以外の揺れ要因になりうる。</p>
 <p>製品表記の「B」が総パラメータを指すとき、ユーザーが感じる「毎回動く脳みそ」の大きさとずれる——これは構造層の読み方の問題である。</p>
+<h3 id="いまどこに残っているか">いまどこに残っているか</h3>
+<div class="table-wrap"><table><thead><tr><th>構造</th><th>いまの位置</th><th>例（例示・網羅ではない）</th></tr></thead><tbody><tr><td>Dense Transformer</td><td>依然として標準形の一つ</td><td>Llama 系、多くの GPT 系 Dense チェックポイント</td></tr><tr><td>MoE（疎活性 FFN）</td><td>大規模での効率フロンティアを狙う<strong>主流部品</strong></td><td>Mixtral、DeepSeek MoE 系、Grok、Qwen MoE 系</td></tr></tbody></table></div>
+<p><strong>事実:</strong> MoE は Attention を廃した新骨格ではなく、同じ次トークン／自己回帰契約の上での FFN 配線である。<strong>議論:</strong> Dense より常に優れるかは第4部へ。</p>
 <h3 id="比喩最後に">比喩（最後に）</h3>
 <p>巨大組織で、案件ごとに少数の専門部署だけを動かし他は待機させる——MoE のイメージに近い。ただし比喩は補助に留め、先に固定すべきは <strong>複数 FFN とルータによる疎活性</strong> という機構の定義である。</p>
 <h3 id="論争カードmoe-vs-dense短く">論争カード：MoE vs Dense（短く）</h3>
 <div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>MoE 優位</td><td>同品質帯で活性 FLOPs を抑え、総容量を稼げる。Mixtral は密 70B 級との比較例として引用される（*2）</td></tr><tr><td>Dense 優位</td><td>実装・デバッグ・再現性が単純。通信とルーティング偏りの運用コストが小さい</td></tr><tr><td>線引き</td><td>「どちらが賢いか」ではなく、<strong>容量と活性計算を分離したいか</strong> の工学判断。詳細は第4部</td></tr></tbody></table></div>
 <h2 id="推論を速くする同じ骨格のまま">推論を速くする——同じ骨格のまま</h2>
-<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論高速化</td></tr><tr><td>改善対象</td><td>自己回帰生成の遅延・メモリ・スループット——同じ条件付き分布をより安く届ける</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みと <strong>条件付き次トークン予測</strong> の意味；モデル構造（Dense/MoE）そのもの</td></tr><tr><td>新しいコスト</td><td>量子化誤差、投機受理率の頭打ち、キャッシュ管理の複雑さ、実装依存の品質差</td></tr><tr><td>現在の位置づけ</td><td>主流部品（本番推論の標準装備に近い）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論高速化</td></tr><tr><td>改善対象</td><td>自己回帰生成の遅延・メモリ・スループット——同じ条件付き分布をより安く届ける</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みと <strong>条件付き次トークン予測</strong> の意味；モデル構造（Dense/MoE）そのもの</td></tr><tr><td>新しいコスト</td><td>量子化誤差、投機受理率の頭打ち、キャッシュ管理の複雑さ、実装依存の品質差</td></tr><tr><td>現在の位置づけ</td><td>主流部品（本番推論の標準装備）。KV Cache・GQA・FlashAttention・量子化はほぼ既定；投機的デコードはレイテンシ要件の高い提供で採用</td></tr></tbody></table></div>
 <p>前章は <strong>モデル構造</strong> ——FFN を Dense にするか MoE にするか——を見た。本章は別の枝である。<strong>推論高速化</strong>は、同じ骨格・同じチェックポイントで、トークンを一つずつ出す手続きを速く・軽くする層だ。ベンチの「賢さ」が跳ね上がったわけではない。遅延が下がった、同時セッションが増えた、GPU 枚数が減った——<strong>提供</strong>の問題である。</p>
 <h3 id="kv-cache再計算を避ける">KV Cache：再計算を避ける</h3>
 <p>自己回帰生成では、各デコードステップで過去トークンへの注意が必要になる。毎回ゼロから計算すれば、長さに比例してコストが膨らむ。<strong>KV Cache（キー・バリューキャッシュ）</strong> は、すでに計算した層のキー（K）と値（V）を保持し、新しいトークン分だけ注意を更新する仕組みである。長い生成ほどキャッシュが膨らみ、バッチ同時実行と合わさると GPU メモリの主因になる——ここから先の部品は、そのメモリと帯域を削る。</p>
