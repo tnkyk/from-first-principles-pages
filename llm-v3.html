@@ -277,36 +277,8 @@
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>いまの位置</th><th>備考</th></tr></thead><tbody><tr><td>SFT / Instruction Tuning</td><td><strong>製品チャットのほぼ必須層</strong></td><td>Base をそのまま出す系は研究・一部 API に限定されやすい</td></tr><tr><td>RLHF（RM + RL）</td><td>大規模ラボの標準パイプラインの一つ</td><td>実装コスト高；代替手法と併存</td></tr><tr><td>DPO 等の選好最適化</td><td>オープンウェイト／再現性重視の現場で広く採用</td><td>RLHF の短縮形として使われることが多い</td></tr></tbody></table></div>
 <p><strong>事実:</strong> ユーザーが触る「Chat モデル」の口調・拒否・指示追従の多くは後学習層の産物である。<strong>議論:</strong> 整列が能力を削るか（alignment tax）は下記カードへ——事実保証の話ではない。</p>
 <p>後学習を、同じエンジンに <strong>別の運転マニュアルとペナルティ表を載せた</strong> と捉えると誤解は減る。エンジン（事前学習の予測力）はそのまま、ハンドルとブレーキの感覚（口調・拒否）だけが調整された——それでも道路標識（事実）までは自動では書き換わらない。</p>
-<p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。<strong>第1部はここで終わる。</strong> これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図（Map）</strong> で読む。</p>
-<h2 id="演習1-機構の分類第1部のあと">演習1　機構の分類（第1部のあと）</h2>
-<p>知識確認ではない。次の主張を、自分の言葉で三つに分解する。</p>
-<p><strong>input_material:</strong> 「LLM は文章の意味を理解しているから、正確な答えを返せる。」</p>
-<p><strong>operation:</strong> 主張を、観測事実／能力に関する推論／保証に関する誤りの三段に分解して記入する。</p>
-<p><strong>self_check:</strong> 三段が互いに言い換えになっていないか。尤度と真理を同一視していないか。</p>
-<p>記入欄（頭の中でも紙でもよい）:</p>
-<div class="table-wrap"><table><thead><tr><th>区分</th><th>自分の分解</th></tr></thead><tbody><tr><td>観測事実は何か</td><td>（例: あるプロンプトに対し、人間が正しいと感じる答えがしばしば出る）</td></tr><tr><td>能力に関する推論は何か</td><td>（例: 出力の適切さは、内部に意味理解がある証拠だ）</td></tr><tr><td>保証に関する誤りは何か</td><td>（例: 流暢さや正答率から、真偽の保証や常時正確性を導いてしまう）</td></tr></tbody></table></div>
-<h3 id="歴史再構成表空欄">歴史再構成表（空欄）</h3>
-<p>第1部の駅——n-gram → Neural LM → RNN/LSTM → Attention → Transformer → LLM → Chat——から、好きな隣接ホップを一つ選び、次を埋める。</p>
-<div class="table-wrap"><table><thead><tr><th>前方式</th><th>詰まった問題</th><th>新機構</th><th>変わらないもの</th><th>次の問題</th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
-<p>（例のヒント: n-gram→Neural LM なら、疎性／埋め込み／次トークン目的／固定長履歴、など。）</p>
-<h3 id="書いたあとで見る参考の切り分け唯一解ではない">書いたあとで見る参考の切り分け（唯一解ではない）</h3>
-<ul><li><strong>観測事実:</strong> 条件付き次トークン予測で訓練されたモデルが、多くのタスクで有用なテキストを出す。</li><li><strong>能力に関する推論:</strong> 「意味を理解している」は、内部表現や汎化についての強い推論になりうる——だが第1部だけでは証明も反証もしていない。</li><li><strong>保証に関する誤り:</strong> 「理解しているから正確」は、尤度と真理を同一視する飛躍である。正確さが必要なときは、外側の検証が別問題として残る。</li></ul>
-<p>できた操作: 流暢な一文を、事実・推論・保証の混線として読む。</p>
-<h2 id="第2部-現在のシステムを層に分ける">第2部　現在のシステムを層に分ける</h2>
-<p>第1部で到達した主流骨格——Decoder-only Transformer、大規模事前学習、後学習——の先に、名前が大量に増える。ここからは年表を一本で進めるのではなく、<strong>二枚の地図</strong>を手に入れる。ひとつは技術史・研究系譜（時間）、もうひとつはシステム構成（組み立て）。理解の入口では「木」と呼ぶが、研究史は複数の技術を再結合するため、厳密には有向非巡回グラフ（DAG）に近い。新しい技術名を聞いたとき、「Transformer の次」と短絡せず、系譜・構成層・改善動機の三タグで落とす。</p>
-<h2 id="現在のllmは何層でできているか">現在のLLMは何層でできているか</h2>
-<p>第1部の出口までで、主流の骨格はほぼ見える。<strong>Decoder-only Transformer</strong> が系列を変換し、巨大コーパスで次トークンを当て、後学習で対話の口調と拒否境界を載せる。ところがニュースや製品発表に出てくる名前——MoE、FlashAttention、KV Cache、RLVR、RAG、Agent、Mamba——を、この一本道の「次の駅」として並べると、地図が壊れる。</p>
-<p>壊れる理由は、名前が一つの「木」に載っていないからではない。<strong>種類の違う地図が混ざる</strong>からであり、さらに一つの技術が複数の座標を持つからである。</p>
-<h3 id="二枚の地図系譜と構成木は近似">二枚の地図——系譜と構成（木は近似）</h3>
-<p>理解の入口では、引き続き「二つの木」と呼んでよい。ただし、次を先に固定する。</p>
-<p><strong>本記事では理解のために「木」と呼ぶが、実際の研究史は複数の技術を再結合するため、厳密には木ではなく、有向非巡回グラフ（DAG）に近い。また、一つの技術が「モデル構造」と「推論効率」のように複数の座標を持つ場合がある。</strong></p>
-<div class="table-wrap"><table><thead><tr><th>地図</th><th>何の地図か</th><th>辺の意味</th><th>例</th></tr></thead><tbody><tr><td><strong>Map ① 技術史・研究系譜</strong></td><td>時間／発明のつながり</td><td>「前のボトルネックを解いた」「同じ研究圧力への応答」</td><td>RNN → Transformer；Transformer の下に MoE / FlashAttention</td></tr><tr><td><strong>Map ② システム構成</strong></td><td>製品の組み立て（時間ではない）</td><td>「依存する／層として載る」</td><td>データの上に学習・構造・推論；外に RAG / Agent；横に評価</td></tr></tbody></table></div>
-<p>MoE と Agent を同じ親の下に並べると、後者だけ性質が違う。<strong>Agent は Transformer から派生した発明ではなく、Transformer（など）を利用するアプリケーション構成</strong>である。RAG・Tool・MCP・Memory も同様——系譜の子ではなく、構成の外層である。</p>
-<p>再結合の例: <strong>Jamba</strong> は Mamba・Attention・MoE を組み合わせる。<strong>GQA</strong> はモデル構造であると同時に、KV Cache 削減という推論効率上の動機を持つ。<strong>RLVR</strong> は学習方法だが、推論時計算を伸ばすモデルの形成にも関わる。一技術一親に固定すると、これらの実態が消える。</p>
-<h3 id="三つのタグ一技術を固定しない">三つのタグ（一技術を固定しない）</h3>
-<p>最終的に技術を一つの木に釘付けするのではなく、次の三属性で表す。</p>
-<div class="table-wrap"><table><thead><tr><th>属性</th><th>問い</th><th>GQA の例</th></tr></thead><tbody><tr><td>系譜</td><td>何を前提として生まれたか</td><td>Transformer／Attention 系</td></tr><tr><td>構成層</td><td>現在のシステムのどこに置かれるか</td><td>モデル構造</td></tr><tr><td>改善動機</td><td>何の制約を解こうとしているか</td><td>KV Cache とメモリ帯域の削減</td></tr></tbody></table></div>
-<figure class="article-figure"><img src="assets/llm-v3/tech-tags-axes.svg" alt="" /><figcaption>見るべき構造: 系譜・構成層・改善動機の三タグ。一親への固定を避ける。 (Source: 教育用模式図)</figcaption></figure>
+<p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。演習に入る前に、第1部が辿った一本道を<strong>一枚の時間軸</strong>で固定する。横軸は発明の順番。各駅は「何が主流だったか／何が可能になったか／何が問題で次が生まれたか」である。全駅の下には、入口で固定した <strong>条件付き次トークン予測</strong> がある——骨格が替わっても、直接目的の形は共有されている。</p>
+<figure class="article-figure"><img src="assets/llm-v3/part1-evolution-timeline.svg" alt="" /><figcaption>見るべき構造: 横軸は時間。各列は主流・可能・問題の三段で、問題欄が次の技術の誕生理由につながる。到達点は後学習を載せた Chat 骨格。この先の名前は次の駅ではなく地図へ。 (Source: 教育用模式図; 第1部 C1–C6 の必要性連鎖)</figcaption></figure>
 <h3 id="map-①技術史時間">Map ①：技術史（時間）</h3>
 <p>第1部が辿った一本道は、ここまででよい。</p>
 <figure class="article-figure"><img src="assets/llm-v3/tech-history-tree-v2.svg" alt="" /><figcaption>見るべき構造: 統計 LM から Transformer までは一本道。その先は研究系譜の枝。RAG/Agent はこの地図に載せない。 (Source: 教育用模式図)</figcaption></figure>
@@ -626,9 +598,6 @@
 <li><a href="#transformer">Transformer</a></li>
 <li><a href="#transformerからllmへ">TransformerからLLMへ</a></li>
 <li><a href="#base-model-から-chat-model-へ">Base Model から Chat Model へ</a></li>
-<li><a href="#演習1-機構の分類第1部のあと">演習1　機構の分類（第1部のあと）</a></li>
-<li><a href="#第2部-現在のシステムを層に分ける">第2部　現在のシステムを層に分ける</a></li>
-<li><a href="#現在のllmは何層でできているか">現在のLLMは何層でできているか</a></li>
 <li><a href="#演習2-層への配置第2部のあと">演習2　層への配置（第2部のあと）</a></li>
 <li><a href="#第3部-未解決問題から現在地を見る">第3部　未解決問題から現在地を見る</a></li>
 <li><a href="#モデル構造の部品denseとmoe">モデル構造の部品——DenseとMoE</a></li>

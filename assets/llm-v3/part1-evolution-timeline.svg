@@ -157,7 +157,7 @@
 
   <rect x="28" y="492" width="1224" height="100" rx="8" fill="#fff" stroke="#393b38"/>
   <text x="44" y="520" fill="#1a1c1a" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="13" font-weight="600">読み方（第1部のまとめ）</text>
-  <text x="44" y="544" fill="#1a1c1a" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">統計 LM から後学習まで、各段は「前の問題を解くために生まれた」。到達した主流骨格は Decoder-only Transformer ＋ 大規模事前学習 ＋ 後学習。</text>
-  <text x="44" y="566" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">この先の MoE / FlashAttention / RAG / Agent などは「次の駅」ではなく、系譜の枝かシステム構成の層として読む（第2部）。</text>
-  <text x="44" y="580" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="11">Source: 教育用模式図（第1部 C1–C6 の必要性連鎖の要約。年号は省略し発明順を示す）</text>
+  <text x="44" y="544" fill="#1a1c1a" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">全駅の下には条件付き次トークン予測がある。各段は「前の問題を解くために生まれた」。到達点は Decoder-only Transformer ＋ 大規模事前学習 ＋ 後学習。</text>
+  <text x="44" y="566" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="12">この先の MoE / TTC / RAG / Agent / データ・評価などは「次の駅」ではなく、系譜の枝か八層のどこかとして読む（第2部以降）。</text>
+  <text x="44" y="588" fill="#4a4c48" font-family="'Noto Serif CJK JP', 'Noto Sans CJK JP', 'Hiragino Mincho ProN', Georgia, serif" font-size="11">Source: 教育用模式図（第1部 C1–C6 の必要性連鎖。年号は省略し発明順。演習1の歴史再構成表の見本）</text>
 </svg>
