@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="420" viewBox="0 0 860 420" role="img" aria-label="Technology history tree: linear then Transformer research branches">
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="420" viewBox="0 0 860 420" role="img" aria-label="技術史の木: 一本道の後に Transformer 研究枝">
   <rect width="860" height="420" fill="#f2f3f0"/>
-  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Tree 1 - Technology history (time / invention)</text>
-  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">One trunk until Transformer. Then research branches - not product layers.</text>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">木① — 技術史（時間／発明）</text>
+  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Transformer まで一本。その先は研究枝 — 製品層ではない。</text>
 
   <g font-family="Georgia, serif" font-size="12" fill="#1a1c1a">
     <rect x="24" y="80" width="88" height="36" rx="6" fill="#fff" stroke="#393b38"/>
@@ -33,48 +33,48 @@
   <g font-family="Georgia, serif">
     <path d="M240 150 V170" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="160" y="170" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
-    <text x="176" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Scale the model</text>
+    <text x="176" y="194" fill="#0d7a6c" font-size="12" font-weight="600">モデル巨大化</text>
     <text x="176" y="216" fill="#1a1c1a" font-size="12">Dense / MoE</text>
-    <text x="176" y="234" fill="#4a4c48" font-size="11">in-backbone parts</text>
+    <text x="176" y="234" fill="#4a4c48" font-size="11">背骨内の部品</text>
 
     <path d="M400 150 V170" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="320" y="170" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
-    <text x="336" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Handle long context</text>
+    <text x="336" y="194" fill="#0d7a6c" font-size="12" font-weight="600">長文を扱う</text>
     <text x="336" y="216" fill="#1a1c1a" font-size="12">RoPE / YaRN / long ctx</text>
-    <text x="336" y="234" fill="#4a4c48" font-size="11">still Transformer family</text>
+    <text x="336" y="234" fill="#4a4c48" font-size="11">なお Transformer 系</text>
 
     <path d="M560 150 V170" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="480" y="170" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
-    <text x="496" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Run faster</text>
+    <text x="496" y="194" fill="#0d7a6c" font-size="12" font-weight="600">より速く動かす</text>
     <text x="496" y="216" fill="#1a1c1a" font-size="12">FlashAttn / KV / Spec</text>
-    <text x="496" y="234" fill="#4a4c48" font-size="11">same distribution, cheaper</text>
+    <text x="496" y="234" fill="#4a4c48" font-size="11">同じ分布・より安く</text>
 
     <path d="M720 150 V170" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="640" y="170" width="180" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
-    <text x="656" y="194" fill="#0d7a6c" font-size="12" font-weight="600">Stretch reasoning</text>
+    <text x="656" y="194" fill="#0d7a6c" font-size="12" font-weight="600">推論を伸ばす</text>
     <text x="656" y="216" fill="#1a1c1a" font-size="12">CoT / TTC / RLVR</text>
-    <text x="656" y="234" fill="#4a4c48" font-size="11">train / decode methods</text>
+    <text x="656" y="234" fill="#4a4c48" font-size="11">学習／生成の手法</text>
   </g>
 
   <g font-family="Georgia, serif">
     <path d="M320 150 V260" stroke="#393b38" stroke-width="2"/>
     <rect x="240" y="260" width="160" height="70" rx="6" fill="#fff" stroke="#393b38"/>
-    <text x="256" y="284" fill="#1a1c1a" font-size="12" font-weight="600">Replace / hybrid</text>
+    <text x="256" y="284" fill="#1a1c1a" font-size="12" font-weight="600">置換／ハイブリッド</text>
     <text x="256" y="306" fill="#1a1c1a" font-size="12">Mamba / Hybrid / Diff LM</text>
-    <text x="256" y="324" fill="#4a4c48" font-size="11">parallel research branch</text>
+    <text x="256" y="324" fill="#4a4c48" font-size="11">並行する研究枝</text>
 
     <path d="M520 150 V260" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="440" y="260" width="160" height="70" rx="6" fill="#fff" stroke="#0d7a6c"/>
-    <text x="456" y="284" fill="#0d7a6c" font-size="12" font-weight="600">Widen modalities</text>
-    <text x="456" y="306" fill="#1a1c1a" font-size="12">vision / audio encoders</text>
-    <text x="456" y="324" fill="#4a4c48" font-size="11">representation extension</text>
+    <text x="456" y="284" fill="#0d7a6c" font-size="12" font-weight="600">モーダルを広げる</text>
+    <text x="456" y="306" fill="#1a1c1a" font-size="12">視覚／音声エンコーダ</text>
+    <text x="456" y="324" fill="#4a4c48" font-size="11">表現の拡張</text>
   </g>
 
   <rect x="640" y="260" width="200" height="90" rx="6" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
-  <text x="656" y="286" fill="#a85a2a" font-family="Georgia, serif" font-size="12" font-weight="600">Not on this tree</text>
+  <text x="656" y="286" fill="#a85a2a" font-family="Georgia, serif" font-size="12" font-weight="600">この木には載せない</text>
   <text x="656" y="308" fill="#1a1c1a" font-family="Georgia, serif" font-size="12">RAG / Tool / MCP</text>
   <text x="656" y="326" fill="#1a1c1a" font-family="Georgia, serif" font-size="12">Memory / Agent</text>
-  <text x="656" y="344" fill="#4a4c48" font-family="Georgia, serif" font-size="11">-&gt; Tree 2 (system)</text>
+  <text x="656" y="344" fill="#4a4c48" font-family="Georgia, serif" font-size="11">→ 木②（システム）</text>
 
-  <text x="24" y="400" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Branch labels = motives (why), not next station. Agent is application composition, not a Transformer child.</text>
+  <text x="24" y="400" fill="#4a4c48" font-family="Georgia, serif" font-size="12">枝ラベル＝動機（なぜ）であり次の駅ではない。Agent は応用構成であり Transformer の子ではない。</text>
 </svg>

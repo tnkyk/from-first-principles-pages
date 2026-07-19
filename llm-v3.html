@@ -34,41 +34,45 @@
 <p>知識の暗記ではなく、次の操作ができることが目標である。</p>
 <ol><li><strong>仕組みを説明できる</strong> — 次トークン予測から Transformer・事前学習・後学習まで、前の解法がどこで潰れたかを言える。</li><li><strong>技術を地図上に配置できる</strong> — 系譜・構成層・改善動機の三タグで、新しい名前を落とせる（木は近似；実態は再結合する DAG に近い）。</li><li><strong>製品発表の主張を分解できる</strong> — どの層が動いたか、何を測り、何と比較し、何が保証されていないかを切り分けられる。</li><li><strong>根拠と価値観を明示して暫定意見を作れる</strong> — 重視する価値、許容できない失敗、確認できる事実、反証条件まで言える。</li></ol>
 <p>各部の終わりに短い判断演習を置く。答え合わせではなく、操作の練習である。</p>
-<p>読み方を二つだけ先に固定する。<strong>(1) 機構の定義・論文の観測は事実、能力・必然性・優位性の主張は議論</strong>——混ぜない。<strong>(2) 技術史の各駅のあとで、「いまどこに残っているか」を補助欄で一度示す</strong>——消えた技術と、用途を変えて生き残った技術を分ける。</p>
 <p><strong>言語の続きを予測する技術は、どの問題を解決しながら現在の形になり、その過程で何を獲得し、何を未解決のまま残しているのか。</strong></p>
 <p>この問いに答えるために、次の六つの問題を順に解いていく。前半は骨格が替わる技術史、後半は地図と論争と自分の暫定モデルである。</p>
 <ol><li><strong>記号列に確率を与え、次の記号を予測する、とは何を最適化しているのか。</strong> 直接目的と獲得能力と保証を分ける。</li><li><strong>数え上げから RNN、Attention、Transformer へ——何がボトルネックになり、何が消えたのか。</strong> 骨格交代の連鎖を辿る。</li><li><strong>大規模事前学習と後学習は、何を変え、何を変えなかったのか。</strong> ここまでが第1部の到達点である。</li><li><strong>いまの LLM は何層でできているのか。</strong> 技術史の地図とシステム構成の地図を分け、データと評価の層も含める。一技術一親に固定しない。</li><li><strong>いま何が未解決で、各技術はどの問題に応答しているのか。</strong> 構造・高速化・推論・外部接続・置換枝を、問題マップ経由で見る。</li><li><strong>いま何が論争で、自分はどの立場を採るか。</strong> 事実と意見を分け、複数の見方を道具として選ぶ。</li></ol>
 <h2 id="第1部-一本の幹を理解する">第1部　一本の幹を理解する</h2>
 <p>ここから先は、言語モデルの<strong>骨格そのものが交代した</strong>道だけを辿る。数え上げがニューラル表現へ、再帰が Attention へ、Encoder–Decoder が Decoder-only の大規模事前学習へ——各段階で「前の解法がどこで潰れたか」が次の部品を強制する。部品の高速化や MoE のような層内改善は、まだ登場させない。</p>
 <p>各技術章は、次の五段だけを本文の主線にする。<strong>(1) 前の段階で困っていたこと (2) 新しく導入された仕組み (3) 小さな具体例 (4) できるようになったこと (5) それでも残った問題。</strong> 「いまどこに残っているか」と短い論争カードは、章末の補助欄に分ける。部の終わりに、主張を分解する演習がある。</p>
+<p>読み方を二つだけ先に置く。<strong>(1) 機構の定義・論文の観測は事実、能力・必然性・優位性の主張は議論</strong>——混ぜない。<strong>(2) 技術史の各駅のあとで、「いまどこに残っているか」を補助欄で一度示す</strong>——消えた技術と、用途を変えて生き残った技術を分ける。</p>
 <h2 id="言語モデルとは何か">言語モデルとは何か</h2>
 <p>チャット欄に返ってくる流暢な日本語、コードの続き、要約らしい段落——体験は「賢い相手」との対話に見える。ところが、裏側の学習装置が直接最適化している対象は、もっと地味だ。記号列の各位置で、<strong>左側にすでにある列のあとに、次の記号が来る確率</strong>を当てる。翻訳用の損失、要約用の損失、真偽判定用の損失を最初から並べるのではなく、テキスト自身が教師になる。ここから先の技術史——埋め込み、再帰、注意、巨大事前学習——はすべて、この問いの上に積み重ねられた部品である。入口で固定すべきは、装置が何を「当てている」のか、そして何が獲得能力で何が保証外なのか、という境界だ。</p>
 <p>本章で固定する問いは一つだけである。<strong>言語モデルが直接最適化しているのは何か。</strong></p>
+<h3 id="1-トークンとは何か">1. トークンとは何か</h3>
+<p>モデルが見るのは文字そのものではなく、<strong>トークン</strong>——語彙表に載った離散 ID——の列である。文字列を ID 列に切り分ける手続きがトークン化だ。たとえば英単語列 <code>Hello world</code> を仮に語単位で切ると、語彙に <code>Hello→17</code>、<code>world→42</code> があれば入力は <code>[17, 42]</code> になる。日本語でも同様で、「東京の天気」がサブワード分割されれば <code>[東, 京, の, 天, 気]</code> のような断片 ID 列になる（分割規則は系ごとに違う）。以降の章で出てくる <strong>BPE（Byte Pair Encoding）</strong> などは、この切り方の具体技である——本章では「文字列 → 有限語彙の ID 列」だけを固定すれば足りる。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
 <h3 id="条件付き次トークン予測-px-t-x-t">条件付き次トークン予測 P(x_t | x_&lt;t)</h3>
 <p><strong>条件付き次トークン予測</strong>とは、時刻 \(t\) において、それより左にあるすべての記号 \(x_1, \ldots, x_{t-1}\) が与えられたとき、次の記号 \(x_t\) が語彙のどの要素になるかを確率分布として出力する問題設定である。記号 \(w\) について \(P(x_t = w \mid x_1, \ldots, x_{t-1})\) を計算し、語彙全体に確率質量を配る。質問文か命令文か、引用か脚色か——損失関数は体裁を区別しない。与えられた接頭辞の ID 列が、次スロットのスコアベクトルに影響する、という約束だけが入っている。</p>
 <p>出力は長さ \(|V|\) のベクトルだ。各成分は非負で、和は 1 に正規化される（実装では生の <strong>logits</strong> を出し、softmax で確率へ変換する）。インデックス \(j\) の値は「語彙 ID \(j\) が直後に来る確率」として読む。ここで誤りやすいのは、高い確率を「正しい回答」や「理解の証明」と混同することだ。確率が大きいのは、訓練コーパスで似た接頭辞のあとにそのトークンがしばしば観測された、という統計的事実の表れにすぎない。</p>
 <figure class="article-figure"><img src="assets/llm-v3/next-token-dist.svg" alt="" /><figcaption>見るべき構造: 各ステップで語彙全体に確率が配られ、そこから1記号が選ばれる。 (Source: 教育用模式図; Shannon, 1951 の予測枠; Brown et al., 2020 の自己回帰設定)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 各ステップは語彙上の分布を出し、そこから1トークンを選ぶ</summary><iframe class="sim-frame" src="assets/sims/llm-v3/next-token/index.html" title="next-token" loading="lazy"></iframe></details>
-<p>訓練では、文書が実際に持っている次のトークン ID を正解とみなし、<strong>交差エントロピー</strong>で正解への確率質量を増やす。全位置・全文書で平均し、勾配降下が重みを更新する——これが<strong>尤度最大化</strong>の実務的な姿だ。Shannon は印刷英語の予測可能性を情報理論の枠で測り、言語は次の記号についてかなりの予測圧縮が可能だと示した（*1）。現代の言語モデルは、その「次を当てる」圧力をニューラルネットで大規模に実装した延長線上にある。</p>
+<p>訓練では、文書が実際に持っている次のトークン ID を正解とみなし、<strong>交差エントロピー</strong>で正解への確率質量を増やす。全位置・全文書で平均し、勾配降下が重みを更新する——これが<strong>尤度最大化</strong>の実務的な姿だ。Shannon は印刷英語の予測可能性を情報理論の枠で測り、言語は次の記号についてかなりの予測圧縮が可能だと示した<a class="fn-ref" href="#fn-1">(*1)</a>。現代の言語モデルは、その「次を当てる」圧力をニューラルネットで大規模に実装した延長線上にある。</p>
+<p>一行で結びつけると、<strong>logits → softmax → 交差エントロピー（正解 ID への \(-\log p\)）</strong> が、各位置の学習信号になる。</p>
 <h3 id="直接目的と獲得能力の分離">直接目的と獲得能力の分離</h3>
-<p><strong>直接目的</strong>は常に次トークンの対数尤度である。一方、翻訳・要約・コード補完・対話らしい応答といった振る舞いは、損失に明示的なラベルとして入っていない。それでも現れるのは、多くのスキルが「与えられた前文の statistically likely な続き」に圧縮可能だからだ、という経験的主張がある。Brown らの GPT-3 は、大規模な自己教師あり事前学習のあと、多様なプロンプトに対する few-shot 挙動を報告した（*2）。根底にあるのは依然として次トークンの当てゲームだ。接頭辞に例を並べると分布が曲がる——<strong>文脈内学習（in-context learning）</strong> と呼ばれる現象——があっても、推論時に重みは動かず、学習目標の形は変わらない。</p>
+<p><strong>自己回帰型モデルの事前学習では</strong>、直接目的は次トークンの対数尤度である。一方、翻訳・要約・コード補完・対話らしい応答といった振る舞いは、損失に明示的なラベルとして入っていない。それでも現れるのは、多くのスキルが「与えられた前文の統計的にありそうな続き」に圧縮可能だからだ、という経験的主張がある。Brown らの GPT-3 は、大規模な自己教師あり事前学習のあと、多様なプロンプトに対する few-shot 挙動を報告した<a class="fn-ref" href="#fn-2">(*2)</a>。根底にあるのは依然として次トークンの当てゲームだ。接頭辞に例を並べると分布が曲がる——<strong>文脈内学習（in-context learning）</strong> と呼ばれる現象——があっても、推論時に重みは動かず、学習目標の形は変わらない。</p>
+<p>のちの章で見る <strong>SFT / RLHF / RLVR</strong> は、この尤度目的を別の信号（指示追従・選好・検証可能報酬）で上書き・再重み付けする。<strong>拡散型言語モデル</strong>のように、左から右への厳密な自己回帰以外の生成パラダイムも探索されている。入口で固定するのは「多くの現行チャット系の事前学習は次トークン尤度」であり、「あらゆる学習目標が常にそれだけ」ではない。</p>
 <p>この分離を崩すと説明が破綻する。「翻訳を理解して学習した」のではなく、「この記号列のあとにはしばしばあの記号列が来た」という統計を、接頭辞の形で再利用できる、と読む方が層の言葉に忠実だ。獲得能力は、直接目的の副産物として<strong>起こりうる</strong>が、損失がその能力を個別に保証するわけではない。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
-<p>各位置の損失は、直後の一記号だけを正解とする。三トークン文 <code>[東京, の, 天気]</code> では、位置 1 で「の」、位置 2 で「天気」を当てる——独立した分類の連鎖だが、条件は左に伸びる接頭辞だ。遠い主語と述語が統計的につながって見えるのは、接頭辞全体が次の分布を決める条件になるからであり、損失が明示的に「主語–述語ペア」を結びつけているわけではない。</p>
+<p>三トークン列 <code>[東京, の, 天気]</code> を考える。位置 1（接頭辞 <code>東京</code>）では次が <code>の</code>、位置 2（接頭辞 <code>東京 の</code>）では次が <code>天気</code> を正解とする。各位置でモデルは語彙全体への logits を出し、softmax で確率にし、正解 ID への交差エントロピーを下げる——独立した分類の連鎖だが、条件は左に伸びる接頭辞だ。遠い主語と述語が統計的につながって見えるのは、接頭辞全体が次の分布を決める条件になるからであり、損失が明示的に「主語–述語ペア」を結びつけているわけではない。</p>
 <p>推論時は、分布から一つの ID を選んで接頭辞に付け足し、また次の分布を出す——<strong>因果自己回帰</strong>の骨格だ。学習目標は常に一歩先の記号だが、生成はその当てゲームを自分の出力で巻き戻しながら進む。ここまでの層で固定できるのは学習目標の形までだ。中核は、これまでの列のあとに来る次トークンを、語彙全体への分布として当てることである。</p>
 <h3 id="4-できるようになったこと">4. できるようになったこと</h3>
 <p>この設定の強みは、タスクごとの教師ラベルなしに、雑多なドメインのテキストから振る舞いを押し出せることだ。同じアーキテクチャと同じ損失で、コード・ニュース・対話ログを同時に学習できる。モジュールをタスクごとに差し替えない設計が可能になるのは、入力のフォーマット（接頭辞の並び）が変われば条件付き分布が変わる、という単純な仕組みの上にある。</p>
 <h3 id="5-それでも残った問題">5. それでも残った問題</h3>
-<p>高確率のトークン列は、整った文体・よくある言い回し・権威的なトーンを帯びやすい。コーパスに論文らしい接頭辞のあとに fictitious な書誌が続く例があれば、そのパターンも学習される。だから<strong>幻覚（尤もらしい偽）</strong>の土台の一つは、次トークン目標が「もっともらしい続き」を奖励することにある——意図的な欺瞞ではなく、統計的尤もらしさの産物として現れる。</p>
-<p>Bender らは、大規模言語モデルの流暢さが、言語理解や世界モデルの存在を意味すると短絡することへの規範的警告を述べた（*3）。これはメカニズムの証明ではなく、解釈の注意喚起である。技術的事実として言えるのは、<strong>単体では保証されない</strong>ものが多い、という線の引き方だ。事実の正しさ、意図への忠実さ、有害出力の拒否、引用の真正性——これらの多くは、のちの後学習層やアプリケーション層（検索・ツール・検証）の話であり、次トークン尤度だけでは構造的に閉じない。</p>
+<p>高確率のトークン列は、整った文体・よくある言い回し・権威的なトーンを帯びやすい。コーパスに論文らしい接頭辞のあとに架空の書誌が続く例があれば、そのパターンも学習される。だから<strong>幻覚（尤もらしい偽）</strong>の土台の一つは、次トークン目標が「もっともらしい続き」を促すことにある——意図的な欺瞞ではなく、統計的尤もらしさの産物として現れる。</p>
+<p>Bender らは、大規模言語モデルの流暢さが、言語理解や世界モデルの存在を意味すると短絡することへの規範的警告を述べた<a class="fn-ref" href="#fn-3">(*3)</a>。これはメカニズムの証明ではなく、解釈の注意喚起である。技術的事実として言えるのは、<strong>単体では保証されない</strong>ものが多い、という線の引き方だ。事実の正しさ、意図への忠実さ、有害出力の拒否、引用の真正性——これらの多くは、のちの後学習層やアプリケーション層（検索・ツール・検証）の話であり、次トークン尤度だけでは構造的に閉じない。</p>
 <p>学習時と推論時の条件の与え方も保証外の振る舞いを生む。学習では正解列（<strong>teacher forcing</strong>）を同時に見られるが、推論では自分がサンプルしたトークンが次の条件になる。一度外れた記号は、その先ずっと条件を汚し続ける。チャットで最初の一文が微妙にズレると後半全体が別方向に流れるのは、この自己条件づけの性質と無関係ではない。</p>
 <p>一方、コーパスの偏りはそのまま振る舞いの偏りになる。事前学習は中立な「一般知識の抽出」ではなく、<strong>観測された続きの再配分</strong>だ。高確率は「よく見る続き」であって「正しい事実」の証明ではない。</p>
-<p>直接目的は次トークンの尤度だが、分布を形作るには「接頭辞をどう表現するか」が要る。古典的には離散記号の<strong>数え上げ</strong>から始まった。語彙と履歴長が少し増えるだけで組み合わせが爆発し、未知の並びには確率が載らない——次章では、その壁と、ベクトル共有による緩和を見る。</p>
+<p>直接目的は次トークンの尤度だが、分布を形作るには「接頭辞をどう表現するか」が要る。古典的には離散記号の<strong>数え上げ</strong>から始まった。語彙と履歴長が少し増えるだけで組み合わせが爆発し、未知の並びには確率が載らない——その壁が、次の設計圧力になる。</p>
 <p>言語を「次の記号を当てるゲーム」に還元する発想は、予測競争のルールブックに近い。賢さの証明ではなく、統計的続きの再生産——その上に、のちの章で積み上がる技術が載る。</p>
 <h3 id="補助欄論争カード">補助欄：論争カード</h3>
 <p><strong>論点:</strong> 次トークン予測は理解を生むのか。</p>
-<div class="table-wrap"><table><thead><tr><th>立場</th><th>主張</th><th>根拠の型</th></tr></thead><tbody><tr><td>強い実用主義</td><td>大規模化で多様タスクが現れるので、実質的理解がある</td><td>経験（GPT-3 等の挙動）</td></tr><tr><td>懐疑・規範</td><td>流暢さ≠理解；統計的模倣の警告</td><td>Bender ら（*3）；哲学的議論</td></tr><tr><td>中間</td><td>内部表現に構造はあるが、保証は別設計</td><td>ベンチマーク・層分離</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>立場</th><th>主張</th><th>根拠の型</th></tr></thead><tbody><tr><td>強い実用主義</td><td>大規模化で多様タスクが現れるので、実質的理解がある</td><td>経験（GPT-3 等の挙動）</td></tr><tr><td>懐疑・規範</td><td>流暢さ≠理解；統計的模倣の警告</td><td>Bender ら<a class="fn-ref" href="#fn-3">(*3)</a>；哲学的議論</td></tr><tr><td>中間</td><td>内部表現に構造はあるが、保証は別設計</td><td>ベンチマーク・層分離</td></tr></tbody></table></div>
 <p><strong>層での置き方:</strong> 直接最適化は尤度。理解の有無は獲得能力の解釈論であり、事実保証の話ではない。</p>
 <h2 id="数え上げからニューラル表現へ">数え上げからニューラル表現へ</h2>
 <p>前章の出口で、言語モデルの直接目的は次トークンの尤度だと固定した。では、その分布をどう形作るか。最も素朴な答えは、過去に観測した続きを<strong>数え上げ</strong>ることだ。「この \(n-1\) 個の記号のあとに、次は何が来たか」を表にして、割合を確率とみなす。実装は単純で解釈も明瞭だ。ところが語彙と履歴が現実の言語に近づくほど、表は空になり、未知の並びには確率が載らない。組み合わせ爆発と<strong>データ疎性</strong>が、数え上げだけの言語モデルをどこで潰すか——ここからニューラル表現への転換が始まる。</p>
@@ -79,12 +83,13 @@
 <p>たとえば三語履歴（トリグラム）で語彙が五万なら、理論上の文脈は \(5 \times 10^4\) の二乗オーダー——実データで埋まるのは氷山の一角だ。平滑化（加算平滑、バックオフ、Kneser–Ney など）は実務的な救済策だが、根本は「各文脈を独立した箱として数える」設計にある。似た意味の文脈同士が表上で共有されない。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
 <h3 id="ニューラル言語モデル">ニューラル言語モデル</h3>
-<p><strong>ニューラル言語モデル（Neural LM）</strong>は、離散の文脈 ID を、連続ベクトルへ写してから非線形変換で次トークン分布を出す。Bengio らの Neural Probabilistic Language Model は、高次元の one-hot 文脈をそのまま数え上げる代わりに、<strong>分散表現</strong>で語と文脈を低次元ベクトルに埋め、類似した文脈が近い領域に配置されるよう学習する（*1）。表の行数は語彙サイズだが、各行は固定長の実ベクトルであり、文脈全体の表現はそれらの関数になる。</p>
+<p><strong>ニューラル言語モデル（Neural LM）</strong>は、離散の文脈 ID を、連続ベクトルへ写してから非線形変換で次トークン分布を出す。Bengio らの Neural Probabilistic Language Model は、高次元の one-hot 文脈をそのまま数え上げる代わりに、<strong>分散表現</strong>で語と文脈を低次元ベクトルに埋め、類似した文脈が近い領域に配置されるよう学習する<a class="fn-ref" href="#fn-4">(*4)</a>。表の行数は語彙サイズだが、各行は固定長の実ベクトルであり、文脈全体の表現はそれらの関数になる。</p>
 <p>学習目標は前章と同じ——各位置の交差エントロピーだ。変わるのは、確率を出すまでの経路だけである。one-hot の巨大行列を直接推定するのではなく、埋め込み層と隠れ層が「文脈→次トークン」の写像を滑らかに近似する。訓練データに一度しか出ない n-gram でも、近いベクトル配置を通じて、似た文脈からの一般化が起こりうる。</p>
 <figure class="article-figure"><img src="assets/llm-v3/ngram-to-embedding.svg" alt="" /><figcaption>見るべき構造: 疎な n-gram 表から、語の埋め込みベクトルと共有表現への写像へ。 (Source: Bengio et al., 2003; 教育用模式図)</figcaption></figure>
 <h3 id="埋め込み分散表現">埋め込み（分散表現）</h3>
 <p><strong>埋め込み（embedding）</strong>とは、離散トークン ID を固定次元の実ベクトル \(e_w \in \mathbb{R}^d\) に対応づける表である。学習とともに、共起や続きの統計に応じてベクトルが動き、意味や用法が近い語は空間上で近づきやすい。数え上げ表では「犬が走った」と「犬が走る」は別行だが、埋め込み空間では主語・述語のベクトルが共有され、見たことのない活用形にもある程度対応できる——これが<strong>一般化</strong>の核だ。</p>
 <p>初期の Neural LM では、文脈は固定長の直前トークンの埋め込みを連結または畳み込んだものに限られた。すなわち、<strong>固定長履歴</strong>の制約は残る。遠い過去は切り捨てられ、n-gram と同様に「どこまで左を見るか」は設計者が決める窓の長さに縛られる。表現は滑らかになったが、可変長の長い依存をそのまま運ぶ仕組みではない。</p>
+<p>C0 で触れた通り、埋め込みの前段には <strong>サブワード分割</strong> がある。<strong>Byte Pair Encoding（BPE）</strong>（Sennrich ら, 2016）は、頻度の高い文字対を反復的に併合して語彙を作り、未知語を既知の断片の組み合わせとして扱う——表層形の疎性を記号化層で緩和する部品であり、Attention の式そのものではない。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
 <p>パイプラインを固定する。トークン列 → 埋め込み行列 \(E\) でベクトル列 → 文脈ベクトル \(h\)（当時は連結＋MLP や単純な再帰の前段）→ 語彙サイズの logits → softmax で \(P(x_t \mid \text{context})\)。損失は正解トークンへの \(-\log p\)。勾配は埋め込み表と変換の重みの両方に流れる。だから「犬」と「猫」が似た文脈で交換可能な続きを学ぶと、両者のベクトルが引き寄せられる——数え上げでは別カウントだったパターンが、パラメータ空間で共有される。</p>
 <h3 id="4-できるようになったこと">4. できるようになったこと</h3>
@@ -107,8 +112,8 @@
 <p>埋め込みで語はベクトル化された。しかし前章の出口どおり、固定長窓では遠い過去を各位置まで運べない。チャットで「箇条書きで三項目」と書いた指示が、十トークン以上あとの語彙選択に届かない——窓の外は、表現としては存在しない。もっと積極的な設計が要る。可変長の系列を読みながら、これまでの情報をひとまとめの状態に圧縮し、次のトークン分布へ渡すことだ。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
 <p>素朴な答えが <strong>RNN</strong> だ。時刻ごとに <strong>隠れ状態（hidden state）</strong> \(h_t\) を更新し、理論上は任意に長い履歴を要約できる。更新式は概ね \(h_t = f(h_{t-1}, x_t)\)——前の状態と今の入力（埋め込み）から、新しい状態を計算する。出力層は \(h_t\) から次トークンの logits を出す。固定長窓と違い、理論上 \(h_t\) は \(x_1, \ldots, x_t\) 全体の関数である。</p>
-<p>Elman の単純再帰ネットは、こうした時間構造の学習が可能であることを示した系譜の出発点である（*1）。言語モデルでは、左から右へ一トークンずつ状態を更新し、各位置で次トークン予測の損失をかける。</p>
-<p>ところが学習では時間方向への<strong>逐次依存</strong>が残り、並列化を阻む。さらに長い系列では勾配が消えたり爆発したりする。<strong>LSTM（Long Short-Term Memory）</strong> はゲートで記憶の通過を制御し、長期依存を改善しうる——だが逐次計算そのものは残る（*2）。</p>
+<p>Elman の単純再帰ネットは、こうした時間構造の学習が可能であることを示した系譜の出発点である<a class="fn-ref" href="#fn-5">(*5)</a>。言語モデルでは、左から右へ一トークンずつ状態を更新し、各位置で次トークン予測の損失をかける。</p>
+<p>ところが学習では時間方向への<strong>逐次依存</strong>が残り、並列化を阻む。さらに長い系列では勾配が消えたり爆発したりする。<strong>LSTM（Long Short-Term Memory）</strong> はゲートで記憶の通過を制御し、長期依存を改善しうる——だが逐次計算そのものは残る<a class="fn-ref" href="#fn-6">(*6)</a>。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
 <p>長さ \(T\) の系列は、学習時に <strong>時間展開（unrolling）</strong> され、\(T\) ステップの計算グラフになる。各ステップは前ステップの \(h_{t-1}\) に依存するため、ステップ \(t\) の勾配を計算するには、原則として \(1\) から \(t-1\) までの経路を遡る——バックプロパゲーション・スルー・タイム（BPTT）だ。</p>
 <figure class="article-figure"><img src="assets/llm-v3/rnn-unroll.svg" alt="" /><figcaption>見るべき構造: 系列を時間軸に展開したとき、各ステップが前の隠れ状態に依存し、並列化が効きにくい。 (Source: Elman, 1990; 教育用模式図)</figcaption></figure>
@@ -125,7 +130,7 @@
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>いまも使われる場所</th><th>現行 LLM では</th></tr></thead><tbody><tr><td>LSTM / GRU</td><td>音声認識・合成の一部スタック、時系列予測、センサー／制御、オンデバイスの小型系列モデル</td><td>主流骨格ではない（Decoder-only Transformer が中心）</td></tr><tr><td>素朴 RNN</td><td>教育・小規模実験、一部の古典パイプライン</td><td>ほぼ使われない</td></tr></tbody></table></div>
 <p><strong>事実:</strong> 2020 年代の汎用チャット／生成 LM の中心は Transformer 系である。<strong>議論ではない観測:</strong> 音声・時系列・制約の厳しい端末では、再帰系がコストとレイテンシの理由で選ばれ続ける場面がある。</p>
 <h2 id="seq2seqとattention">Seq2SeqとAttention</h2>
-<p>RNN と LSTM で可変長系列を状態に圧縮できるようになった。次の典型的な問題は<strong>系列変換</strong>だ。入力文を読み、別言語の出力文を生成する——機械翻訳が代表例である。<strong>Seq2Seq（Sequence-to-Sequence）</strong> は、入力系列を読む <strong>Encoder</strong> と、出力系列を書く <strong>Decoder</strong> を組み合わせる。<strong>Encoder–Decoder</strong> 構造として知られる。Sutskever らは LSTM を用いた Encoder–Decoder で翻訳性能を大きく押し上げた（*1）。ところが Decoder は、入力全体の情報を<strong>最後の固定長ベクトル</strong>だけから始めなければならない。文が長いほど、この<strong>固定長ボトルネック</strong>で情報が落ちる。Bahdanau らの <strong>Attention（注意）</strong> は、生成の各ステップで入力の各位置を直接参照し、ボトルネックを緩和する——ただしこの段階では <strong>RNN は残り</strong>、Attention は Transformer ではない。</p>
+<p>RNN と LSTM で可変長系列を状態に圧縮できるようになった。次の典型的な問題は<strong>系列変換</strong>だ。入力文を読み、別言語の出力文を生成する——機械翻訳が代表例である。<strong>Seq2Seq（Sequence-to-Sequence）</strong> は、入力系列を読む <strong>Encoder</strong> と、出力系列を書く <strong>Decoder</strong> を組み合わせる。<strong>Encoder–Decoder</strong> 構造として知られる。Sutskever らは LSTM を用いた Encoder–Decoder で翻訳性能を大きく押し上げた<a class="fn-ref" href="#fn-7">(*7)</a>。ところが Decoder は、入力全体の情報を<strong>最後の固定長ベクトル</strong>だけから始めなければならない。文が長いほど、この<strong>固定長ボトルネック</strong>で情報が落ちる。Bahdanau らの <strong>Attention（注意）</strong> は、生成の各ステップで入力の各位置を直接参照し、ボトルネックを緩和する——ただしこの段階では <strong>RNN は残り</strong>、Attention は Transformer ではない。</p>
 <p>本章で固定する問いは一つだけである。<strong>固定長ベクトルに押し込んだ入力を、出力の各ステップでどう引き出すか。</strong></p>
 <h3 id="1-前の段階で困っていたこと">1. 前の段階で困っていたこと</h3>
 <h3 id="encoderdecoder">Encoder–Decoder</h3>
@@ -135,7 +140,7 @@
 <p><strong>固定長ボトルネック</strong>とは、可変長の入力系列全体が、長さ \(d\) の単一ベクトル \(c \in \mathbb{R}^d\) に押し込まれることによる情報制約だ。\(m\) が大きいほど、各入力位置が \(c\) に割り当てられる「次元あたりの帯域」は薄くなる。実験的には、文が長くなるほど翻訳品質が落ちる傾向が報告された——特に入力後半の内容が出力に反映されにくい。</p>
 <p>ボトルネックは意図的な設計でもある。Decoder の条件を常に同じ形（固定次元ベクトル）に保てば、実装が単純になる。しかし言語変換タスクでは、出力の各位置が入力の異なる部分——動詞の一致、固有名詞の位置、修飾関係——に依存する。一点圧縮では、<strong>入力位置への選択的アクセス</strong>が足りない。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
-<p><strong>Encoder–Decoder Attention</strong>（Bahdanau attention、additive attention）は、Decoder が各出力ステップ \(t\) で、Encoder の全位置の隠れ状態 \(\{h_1, \ldots, h_m\}\) へ重み付き参照を行う機構だ（*2）。クエリは Decoder の現在状態、キー・値は Encoder の各位置から得る。重み \(\alpha_{t,i}\) は softmax で正規化され、文脈ベクトル \(\tilde{c}_t = \sum_i \alpha_{t,i} h_i\) がそのステップの条件に加わる——<strong>soft alignment</strong> として、入力のどこを見るかを学習する。</p>
+<p><strong>Encoder–Decoder Attention</strong>（Bahdanau attention、additive attention）は、Decoder が各出力ステップ \(t\) で、Encoder の全位置の隠れ状態 \(\{h_1, \ldots, h_m\}\) へ重み付き参照を行う機構だ<a class="fn-ref" href="#fn-8">(*8)</a>。クエリは Decoder の現在状態、キー・値は Encoder の各位置から得る。重み \(\alpha_{t,i}\) は softmax で正規化され、文脈ベクトル \(\tilde{c}_t = \sum_i \alpha_{t,i} h_i\) がそのステップの条件に加わる——<strong>soft alignment</strong> として、入力のどこを見るかを学習する。</p>
 <p>「翻訳のとき三語目を出すには、入力の七語目を強く見る」といったパターンが、固定ベクトル \(c\) の代わりに、ステップごとに変わる \(\tilde{c}_t\) で表現できる。ボトルネックは消えない（各 \(h_i\) は依然として Encoder が作った圧縮表現だ）が、<strong>出力時に入力各位置へ直接アクセス</strong>できるようになる。</p>
 <figure class="article-figure"><img src="assets/llm-v3/seq2seq-attention-transformer.svg" alt="" /><figcaption>見るべき構造: 段階1＝固定ベクトルボトルネックの Seq2Seq、段階2＝出力ごとに入力位置を参照する Attention。段階3（Self-Attention 中心・RNN なし）は次章。 (Source: Sutskever et al., 2014; Bahdanau et al., 2014; 教育用模式図)</figcaption></figure>
 <p>ここで混同を避ける。<strong>Attention はまだ Transformer ではない</strong>。Bahdanau の Attention は RNN Encoder の隠れ状態列と RNN Decoder の組み合わせの上に載る。Encoder も Decoder も逐次更新であり、Attention は「どの入力位置を読むか」の重みづけを追加したにすぎない。Self-Attention ですべての位置が互いに直接つながり、再帰を捨てるのは Vaswani らの Transformer（次章の段階3）である。</p>
@@ -144,19 +149,20 @@
 <h3 id="4-できるようになったこと">4. できるようになったこと</h3>
 <p>改善: 長い入力でも、生成ステップごとに関連箇所を選べる。翻訳・要約の品質が Encoder–Decoder 単体より安定しやすい。Attention の重みを可視化すると、語対応らしいパターンが見えることもある——ただし重み＝説明とは限らない（のちの論争カードへ）。</p>
 <h3 id="5-それでも残った問題">5. それでも残った問題</h3>
-<p>未解決: <strong>RNN の逐次性</strong>は残る。Encoder は入力を左から順に読み、Decoder は出力を左から順に書く。学習も推論も、時間方向の依存鎖がボトルネックになる。Attention は参照の柔軟性を増したが、並列学習や長系列の計算効率の根本解ではない。図の段階3が示すように、次の問いは——<strong>再帰自体を捨て、系列全体を並列に変換できる設計は何か</strong>——へ移る。</p>
-<p>Encoder–Decoder Attention は「出力が入力のどこを見るか」を学習した。次章では、Encoder と Decoder の区別を超え、<strong>Self-Attention（QKV）</strong> ですべての位置が互いに混合し、RNN を使わない <strong>Transformer</strong> が系列変換と言語モデルの主流になる。学習時の並列化と、生成時の因果自己回帰の分離——そこが段階3の核心だ。</p>
-<p>ボトルネックの出口に立った参照装置は、まだ逐次の読み書きの上に載っている——全員が同時に全員を見る部屋へは、まだ入っていない。</p>
+<p>未解決: <strong>RNN の逐次性</strong>は残る。Encoder は入力を左から順に読み、Decoder は出力を左から順に書く。学習も推論も、時間方向の依存鎖がボトルネックになる。Attention は参照の柔軟性を増したが、並列学習や長系列の計算効率の根本解ではない。図の段階3が示すように、開いた問いは——<strong>再帰自体を捨て、系列全体を並列に変換できる設計は何か</strong>——である。</p>
+<p>Encoder–Decoder Attention は「出力が入力のどこを見るか」を学習した。ボトルネックの出口に立った参照装置は、まだ逐次の読み書きの上に載っている——全員が同時に全員を見る部屋へは、まだ入っていない。</p>
 <h3 id="補助欄いまどこに残っているか">補助欄：いまどこに残っているか</h3>
 <p>Bahdanau 型の Encoder–Decoder Attention は、機械翻訳黄金期の標準だった。いまの位置は次のとおりだ。</p>
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>いまも使われる場所</th><th>現行 LLM では</th></tr></thead><tbody><tr><td>RNN Seq2Seq + Attention</td><td>古典 MT パイプラインの理解、教育資料、一部の専用系列変換</td><td>汎用 LM の主流ではない</td></tr><tr><td>Encoder–Decoder Transformer</td><td>翻訳・要約の専用モデル、一部の seq2seq タスク</td><td>汎用チャットは <strong>Decoder-only</strong> が中心；Enc–Dec は用途分岐</td></tr></tbody></table></div>
 <p><strong>事実:</strong> 「Attention」という語はここから広まったが、<strong>現行 LLM の Self-Attention とは段階が違う</strong>（次章）。<strong>議論:</strong> Enc–Dec が翻訳専用で最適か、Decoder-only で十分かはタスク依存の工学判断である。</p>
 <h2 id="transformer">Transformer</h2>
 <p>前章の <strong>Encoder–Decoder Attention</strong> は、固定長ベクトルへの圧縮を回避した。しかし Encoder も Decoder も、内部では LSTM が時間方向に逐次展開されていた。学習の各ステップで、隠れ状態は左から右へしか流れない。系列が長いほど、バッチ内の並列化は「バッチ次元」に限られ、<strong>位置方向の並列</strong> は原理的に塞がれていた。</p>
-<p>Vaswani らの <strong>Transformer</strong>（*1）は、Attention を発明したわけではない。Bahdanau らが示した soft-search の延長線上に <strong>Self-Attention</strong> がある。Transformer が変えたのは、再帰（recurrence）も畳み込み（convolution）も主役にせず、<strong>Self-Attention を層の中心</strong> に据え、系列長方向の変換を行列演算の束として書き直した点である。翻訳タスクでは Encoder–Decoder 両方を Transformer ブロックで構成したが、後の大規模言語モデル（LLM）が引き継いだのは、因果マスク付き <strong>Decoder-only</strong> スタックの系譜である。</p>
+<p>Vaswani らの <strong>Transformer</strong><a class="fn-ref" href="#fn-9">(*9)</a>は、Attention を発明したわけではない。Bahdanau らが示した soft-search の延長線上に <strong>Self-Attention</strong> がある。Transformer が変えたのは、再帰（recurrence）も畳み込み（convolution）も主役にせず、<strong>Self-Attention を層の中心</strong> に据え、系列長方向の変換を行列演算の束として書き直した点である。翻訳タスクでは Encoder–Decoder 両方を Transformer ブロックで構成したが、後の大規模言語モデル（LLM）が引き継いだのは、因果マスク付き <strong>Decoder-only</strong> スタックの系譜である。</p>
 <p>本章で固定する問いは一つだけである。<strong>再帰を捨てて、系列を並列に変換する設計は何か。</strong></p>
+<h3 id="1-前の段階で困っていたこと">1. 前の段階で困っていたこと</h3>
+<p>Encoder–Decoder Attention があっても、Encoder / Decoder 内部の RNN は時間方向に逐次展開される。学習の各ステップで、隠れ状態は左から右へしか流れない。系列が長いほど、バッチ内の並列化は「バッチ次元」に限られ、<strong>位置方向の並列</strong> は原理的に塞がれていた。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
-<p>一つの <strong>Transformer ブロック</strong> は、ざっくり次の部品で構成される。</p>
+<p>一つの <strong>Transformer ブロック</strong> は、次の部品を <strong>ひとまとめの概念</strong> として読む。Multi-Head Self-Attention、Position Encoding、FFN、Residual、LayerNorm は実装の部品だが、本章ではそれぞれを独立の「新概念の山」として数えず、<strong>「Self-Attention を中心に系列を並列変換するブロック」</strong> として束ねる。</p>
 <ol><li><strong>Multi-Head Self-Attention</strong> — 各位置が Query・Key・Value を持ち、系列内の他位置と加重混合する</li><li><strong>Position Encoding</strong> — 注意自体は順序を区別しないため、「何番目か」の情報を別途付与する</li><li><strong>Feed-Forward Network（FFN）</strong> — 位置ごとに同じ MLP を独立に適用し、非線形変換を加える</li><li><strong>Residual Connection</strong> — サブ層の入出力を足し、深いスタックでも勾配が流れるようにする</li><li><strong>Layer Normalization</strong> — 各サブ層の前後で正規化し、学習を安定させる</li></ol>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/vaswani-1.png" alt="" /><figcaption>見るべき構造: Encoder/Decoder スタックと attention・FFN サブ層の配置。 (Source: Vaswani et al., 2017, Fig.1)</figcaption></figure>
 <p><strong>Self-Attention</strong> の核は <strong>Scaled Dot-Product Attention</strong> である。位置 <em>i</em> の <strong>Query（問い）</strong> と位置 <em>j</em> の <strong>Key（鍵）</strong> の内積で類似度を測り、softmax で重みにし、<strong>Value（値）</strong> の加重平均を取る。</p>
@@ -191,28 +197,24 @@
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>いまの位置</th><th>製品・系の例（例示）</th></tr></thead><tbody><tr><td>Transformer（Self-Attention 骨格）</td><td><strong>現行 LLM の主流</strong></td><td>GPT 系、Claude 系、Gemini 系、Llama 系、Qwen 系 など</td></tr><tr><td>RNN Encoder–Decoder（前章）</td><td>LLM 骨格としては退場；専用系列タスクの遺産</td><td>—</td></tr></tbody></table></div>
 <p><strong>事実:</strong> 2020 年代の大規模言語モデル製品の中心計算グラフは、Transformer 系（多くは Decoder-only）である。<strong>議論:</strong> この主流が「最終形」かどうかは第4部の論争（Transformer は終わるのか）へ送る。FlashAttention や MoE は、この骨格の<strong>後継</strong>ではなく、のちの層マップで見る<strong>層内改善</strong>である。</p>
 <h3 id="補助欄論争カードattention-の重みは説明になるか">補助欄：論争カード：Attention の重みは説明になるか</h3>
-<div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>強い主張</td><td>重みのヒートマップは、モデルが「どこを見たか」の説明になる</td></tr><tr><td>反論</td><td>重みは query/key の幾何学の産物であり、後追い可視化に過ぎない。同じ出力でも重みは層やヘッドで分散し、反実仮想の検証なしに因果を断定できない（*2）</td></tr><tr><td>実務上の線引き</td><td>重みは <strong>デバッグの手がかり</strong> にはなりうるが、<strong>信頼境界</strong> の根拠にはならない。引用照合・反例プロンプト・外側計算が別層で必要</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>強い主張</td><td>重みのヒートマップは、モデルが「どこを見たか」の説明になる</td></tr><tr><td>反論</td><td>重みは query/key の幾何学の産物であり、後追い可視化に過ぎない。同じ出力でも重みは層やヘッドで分散し、反実仮想の検証なしに因果を断定できない<a class="fn-ref" href="#fn-10">(*10)</a></td></tr><tr><td>実務上の線引き</td><td>重みは <strong>デバッグの手がかり</strong> にはなりうるが、<strong>信頼境界</strong> の根拠にはならない。引用照合・反例プロンプト・外側計算が別層で必要</td></tr></tbody></table></div>
 <h2 id="transformerからllmへ">TransformerからLLMへ</h2>
 <p><strong>Transformer</strong> は系列を変換するアーキテクチャの名前である。<strong>大規模言語モデル（LLM）</strong> は、因果デコーダ型 Transformer を骨格に、巨大コーパスで <strong>次トークン予測</strong> を長く回し、十分な規模に達したチェックポイントに付けられる呼び名に近い。骨格が同じでも、データ量・パラメータ数・トークン化・文脈長・推論手順が違えば、振る舞いは別物になる。</p>
-<p>前章の出口は「学習は並列化できるが生成は逐次」だった。本章は、その骨格の上に <strong>何を積み上げたら LLM と呼ぶのか</strong> を見る。Decoder-only への寄せ、スケーリング則、サブワード <strong>トークン化</strong>、有限 <strong>文脈窓</strong>、そして重みを動かさない <strong>文脈内学習（In-context Learning, ICL）</strong> が、現行レジームの柱である。</p>
+<p>前章の出口は「学習は並列化できるが生成は逐次」だった。本章の主線は三つだけである。<strong>(1) Decoder-only への寄せ (2) スケーリング (3) 文脈内学習（ICL）</strong>。トークン化の細部、計算予算配分の Chinchilla 型議論、窓内位置効果は補助欄に回す。</p>
 <p>本章で固定する問いは一つだけである。<strong>同じ骨格の上に何を積み上げたら LLM と呼ぶのか。</strong></p>
+<h3 id="1-前の段階で困っていたこと">1. 前の段階で困っていたこと</h3>
+<p>Transformer は系列変換の骨格を与えたが、「どれだけ大きく事前学習すれば汎用能力が出るか」「Decoder-only に寄せたとき何が変わるか」「重みを動かさずにタスクを切り替えられるか」はまだ開いていた。</p>
 <h3 id="2-新しく導入された仕組み">2. 新しく導入された仕組み</h3>
 <h3 id="decoder-only-事前学習">Decoder-only 事前学習</h3>
 <p>Vaswani らの原論文は Encoder–Decoder だが、GPT 系（Radford ら）以降の主流は <strong>Decoder-only</strong> である。単一の因果 Transformer スタックが、左から右への <strong>自己回帰</strong> でテキスト全体をモデル化する。翻訳のように「入力列」と「出力列」を分ける必要がない <strong>一般言語モデリング</strong> に直結する。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/gpt3-1.png" alt="" /><figcaption>見るべき構造: GPT-3 は Decoder-only の自己回帰 Transformer。 (Source: Brown et al., 2020, Fig.1)</figcaption></figure>
 <p>訓練データはウェブ文書、書籍、コードなどの生テキストが多い。各位置で「次に来るトークン」の尤度を上げる——目的は C0 で固定した <strong>条件付き次トークン予測</strong> のままである。チャットの「意図」や「安全」は、この段階の損失には入っていない。</p>
 <h3 id="スケーリング則">スケーリング則</h3>
-<p>Kaplan ら（*2）は、モデルサイズ $N$、データ量 $D$、計算量 $C$ と検証損失の間に <strong>べき乗則</strong> が見えると報告した。同じアーキテクチャ族の中では、大きくするほど損失が下がりうる——ただし $N$・$D$・$C$ のバランスを外すと改善が頭打ちになる。</p>
-<p>これは「大きければ何でもできる」という予言ではない。同じ骨格でスケールを上げたとき検証損失がべき乗で改善する、という <strong>経験則</strong> である。実務では、モデルを大きくするか、同じサイズでもデータを増やすか、計算予算を増やすか——三つのレバーが絡み合う。Chinchilla 系の議論（Hoffmann ら）は、同じ計算予算なら「小さめのモデル＋より多くのトークン」の方が損失が良い場合があると示し、単純なパラメータ競争だけではないことを突きつけた。</p>
-<p>業界が 100B 級へ進んだ動機の一つが Kaplan 型の法則にある。一方、データの重複、低品質コーパスの混入、評価ベンチへの過適合、推論時のメモリと遅延は、スケールの「上」に乗る別の制約として残る。スケーリングは <strong>損失とベンチの相関</strong> を動かしうるが、個別タスクの正しさや安全を自動保証するわけではない。</p>
-<p>Chinchilla 系の議論は、同じ計算予算の配分を問い直した。しかし 2020 年代後半の性能改善を、アーキテクチャの進歩だけに帰するのは早計だ。<strong>性能改善の主要な計算予算は、事前学習・後学習・推論時のどこへ移っているのか</strong>——という問いが、スケール論の次に立つ。合成データ、蒸留、ベンチ汚染（contamination）、データ品質の選別は、パラメータ数や層数と独立にベンチを動かしうる。MoE や長文窓と同時に起きた改善のうち、どれが骨格でどれがデータ・学習レシピかは、単一の曲線では切り分けにくい。</p>
-<h3 id="トークン化単語の前にサブワード">トークン化：単語の前にサブワード</h3>
-<p>生テキストはそのまま行列に入らない。<strong>Byte Pair Encoding（BPE）</strong> などのサブワード <strong>トークン化</strong> で離散 ID 列に変換する（Sennrich ら, 2016）（*3）。語彙は数万規模に抑えつつ、未知語はより小さな断片に分割される。</p>
-<figure class="article-figure"><img src="assets/llm-v3/token-pipeline.svg" alt="" /><figcaption>見るべき構造: 生テキスト → トークン化 → ID 列 → 埋め込み → Transformer。 (Source: 教育用模式図; Sennrich et al., 2016)</figcaption></figure>
-<p>トークン境界はモデルが見る「単語」の単位を決める。日本語のように空白が薄い言語では、同じ文字列でもトークン分割が性能やコストに効く。トークン化は <strong>表現層</strong> の設計であり、Attention の式そのものではないが、LLM システムでは避けて通れない。</p>
+<p>Kaplan ら<a class="fn-ref" href="#fn-11">(*11)</a>は、モデルサイズ $N$、データ量 $D$、計算量 $C$ と検証損失の間に <strong>べき乗則</strong> が見えると報告した。同じアーキテクチャ族の中では、大きくするほど損失が下がりうる——ただし $N$・$D$・$C$ のバランスを外すと改善が頭打ちになる。</p>
+<p>これは「大きければ何でもできる」という予言ではない。同じ骨格でスケールを上げたとき検証損失がべき乗で改善する、という <strong>経験則</strong> である。実務では、モデルを大きくするか、同じサイズでもデータを増やすか、計算予算を増やすか——三つのレバーが絡み合う。業界が 100B 級へ進んだ動機の一つが Kaplan 型の法則にある。一方、データの重複、低品質コーパスの混入、評価ベンチへの過適合、推論時のメモリと遅延は、スケールの「上」に乗る別の制約として残る。スケーリングは <strong>損失とベンチの相関</strong> を動かしうるが、個別タスクの正しさや安全を自動保証するわけではない。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
 <h3 id="文脈窓と-in-context-learning">文脈窓と In-context Learning</h3>
-<p>GPT-3（Brown ら, 2020）は 1750 億パラメータ規模で、<strong>勾配更新なし</strong> の zero-shot / one-shot / few-shot 条件付けに応じてタスク性能が伸びうることを示した（*4）。これが <strong>文脈内学習（ICL）</strong> として知られる現象である。例示を接頭辞に並べるだけで、重みは固定のまま <strong>条件付き分布</strong> の形が変わる。</p>
+<p>GPT-3（Brown ら, 2020）は 1750 億パラメータ規模で、<strong>勾配更新なし</strong> の zero-shot / one-shot / few-shot 条件付けに応じてタスク性能が伸びうることを示した<a class="fn-ref" href="#fn-12">(*12)</a>。これが <strong>文脈内学習（ICL）</strong> として知られる現象である。例示を接頭辞に並べるだけで、重みは固定のまま <strong>条件付き分布</strong> の形が変わる。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/gpt3-4.png" alt="" /><figcaption>見るべき構造: fine-tuning（重み更新）と zero/one/few-shot（接頭辞のみ）の対比。 (Source: Brown et al., 2020, Fig.1.2)</figcaption></figure>
 <p><strong>fine-tuning</strong> は学習フェーズでパラメータを動かす。<strong>few-shot</strong> は推論時の <strong>文脈窓</strong> 内の列操作である——混同すると「例を足したから学習した」と誤解する。</p>
 <p>たとえば接頭辞に</p>
@@ -222,17 +224,21 @@
 <figure class="article-figure"><img src="assets/llm-v3/context-window.svg" alt="" /><figcaption>見るべき構造: 有限長の接頭辞だけが attention と logits の条件になる。窓外は存在しない。 (Source: 教育用模式図; Brown et al., 2020)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 文脈窓の外側のトークンは、以降の forward に一切入らない</summary><iframe class="sim-frame" src="assets/sims/llm-v3/context-window/index.html" title="context-window" loading="lazy"></iframe></details>
 <p>GPT-3 の文脈長は $n_{\mathrm{ctx}}=2048$ トークンと報告されている。製品世代では数万トークンへ伸びているが、原理は <strong>有限</strong> である。長い会話の冒頭で共有した前提が後半で参照されない現象の一端は、単に「忘れた」のではなく、窓から落ちた可能性がある。</p>
-<p>Liu らの <strong>Lost in the Middle</strong>（*5）は、窓内に収まっていても、<strong>先頭と末尾付近の情報ほど活用されやすく、中間に置いた根拠は性能が落ちうる</strong> ことを示した。窓を広げても、均等な長文理解が自動では保証されない。</p>
 <h3 id="4-できるようになったこと">4. できるようになったこと</h3>
-<div class="table-wrap"><table><thead><tr><th>要素</th><th>Transformer 単体</th><th>LLM レジーム</th></tr></thead><tbody><tr><td>骨格</td><td>系列変換ブロック</td><td>因果 Decoder-only が主流</td></tr><tr><td>学習</td><td>タスク依存のデータ</td><td>大規模一般コーパスでの長期事前学習</td></tr><tr><td>規模</td><td>数百万〜億級もあり得る</td><td>$N$・$D$・$C$ のスケールが性能の主要レバー</td></tr><tr><td>適応</td><td>fine-tuning が典型</td><td>ICL で重み固定のタスク切替が実用域に</td></tr><tr><td>制約</td><td>$O(n^2)$ 注意</td><td>有限文脈窓＋位置バイアス（Lost in the Middle）</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>要素</th><th>Transformer 単体</th><th>LLM レジーム</th></tr></thead><tbody><tr><td>骨格</td><td>系列変換ブロック</td><td>因果 Decoder-only が主流</td></tr><tr><td>学習</td><td>タスク依存のデータ</td><td>大規模一般コーパスでの長期事前学習</td></tr><tr><td>規模</td><td>数百万〜億級もあり得る</td><td>$N$・$D$・$C$ のスケールが性能の主要レバー</td></tr><tr><td>適応</td><td>fine-tuning が典型</td><td>ICL で重み固定のタスク切替が実用域に</td></tr><tr><td>制約</td><td>$O(n^2)$ 注意</td><td>有限文脈窓</td></tr></tbody></table></div>
 <p>Transformer が <strong>並列学習可能な骨格</strong> を与え、スケールとデータが <strong>汎用らしさ</strong> を押し上げ、有限窓と ICL が <strong>推論時の条件付け</strong> を可能にした——この三つが重なって「LLM」と呼ばれるチェックポイントが生まれた。</p>
 <h3 id="5-それでも残った問題">5. それでも残った問題</h3>
 <p>スケーリングは損失とベンチを動かしうるが、<strong>事実性</strong>・<strong>有害出力</strong>・<strong>ユーザ意図</strong> との一致は事前学習の損失に含まれない。ウェブの続きとして尤もらしい toxic な列も、尤度の観点では「当たり」になりうる。次章の <strong>後学習</strong> は、このずれを製品層で部分的に埋める試みである。</p>
+<h3 id="補助欄トークン化計算予算窓内位置効果">補助欄：トークン化・計算予算・窓内位置効果</h3>
+<p>C1 で触れた <strong>BPE</strong> 等のサブワード分割は、生テキストを ID 列にする記号化層である<a class="fn-ref" href="#fn-13">(*13)</a>。語彙は数万規模に抑えつつ、未知語はより小さな断片に分割される。トークン境界はモデルが見る単位を決め、日本語のように空白が薄い言語では分割が性能やコストに効く——だが主線の三概念（Decoder-only / スケール / ICL）とは別の部品である。</p>
+<figure class="article-figure"><img src="assets/llm-v3/token-pipeline.svg" alt="" /><figcaption>見るべき構造: 生テキスト → トークン化 → ID 列 → 埋め込み → Transformer。 (Source: 教育用模式図; Sennrich et al., 2016)</figcaption></figure>
+<p>Chinchilla 系の議論（Hoffmann ら）は、同じ計算予算なら「小さめのモデル＋より多くのトークン」の方が損失が良い場合があると示し、単純なパラメータ競争だけではないことを突きつけた。合成データ、蒸留、ベンチ汚染、データ品質の選別は、パラメータ数や層数と独立にベンチを動かしうる——詳細はのちのデータと評価の章へ。</p>
+<p>Liu らの <strong>Lost in the Middle</strong><a class="fn-ref" href="#fn-14">(*14)</a>は、窓内に収まっていても、<strong>先頭と末尾付近の情報ほど活用されやすく、中間に置いた根拠は性能が落ちうる</strong> ことを示した。窓を広げても、均等な長文理解が自動では保証されない。</p>
 <h3 id="補助欄いまどこに残っているか">補助欄：いまどこに残っているか</h3>
 <div class="table-wrap"><table><thead><tr><th>要素</th><th>いまの位置</th><th>備考</th></tr></thead><tbody><tr><td>Decoder-only + 大規模事前学習</td><td><strong>チャット／生成 LM の既定レジーム</strong></td><td>GPT / Claude / Gemini / Llama / Qwen など公開・商用の多く</td></tr><tr><td>Encoder–Decoder 専用モデル</td><td>翻訳・要約など用途分岐</td><td>汎用対話の中心ではない</td></tr><tr><td>文脈窓の拡大</td><td>製品ごとに伸長中だが<strong>有限</strong></td><td>Lost in the Middle は窓内でも残る</td></tr></tbody></table></div>
 <p><strong>事実:</strong> 「Transformer」と「LLM」は同義ではない——後者は骨格に加え、スケール・データ・有限窓・（次章の）後学習が重なったレジームである。<strong>議論:</strong> スケーリングがどこまで続くかは下記カードと第4部へ。</p>
 <h3 id="補助欄論争カードスケーリングはまだ続くのか">補助欄：論争カード：スケーリングはまだ続くのか</h3>
-<div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>続く派</td><td>Kaplan 型の法則がアーキ改良とデータ品質改善で延長しうる。計算投資の限界まで損失は下がる</td></tr><tr><td>頭打ち派</td><td>データ枯渇、重複、評価飽和、推論コストで、同じレシピの単純拡大は边际効用が下がる</td></tr><tr><td>線引き</td><td>スケールは <strong>観測された強い相関</strong> であり、個別タスクの保証ではない。MoE・推論最適化は「大きさ」の別次元</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>続く派</td><td>Kaplan 型の法則がアーキ改良とデータ品質改善で延長しうる。計算投資の限界まで損失は下がる</td></tr><tr><td>頭打ち派</td><td>データ枯渇、重複、評価飽和、推論コストで、同じレシピの単純拡大は限界効用が下がる</td></tr><tr><td>線引き</td><td>スケールは <strong>観測された強い相関</strong> であり、個別タスクの保証ではない。MoE・推論最適化は「大きさ」の別次元</td></tr></tbody></table></div>
 <h2 id="base-model-から-chat-model-へ">Base Model から Chat Model へ</h2>
 <p>同じアーキテクチャでも、チェックポイントによって振る舞いはまるで違う。ベースモデルに長文を渡すと、引用や物語の <strong>続き</strong> が出やすい。チャット向けモデルに質問形を渡すと、答え形の散文や丁寧な拒否が出やすい。パラメータ数が同じでも、<strong>事前学習だけ</strong> の <strong>Base Model</strong> と、<strong>後学習（Post-training）</strong> を経た <strong>Chat Model</strong> では、<strong>次トークン予測</strong> 分布の形が変わる。</p>
 <p>前章までの LLM は、ウェブ文書の続きを当てる装置に近かった。製品の対話は、ユーザの意図・口調・安全基準と一致しない。本章は、そのギャップを <strong>Instruction Tuning</strong>・<strong>RLHF</strong>・<strong>DPO</strong> でどう埋めようとしたかを追う。</p>
@@ -245,41 +251,45 @@
 <p><strong>教師あり微調整（Supervised Fine-Tuning, SFT）</strong> は、人間が書いた「指示 → 望ましい応答」の対を大量に見せ、応答側のトークン列を正解として尤度を上げる段階である。指示追従を主目的にした SFT は <strong>Instruction Tuning</strong> と呼ばれることが多い。</p>
 <p>入力にユーザ風の指示列、出力にラベラーが書いたアシスタント風の続きを置き、続き部分の次トークン損失だけを下げる。アーキテクチャも <strong>因果自己回帰</strong> のループもサンプリング手順も変わらない。</p>
 <h3 id="rlhf選好から方策へ">RLHF：選好から方策へ</h3>
-<p>SFT だけでは、同じ指示に対する複数の妥当な応答のうち「より良い」方は決まらない。有害依頼を断るべきか、意図を汲んで答えるべきかの境界も、示范だけでは一義にならない。</p>
-<p>Ouyang らの <strong>InstructGPT</strong>（*1）は、三段パイプラインを示した。</p>
-<ol><li><strong>SFT</strong> — 示范による微調整</li><li><strong>報酬モデル（Reward Model, RM）</strong> — ラベラーによる応答比較から選好を学習</li><li><strong>強化学習（RL）</strong> — RM のスコアを最大化するよう方策を PPO で更新</li></ol>
+<p>SFT だけでは、同じ指示に対する複数の妥当な応答のうち「より良い」方は決まらない。有害依頼を断るべきか、意図を汲んで答えるべきかの境界も、実演だけでは一義にならない。</p>
+<p>Ouyang らの <strong>InstructGPT</strong><a class="fn-ref" href="#fn-15">(*15)</a>は、三段パイプラインを示した。</p>
+<ol><li><strong>SFT</strong> — 実演による微調整</li><li><strong>報酬モデル（Reward Model, RM）</strong> — ラベラーによる応答比較から選好を学習</li><li><strong>強化学習（RL）</strong> — RM のスコアを最大化するよう方策を PPO で更新</li></ol>
 <p>これが <strong>人間フィードバックからの強化学習（Reinforcement Learning from Human Feedback, RLHF）</strong> の典型形である。</p>
 <p>RM は、生成されたトークン列全体にスカラー値を付ける「選好の代理」である。ラベラーは、より helpful（役に立つ）、honest（誠実）、harmless（害が少ない）と感じる方を選ぶよう指示される——好みの定義はラベル集団と指示文書に依存する。SFT だけでは決められない「短く要点だけ述べる A と、背景を五段落添える B のどちらが良いか」も、比較データで RM に学習させる。</p>
-<p>RL 段階では、方策が出した列に RM が点数を付け、PPO（Proximal Policy Optimization）で方策を更新する。KL ペナルティで SFT から離れすぎないよう元方策に引き戻す——更新が暴れないための留め具である。各段で「何を良しとするか」がすり替わる——最下層はコーパス尤度、その上は示范、その上は比較選好、最上段は RM スコア最大化である。</p>
+<p>RL 段階では、方策が出した列に RM が点数を付け、PPO（Proximal Policy Optimization）で方策を更新する。KL ペナルティで SFT から離れすぎないよう元方策に引き戻す——更新が暴れないための留め具である。各段で「何を良しとするか」がすり替わる——最下層はコーパス尤度、その上は実演、その上は比較選好、最上段は RM スコア最大化である。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/ouyang-2.png" alt="" /><figcaption>見るべき構造: SFT → 比較で報酬モデル → PPO で方策更新。 (Source: Ouyang et al., 2022, Fig.2)</figcaption></figure>
 <figure class="article-figure"><img src="assets/llm-v3/training-stack.svg" alt="" /><figcaption>見るべき構造: 事前学習の上に SFT→RM→RL が積み上がり、目的関数がずれる。 (Source: 教育用模式図; Ouyang et al., 2022)</figcaption></figure>
 <p>Ouyang らは、<strong>パラメータ 1.3B の InstructGPT が、175B の未調整 GPT-3 より人間評価で選好される</strong> 例も報告した。サイズだけでは説明できない <strong>後学習層</strong> の効果である。同時に <strong>alignment tax（整列の代償）</strong> も報告されている——整列後に一部の NLP ベンチでスコアが下がるタスクがある。</p>
 <h3 id="direct-preference-optimizationdpo">Direct Preference Optimization（DPO）</h3>
-<p>RLHF は RM と PPO の実装・安定化コストが高い。<strong>Direct Preference Optimization（DPO）</strong>（Rafailov ら, 2023）（*2）は、選好データから <strong>明示的な RM+RL なし</strong> に方策を最適化する手法として提案された。目的は同じく「人間が選んだ応答を増やす」だが、パイプラインが短く、再現しやすい。</p>
+<p>RLHF は RM と PPO の実装・安定化コストが高い。<strong>Direct Preference Optimization（DPO）</strong>（Rafailov ら, 2023）<a class="fn-ref" href="#fn-16">(*16)</a>は、選好データから <strong>明示的な RM+RL なし</strong> に方策を最適化する手法として提案された。目的は同じく「人間が選んだ応答を増やす」だが、パイプラインが短く、再現しやすい。</p>
 <p>DPO も <strong>事実性の保証</strong> ではない。選好データに含まれる文体・文化・安全方針の偏りが、そのまま分布に刻まれる。ラベラーが気づかない plausible な偽は、報酬を取り続けうる。</p>
 <h3 id="3-小さな具体例">3. 小さな具体例</h3>
-<p>たとえば指示が「次の段落を三行で要約せよ」で、示范応答が箇条書き三行なら、SFT 後は同型の接頭辞のあとに箇条書き記号のトークンが出やすくなる。有害依頼に対し示范が丁寧な拒否文なら、その拒否の型が分布に載る。どちらも「正解の続きを当てる」訓練であり、拒否の倫理を定理証明しているわけではない。</p>
-<p>載るのは口調・形式・拒否の <strong>型</strong> であり、世界の真偽を保証する機構ではない。示范に「丁寧に答える」型ばかりあっても <strong>幻覚（尤もらしい偽）</strong> は消えない。示范にない依頼——データに少ない言語や専門領域——には、事前学習の癖がそのまま漏れる。データに含まれる文体の偏り——過度な謝罪、決まり文句の「AI アシスタントとして」——も分布に刻まれる。</p>
+<p>たとえば指示が「次の段落を三行で要約せよ」で、実演応答が箇条書き三行なら、SFT 後は同型の接頭辞のあとに箇条書き記号のトークンが出やすくなる。有害依頼に対し実演が丁寧な拒否文なら、その拒否の型が分布に載る。どちらも「正解の続きを当てる」訓練であり、拒否の倫理を定理証明しているわけではない。</p>
+<p>載るのは口調・形式・拒否の <strong>型</strong> であり、世界の真偽を保証する機構ではない。実演に「丁寧に答える」型ばかりあっても <strong>幻覚（尤もらしい偽）</strong> は消えない。実演にない依頼——データに少ない言語や専門領域——には、事前学習の癖がそのまま漏れる。データに含まれる文体の偏り——過度な謝罪、決まり文句の「AI アシスタントとして」——も分布に刻まれる。</p>
 <h3 id="4-できるようになったこと">4. できるようになったこと</h3>
 <div class="table-wrap"><table><thead><tr><th>層</th><th>後学習で変わりやすい</th><th>単体では保証されない</th></tr></thead><tbody><tr><td>振る舞い</td><td>口調、箇条書き、丁寧な前置き、拒否の定型</td><td>算術・最新事実・社内非公開知識</td></tr><tr><td>分布</td><td>指示形接頭辞のあとの応答形</td><td>幻覚（尤もらしい偽）の根絶</td></tr><tr><td>評価</td><td>人間選好・有害性ベンチの改善</td><td>ベンチ得点＝実社会能力</td></tr></tbody></table></div>
 <p><strong>文脈内学習（ICL）</strong> でプロンプトを書き足すのは、窓内の条件付けである。SFT/RLHF/DPO は <strong>重みそのもの</strong> に別の目的を刻む。製品差——拒否の強さ、冗長さ、敬語——の相当部分は、Chat チェックポイントかどうかに依存する。</p>
 <h3 id="5-それでも残った問題">5. それでも残った問題</h3>
-<p>Ouyang ら自身も、RLHF 後なお単純な誤りが残ると報告している。口調が整った直後に算術を誤る——<strong>後学習は振る舞いの接口を変える</strong> が、知識更新と外界操作は別問題として残る。</p>
+<p>Ouyang ら自身も、RLHF 後なお単純な誤りが残ると報告している。口調が整った直後に算術を誤る——<strong>後学習は振る舞いの接面を変える</strong> が、知識更新と外界操作は別問題として残る。</p>
 <h3 id="補助欄論争カード整列は能力を削るかalignment-tax">補助欄：論争カード：整列は能力を削るか（alignment tax）</h3>
 <div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>削る</td><td>拒否を強めるほど有用な依頼まで断る。丁寧さを増やすほど冗長。汎用ベンチで未調整 Base より下がるタスクがある</td></tr><tr><td>削らない／相殺</td><td>指示追従と有害性低減は製品価値そのもの。別ベンチ・別タスクでは整列後の方が上がる。1.3B 整列＞175B 未整列はサイズ信仰への反証</td></tr><tr><td>線引き</td><td>整列は <strong>一つの目的関数への最適化</strong> であり、全能のトレードオフ表ではない。何を「能力」と数えるかで評価は割れる</td></tr></tbody></table></div>
 <h3 id="補助欄いまどこに残っているか">補助欄：いまどこに残っているか</h3>
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>いまの位置</th><th>備考</th></tr></thead><tbody><tr><td>SFT / Instruction Tuning</td><td><strong>製品チャットのほぼ必須層</strong></td><td>Base をそのまま出す系は研究・一部 API に限定されやすい</td></tr><tr><td>RLHF（RM + RL）</td><td>大規模ラボの標準パイプラインの一つ</td><td>実装コスト高；代替手法と併存</td></tr><tr><td>DPO 等の選好最適化</td><td>オープンウェイト／再現性重視の現場で広く採用</td><td>RLHF の短縮形として使われることが多い</td></tr></tbody></table></div>
 <p><strong>事実:</strong> ユーザーが触る「Chat モデル」の口調・拒否・指示追従の多くは後学習層の産物である。<strong>議論:</strong> 整列が能力を削るか（alignment tax）は下記カードへ——事実保証の話ではない。</p>
 <p>後学習を、同じエンジンに <strong>別の運転マニュアルとペナルティ表を載せた</strong> と捉えると誤解は減る。エンジン（事前学習の予測力）はそのまま、ハンドルとブレーキの感覚（口調・拒否）だけが調整された——それでも道路標識（事実）までは自動では書き換わらない。</p>
-<p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。演習に入る前に、第1部が辿った一本道を<strong>一枚の時間軸</strong>で固定する。横軸は発明の順番。各駅は「何が主流だったか／何が可能になったか／何が問題で次が生まれたか」である。</p>
-<figure class="article-figure"><img src="assets/llm-v3/part1-evolution-timeline.svg" alt="" /><figcaption>見るべき構造: 横軸は時間。各列は主流・可能・問題の三段で、問題欄が次の技術の誕生理由につながる。到達点は後学習を載せた Chat 骨格。 (Source: 教育用模式図; 第1部 C1–C6 の必要性連鎖)</figcaption></figure>
-<p><strong>第1部はここで終わる。</strong> これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図（Map）</strong> で読む。</p>
+<p>ここまでで主流骨格は <strong>Decoder-only Transformer + 大規模事前学習 + 後学習</strong> に到達した。<strong>第1部はここで終わる。</strong> これ以降の章は、この骨格の『次の発明』ではなく、<strong>どの層を改善しているかの地図（Map）</strong> で読む。</p>
 <h2 id="演習1-機構の分類第1部のあと">演習1　機構の分類（第1部のあと）</h2>
 <p>知識確認ではない。次の主張を、自分の言葉で三つに分解する。</p>
-<p><strong>主張:</strong> 「LLM は文章の意味を理解しているから、正確な答えを返せる。」</p>
+<p><strong>input_material:</strong> 「LLM は文章の意味を理解しているから、正確な答えを返せる。」</p>
+<p><strong>operation:</strong> 主張を、観測事実／能力に関する推論／保証に関する誤りの三段に分解して記入する。</p>
+<p><strong>self_check:</strong> 三段が互いに言い換えになっていないか。尤度と真理を同一視していないか。</p>
 <p>記入欄（頭の中でも紙でもよい）:</p>
 <div class="table-wrap"><table><thead><tr><th>区分</th><th>自分の分解</th></tr></thead><tbody><tr><td>観測事実は何か</td><td>（例: あるプロンプトに対し、人間が正しいと感じる答えがしばしば出る）</td></tr><tr><td>能力に関する推論は何か</td><td>（例: 出力の適切さは、内部に意味理解がある証拠だ）</td></tr><tr><td>保証に関する誤りは何か</td><td>（例: 流暢さや正答率から、真偽の保証や常時正確性を導いてしまう）</td></tr></tbody></table></div>
-<p>参考の切り分け（唯一解ではない）:</p>
+<h3 id="歴史再構成表空欄">歴史再構成表（空欄）</h3>
+<p>第1部の駅——n-gram → Neural LM → RNN/LSTM → Attention → Transformer → LLM → Chat——から、好きな隣接ホップを一つ選び、次を埋める。</p>
+<div class="table-wrap"><table><thead><tr><th>前方式</th><th>詰まった問題</th><th>新機構</th><th>変わらないもの</th><th>次の問題</th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+<p>（例のヒント: n-gram→Neural LM なら、疎性／埋め込み／次トークン目的／固定長履歴、など。）</p>
+<h3 id="書いたあとで見る参考の切り分け唯一解ではない">書いたあとで見る参考の切り分け（唯一解ではない）</h3>
 <ul><li><strong>観測事実:</strong> 条件付き次トークン予測で訓練されたモデルが、多くのタスクで有用なテキストを出す。</li><li><strong>能力に関する推論:</strong> 「意味を理解している」は、内部表現や汎化についての強い推論になりうる——だが第1部だけでは証明も反証もしていない。</li><li><strong>保証に関する誤り:</strong> 「理解しているから正確」は、尤度と真理を同一視する飛躍である。正確さが必要なときは、外側の検証が別問題として残る。</li></ul>
 <p>できた操作: 流暢な一文を、事実・推論・保証の混線として読む。</p>
 <h2 id="第2部-現在のシステムを層に分ける">第2部　現在のシステムを層に分ける</h2>
@@ -327,13 +337,15 @@
 <p>第3部は、未解決問題ごとに部品を見る。第4部で論争を束ね、第5部で自分の暫定モデルを選ぶ——そこで二枚の地図を一枚に重ねた図を回収する。</p>
 <p>地図を持たないまま部品名を増やすと、また一本道の幻に戻る。ここでの出口は一つだけだ。<strong>新しい技術名は、まずどちらの地図か、次に三タグを名指し、改善か置換かを問う。木への固定は近似である。</strong></p>
 <h2 id="演習2-層への配置第2部のあと">演習2　層への配置（第2部のあと）</h2>
-<p>次の技術を、<strong>系譜／構成層／改善動機</strong> の三タグで配置する。一つの技術が複数層にまたがってよい。</p>
+<p><strong>input_material:</strong> 次表の技術名（MoE / FlashAttention / 長文脈 / RAG / MCP / RLVR / Agent / 量子化）。</p>
+<p><strong>operation:</strong> 各技術を <strong>系譜／構成層／改善動機</strong> の三タグで配置する。一つの技術が複数層にまたがってよい。</p>
+<p><strong>self_check:</strong> Agent や RAG を Map ①（系譜）の Transformer の子に置いていないか。複数所属を無理に一つへ潰していないか。</p>
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>系譜</th><th>構成層（複数可）</th><th>改善動機</th></tr></thead><tbody><tr><td>MoE</td><td></td><td></td><td></td></tr><tr><td>FlashAttention</td><td></td><td></td><td></td></tr><tr><td>長文脈</td><td></td><td></td><td></td></tr><tr><td>RAG</td><td></td><td></td><td></td></tr><tr><td>MCP</td><td></td><td></td><td></td></tr><tr><td>RLVR</td><td></td><td></td><td></td></tr><tr><td>Agent</td><td></td><td></td><td></td></tr><tr><td>量子化</td><td></td><td></td><td></td></tr></tbody></table></div>
-<p>参考解答（固定ではなく型）:</p>
+<h3 id="書いたあとで見る参考解答固定ではなく型">書いたあとで見る参考解答（固定ではなく型）</h3>
 <div class="table-wrap"><table><thead><tr><th>技術</th><th>系譜</th><th>構成層</th><th>改善動機</th></tr></thead><tbody><tr><td>MoE</td><td>Transformer</td><td>モデル構造</td><td>巨大化／活性計算の分離</td></tr><tr><td>FlashAttention</td><td>Transformer / Attention</td><td>サービング・高速化</td><td>メモリ帯域・遅延</td></tr><tr><td>長文脈</td><td>Transformer（位置表現等）</td><td>モデル構造＋推論</td><td>長い状態を扱う</td></tr><tr><td>RAG</td><td>（Map①の子ではない）</td><td>外部知識</td><td>知識更新・出典・窓外</td></tr><tr><td>MCP</td><td>（外部分）</td><td>外部ツール契約</td><td>ツール接続の標準化</td></tr><tr><td>RLVR</td><td>後学習／強化学習</td><td>データ＋学習＋推論＋評価</td><td>検証可能課題での能力伸長</td></tr><tr><td>Agent</td><td>（外部分）</td><td>外部＋UI／制度</td><td>多段行為・完了責任</td></tr><tr><td>量子化</td><td>サービング実装</td><td>サービング・高速化</td><td>メモリ・コスト</td></tr></tbody></table></div>
 <p>できた操作: ニュースの技術名を、一本の年表ではなく三タグで置く。複数所属を恐れない。</p>
 <h2 id="第3部-未解決問題から現在地を見る">第3部　未解決問題から現在地を見る</h2>
-<p>地図の各層で、いま何が改善されているかを見る。順序は歴史の「次の駅」ではない。技術名のカタログでもない。先に<strong>未解決問題</strong>を置き、そこに応答している部品を見る。能力を伸ばす、推論コストを下げる、長い状態を扱う、正しさを検証する、外界で安全に行動する、データ不足を補う、骨格を置き換える——そして横断して、計算予算が事前学習・後学習・推論時のどこへ移っているかを問う。各章の冒頭で「どの問題か／どの層か／何は変えないか」を固定する。</p>
+<p>地図の各層で、いま何が改善されているかを見る。順序は歴史の「次の駅」ではない。技術名のカタログでもない。先に<strong>未解決問題</strong>を置き、そこに応答している部品を見る。能力を伸ばす、推論コストを下げる、長い状態を扱う、正しさを検証する、外界で安全に行動する、データ不足を補う、骨格を置き換える——そして横断して、計算予算が事前学習・後学習・推論時のどこへ移っているかを問う。各章の冒頭で「どの問題か／どの層か／何は変えないか」を固定する。部の終わり近くに <strong>データと評価</strong> の半章を置き、発表のベンチ主張を疑う操作知へ接続する。</p>
 <h2 id="モデル構造の部品denseとmoe">モデル構造の部品——DenseとMoE</h2>
 <div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>モデル構造（Map ②）</td></tr><tr><td>Map ①の動機枝</td><td><strong>巨大化したい</strong>（Dense / MoE）——Transformer 系譜の内側</td></tr><tr><td>改善対象</td><td>密なスケールにおける容量と活性計算の分離——総パラメータを増やしつつ、各 forward で動かす重みを抑える</td></tr><tr><td>変えなかった骨格</td><td>Decoder-only Transformer の <strong>Self-Attention</strong> と <strong>因果自己回帰</strong> 生成</td></tr><tr><td>新しいコスト</td><td>ルーティング偏り、Expert 間通信、負荷分散、活性パスの再現性</td></tr><tr><td>現在の位置づけ</td><td>主流部品（大規模オープンウェイト・商用の一部で採用）。例: Mixtral、DeepSeek（MoE 系）、Grok、Qwen MoE 系など——いずれも <strong>Transformer 骨格上の構造選択</strong></td></tr><tr><td>未解決問題</td><td>能力をさらに伸ばす（＋活性コスト）</td></tr></tbody></table></div>
 <p>第1部の出口で骨格は固定された。<strong>Decoder-only Transformer</strong> が系列を変換し、事前学習と後学習が分布を形作る。ニュースで「MoE 採用」と出ても、それは Transformer の<strong>後継</strong>ではない。多くの実装では、Attention ブロックはそのままに、層内の <strong>FFN（Feed-Forward Network、フィードフォワードネットワーク）</strong> 経路だけを複数の専門家に差し替え、<strong>疎活性化（sparse activation）</strong> で幅を増やす——<strong>モデル構造層</strong>の部品選択である。</p>
@@ -343,7 +355,7 @@
 <figure class="article-figure"><img src="assets/llm-v3/model-structure-layer.svg" alt="" /><figcaption>見るべき構造: Transformer 層の下に Dense / MoE / 位置表現・ヘッド共有などの構造選択肢が並ぶ。歴史の駅ではなく部品棚。 (Source: 教育用模式図)</figcaption></figure>
 <h3 id="mixture-of-experts正式定義">Mixture of Experts：正式定義</h3>
 <p><strong>Mixture of Experts（MoE、専門家混合）</strong> とは、各 Transformer 層において、従来の単一 FFN の代わりに <strong>複数の FFN（Expert）</strong> を並べ、<strong>ルータ（Router／ゲート）</strong> が入力トークンごとにそのうちの <strong>少数だけ</strong> を選んで通す疎活性化アーキテクチャである。選ばれた Expert のみがそのステップで計算に参加し、残りは休む。契約は明確だ——<strong>総パラメータ数は大きくしうるが、各 forward で活性化するパラメータは一部に留まる</strong>。</p>
-<p>ルータは通常、トークン表現から Expert への重み（または離散選択）を出す。Shazeer ら（2017）の Sparsely-Gated MoE が大規模言語モデルへの応用の原型としてよく引用される（<em>1）。Jiang らの <strong>Mixtral 8×7B</strong>（2024）は、8 個の Expert から各トークンにつき 2 個を選ぶ構成で、総パラメータ約 47B に対し活性約 13B と報告している（</em>2）——密な 70B 級と品質帯を比較しつつ、推論 FLOPs を抑える実例として参照される。</p>
+<p>ルータは通常、トークン表現から Expert への重み（または離散選択）を出す。Shazeer ら（2017）の Sparsely-Gated MoE が大規模言語モデルへの応用の原型としてよく引用される(<em>17)。Jiang らの <strong>Mixtral 8×7B</strong>（2024）は、8 個の Expert から各トークンにつき 2 個を選ぶ構成で、総パラメータ約 47B に対し活性約 13B と報告している(</em>18)——密な 70B 級と品質帯を比較しつつ、推論 FLOPs を抑える実例として参照される。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/mixtral-2.png" alt="" /><figcaption>見るべき構造: 層ごとに複数の Expert ブロックがあり、トークンごとに少数だけが通る。 (Source: Jiang et al., 2024, Mixtral of Experts, Fig.2)</figcaption></figure>
 <figure class="article-figure"><img src="assets/llm-v3/moe-router.svg" alt="" /><figcaption>見るべき構造: Router が Expert を選び、選ばれなかった経路はそのステップでは計算されない。総パラメータ≠毎回の活性計算量。 (Source: 教育用模式図; Mixtral)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — ルータが選ぶ専門家集合が変わると、同じ入力でも活性パスが変わる</summary><iframe class="sim-frame" src="assets/sims/llm-v3/moe-route/index.html" title="moe-route" loading="lazy"></iframe></details>
@@ -361,45 +373,47 @@
 <h3 id="比喩最後に">比喩（最後に）</h3>
 <p>巨大組織で、案件ごとに少数の専門部署だけを動かし他は待機させる——MoE のイメージに近い。ただし比喩は補助に留め、先に固定すべきは <strong>複数 FFN とルータによる疎活性</strong> という機構の定義である。</p>
 <h3 id="論争カードmoe-vs-dense短く">論争カード：MoE vs Dense（短く）</h3>
-<div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>MoE 優位</td><td>同品質帯で活性 FLOPs を抑え、総容量を稼げる。Mixtral は密 70B 級との比較例として引用される（*2）</td></tr><tr><td>Dense 優位</td><td>実装・デバッグ・再現性が単純。通信とルーティング偏りの運用コストが小さい</td></tr><tr><td>線引き</td><td>「どちらが賢いか」ではなく、<strong>容量と活性計算を分離したいか</strong> の工学判断。詳細は第4部</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>立場</th><th>内容</th></tr></thead><tbody><tr><td>MoE 優位</td><td>同品質帯で活性 FLOPs を抑え、総容量を稼げる。Mixtral は密 70B 級との比較例として引用される<a class="fn-ref" href="#fn-18">(*18)</a></td></tr><tr><td>Dense 優位</td><td>実装・デバッグ・再現性が単純。通信とルーティング偏りの運用コストが小さい</td></tr><tr><td>線引き</td><td>「どちらが賢いか」ではなく、<strong>容量と活性計算を分離したいか</strong> の工学判断。詳細は第4部</td></tr></tbody></table></div>
 <h2 id="推論を速くする同じ骨格のまま">推論を速くする——同じ骨格のまま</h2>
 <div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論高速化（Map ②）</td></tr><tr><td>Map ①の動機枝</td><td><strong>推論を速くしたい</strong>——同じ骨格の提供改善（Agent や RAG とは別の木）</td></tr><tr><td>改善対象</td><td>自己回帰生成の遅延・メモリ・スループット——同じ条件付き分布をより安く届ける</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みと <strong>条件付き次トークン予測</strong> の意味；モデル構造（Dense/MoE）そのもの</td></tr><tr><td>新しいコスト</td><td>量子化誤差、投機受理率の頭打ち、キャッシュ管理の複雑さ、実装依存の品質差</td></tr><tr><td>現在の位置づけ</td><td>主流部品（本番推論の標準装備）。KV Cache・GQA・FlashAttention・量子化はほぼ既定；投機的デコードはレイテンシ要件の高い提供で採用</td></tr><tr><td>未解決問題</td><td>推論コストを下げる</td></tr></tbody></table></div>
 <p>前章は <strong>モデル構造</strong> ——FFN を Dense にするか MoE にするか——を見た。本章は別の枝である。<strong>推論高速化</strong>は、同じ骨格・同じチェックポイントで、トークンを一つずつ出す手続きを速く・軽くする層だ。ベンチの「賢さ」が跳ね上がったわけではない。遅延が下がった、同時セッションが増えた、GPU 枚数が減った——<strong>提供</strong>の問題である。</p>
-<h3 id="kv-cache再計算を避ける">KV Cache：再計算を避ける</h3>
-<p>自己回帰生成では、各デコードステップで過去トークンへの注意が必要になる。毎回ゼロから計算すれば、長さに比例してコストが膨らむ。<strong>KV Cache（キー・バリューキャッシュ）</strong> は、すでに計算した層のキー（K）と値（V）を保持し、新しいトークン分だけ注意を更新する仕組みである。長い生成ほどキャッシュが膨らみ、バッチ同時実行と合わさると GPU メモリの主因になる——ここから先の部品は、そのメモリと帯域を削る。</p>
-<h3 id="gqa-mqaキャッシュを小さくする構造選択">GQA / MQA：キャッシュを小さくする構造選択</h3>
+<p>主線は二つの圧力に分ける。<strong>(1) KV / GQA のメモリ圧力</strong>——長い自己回帰でキャッシュが膨らむ問題。<strong>(2) サービング・スタック</strong>——同じ分布をより安く届ける実装の束。二次的な部品名は補助欄に回す。</p>
+<h3 id="圧力1kv-gqa-のメモリ">圧力1：KV / GQA のメモリ</h3>
+<p>自己回帰生成では、各デコードステップで過去トークンへの注意が必要になる。毎回ゼロから計算すれば、長さに比例してコストが膨らむ。<strong>KV Cache（キー・バリューキャッシュ）</strong> は、すでに計算した層のキー（K）と値（V）を保持し、新しいトークン分だけ注意を更新する仕組みである。長い生成ほどキャッシュが膨らみ、バッチ同時実行と合わさると GPU メモリの主因になる。</p>
 <p><strong>Multi-Head Attention（MHA）</strong> ではヘッドごとに独立した K/V がある。<strong>Multi-Query Attention（MQA）</strong> は K/V ヘッドを一つに共有し、<strong>Grouped-Query Attention（GQA）</strong> は複数クエリヘッドが K/V ヘッドのグループを共有する。いずれもクエリの表現力は保ちつつ、<strong>キャッシュサイズとメモリ帯域</strong>を削るトレードオフである。Llama 2/3 系など現行の大規模モデルで広く採用されている。第7章で触れた通り、これは構造層のヘッド配線の選択だが、動機の多くは推論時の KV コストにある。</p>
-<h3 id="flashattention注意計算の実装最適化">FlashAttention：注意計算の実装最適化</h3>
-<p>理論上、注意は系列長の二乗に近いコストを持ちうる。<strong>FlashAttention</strong>（Dao ら, 2022）は、GPU の SRAM と HBM の間の入出力を削減する <strong>実装最適化</strong> である（*1）。アルゴリズムの「理解」や分布そのものを変えるわけではない。同じ Attention を、ハードウェアに合わせて速く回す枝である。</p>
-<h3 id="pagedattentionキャッシュのメモリ管理">PagedAttention：キャッシュのメモリ管理</h3>
-<p><strong>PagedAttention</strong>（Kwon ら, 2023）は、KV キャッシュを固定長ブロックに分割し、OS のページングに似た割当でメモリ断片化を抑え、同時セッション数を増やす——<strong>提供層のメモリ管理</strong>である（*2）。vLLM などの推論サーバで標準的な技法として広がった。</p>
-<h3 id="量子化ビット幅を下げる">量子化：ビット幅を下げる</h3>
-<p><strong>量子化（Quantization）</strong> は、重みや活性値のビット幅を INT8・INT4 などに下げ、推論メモリと演算を軽くする。分布の歪みに敏感で、校正データと実装品質に依存する。GPTQ や AWQ など手法は異なるが、共通して <strong>数値表現の層</strong> であり、表現能力の理論的交代ではない。</p>
-<h3 id="投機的デコード草稿と検証">投機的デコード：草稿と検証</h3>
-<p><strong>投機的デコード（Speculative Decoding）</strong>（Leviathan ら, 2022）は、小さな草稿モデルが複数トークンを先読みし、大モデルが並列検証して受理する——平均レイテンシを下げるが、正しさの保証ではなく <strong>受理率の統計</strong> である（*3）。草稿と本体の分布ずれでスループットが頭打ちになることもある。</p>
+<h3 id="圧力2サービングスタックflash-paged-量子化-投機">圧力2：サービング・スタック（Flash / Paged / 量子化 / 投機）</h3>
+<p>同じ条件付き分布を、ハードウェアとスケジューラに合わせて安く届ける束である。ここはカタログではなく、<strong>一枚の提供層</strong>として読む。</p>
+<p>理論上、注意は系列長の二乗に近いコストを持ちうる。<strong>FlashAttention</strong>（Dao ら, 2022）は、GPU の SRAM と HBM の間の入出力を削減する <strong>実装最適化</strong> である<a class="fn-ref" href="#fn-19">(*19)</a>。アルゴリズムの「理解」や分布そのものを変えるわけではない。</p>
+<p><strong>PagedAttention</strong>（Kwon ら, 2023）は、KV キャッシュを固定長ブロックに分割し、OS のページングに似た割当でメモリ断片化を抑え、同時セッション数を増やす——<strong>提供層のメモリ管理</strong>である<a class="fn-ref" href="#fn-20">(*20)</a>。vLLM などの推論サーバで標準的な技法として広がった。</p>
+<p><strong>量子化（Quantization）</strong> は、重みや活性値のビット幅を INT8・INT4 などに下げ、推論メモリと演算を軽くする。分布の歪みに敏感で、校正データと実装品質に依存する。</p>
+<p><strong>投機的デコード（Speculative Decoding）</strong>（Leviathan ら, 2022）は、小さな草稿モデルが複数トークンを先読みし、大モデルが並列検証して受理する——平均レイテンシを下げるが、正しさの保証ではなく <strong>受理率の統計</strong> である<a class="fn-ref" href="#fn-21">(*21)</a>。</p>
 <figure class="article-figure"><img src="assets/llm-v3/serving-stack.svg" alt="" /><figcaption>見るべき構造: KV 管理・GQA・FlashAttention・量子化・投機的デコードは、同じ次トークン分布をより安く提供するための積み上げ。 (Source: 教育用模式図)</figcaption></figure>
 <p>図がまとめるのは、これらがすべて <strong>条件付き次トークン予測</strong> の上に載るサービング・コンピュート層だという点である。Mamba や拡散 LM のような <strong>骨格置換</strong>（第11章）とは別枝である。FlashAttention と Mamba を「同じ次の一歩」に畳まない——地図の分岐を保つ。</p>
+<h3 id="長文脈と位置外挿rope">長文脈と位置外挿（RoPE）</h3>
+<p>窓を伸ばす製品主張の裏側には、<strong>位置表現の外挿</strong>がある。<strong>RoPE（Rotary Position Embedding）</strong> 系は、相対位置を回転として埋め込みに織り込み、訓練時より長い系列への外挿を狙う。変わるのは「どの長さまで位置を区別できるか」の設計空間であり、<strong>均等な長文理解の保証ではない</strong>。補助欄の Lost in the Middle が示す通り、窓内に収まっても中間部の根拠は落ちうる——RoPE 拡張は窓の上限を動かしうるが、位置バイアスそのものを消すわけではない。</p>
 <h3 id="速くなっても変わらないもの">速くなっても変わらないもの</h3>
 <p>KV 最適化はメモリを節約しても、<strong>文脈窓</strong> の有限性は消えない。量子化は誤差を導入しうる。投機的デコードは草稿の品質に依存する。いずれも「うまく動けば速い・安い」であり、事実照合・幻覚抑制・整列の保証は買わない。製品が速くなったからといって、パラメータ内にない知識が生まれるわけでもない。</p>
+<h3 id="補助欄サービング部品の短い一覧">補助欄：サービング部品の短い一覧</h3>
+<div class="table-wrap"><table><thead><tr><th>部品</th><th>役割</th><th>変えないもの</th></tr></thead><tbody><tr><td>FlashAttention</td><td>注意の IO 最適化</td><td>Attention の意味</td></tr><tr><td>PagedAttention</td><td>KV のメモリ管理</td><td>分布の形</td></tr><tr><td>量子化</td><td>ビット幅削減</td><td>学習済み重みの「意図」</td></tr><tr><td>投機的デコード</td><td>草稿＋検証で遅延削減</td><td>受理＝真偽保証ではない</td></tr><tr><td>GQA/MQA</td><td>KV ヘッド共有</td><td>次トークン目的</td></tr></tbody></table></div>
 <h2 id="推論のアルゴリズム探索と考える時間">推論のアルゴリズム——探索と考える時間</h2>
 <div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>推論方法（Map ②；学習方法と境を接する）</td></tr><tr><td>Map ①の動機枝</td><td><strong>推論・整列を伸ばしたい</strong>——CoT / TTC / RLVR（後学習と隣接）</td></tr><tr><td>改善対象</td><td>一発の次トークン列では踏み切れない多段推論——分布からどう切り出し、どれだけ列を伸ばすか</td></tr><tr><td>変えなかった骨格</td><td>学習済み重みは固定のまま <strong>次トークン予測</strong> で列を伸ばす；真偽を保証する外部検証は別</td></tr><tr><td>新しいコスト</td><td>レイテンシ、トークン課金、overthinking、報酬ハッキング、再現性の低下</td></tr><tr><td>現在の位置づけ</td><td>主流部品（チャット既定のサンプリング）＋急速に製品化された推論時拡張（CoT/TTC/RLVR）</td></tr><tr><td>未解決問題</td><td>能力をさらに伸ばす（推論時）／正しさを検証する（RLVR境界）</td></tr></tbody></table></div>
 <p>前章までで、同じ骨格を <strong>速く</strong> 届ける層を見た。本章は <strong>推論方法</strong> ——固定された分布から、どのトークン列を選び、どれだけ長く生成するか——である。製品 UI に「考え中」と出ても、裏側は依然としてトークンを逐次生成している。人間の黙考とは別の機構だ。</p>
 <h3 id="分布からの切り出しsampling">分布からの切り出し：Sampling</h3>
-<p>各ステップでモデルは語彙上の logits を出し、softmax で確率分布に変換する。そこから次のトークンを一つ選ぶ手続きが <strong>デコード（Decoding）</strong> である。<strong>Greedy decoding</strong> は毎步 argmax——最も確率の高いトークンだけを取る。決定的で安いが、局所最適に閉じやすい。</p>
+<p>各ステップでモデルは語彙上の logits を出し、softmax で確率分布に変換する。そこから次のトークンを一つ選ぶ手続きが <strong>デコード（Decoding）</strong> である。<strong>Greedy decoding</strong> は毎ステップ argmax——最も確率の高いトークンだけを取る。決定的で安いが、局所最適に閉じやすい。</p>
 <p><strong>Beam search</strong> は複数の仮説列を幅 \(k\) まで並行に伸ばし、累積対数尤度が高い列を残す。機械翻訳の時代から使われたが、長い対話や創造的生成では多様性を殺し、同じ繰り返しに閉じることがある。</p>
-<p><strong>温度（temperature）</strong> \(T\) は logits を \(1/T\) でスケールしてから softmax する。分布の鋭さだけを変え、真偽は変えない。\(T \to 0\) に近づくと Greedy に近づき、\(T &gt; 1\) では裾が厚くなる。<strong>Top-k</strong> は確率質量の上位 \(k\) 個に質量を再正規化してから抽選する。<strong>Top-p（nucleus sampling）</strong> は Holtzman ら（2019）が提案した、累積確率が \(p\) を超える最小集合だけを残す方法である——固定 \(k\) より語彙サイズに応じた適応的な切り口になる（*1）。</p>
+<p><strong>温度（temperature）</strong> \(T\) は logits を \(1/T\) でスケールしてから softmax する。分布の鋭さだけを変え、真偽は変えない。\(T \to 0\) に近づくと Greedy に近づき、\(T &gt; 1\) では裾が厚くなる。<strong>Top-k</strong> は確率質量の上位 \(k\) 個に質量を再正規化してから抽選する。<strong>Top-p（nucleus sampling）</strong> は Holtzman ら（2019）が提案した、累積確率が \(p\) を超える最小集合だけを残す方法である——固定 \(k\) より語彙サイズに応じた適応的な切り口になる<a class="fn-ref" href="#fn-22">(*22)</a>。</p>
 <figure class="article-figure"><img src="assets/llm-v3/temperature-sketch.svg" alt="" /><figcaption>見るべき構造: 同じ logits でも温度で分布の鋭さが変わり、選ばれうるトークンの集合が変わる。 (Source: 教育用模式図; Holtzman et al., 2019)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 温度は分布の鋭さを変え、選ばれるトークンの散らばりを変える（真偽スイッチではない）</summary><iframe class="sim-frame" src="assets/sims/llm-v3/temperature-sample/index.html" title="temperature-sample" loading="lazy"></iframe></details>
 <p>低温度は揺れを抑えるが、分布の頂点にある誤った引用をより安定して繰り返す——サンプリングは真偽のつまみではない。</p>
 <h3 id="列を伸ばすchain-of-thought-と-test-time-compute">列を伸ばす：Chain-of-Thought と Test-time Compute</h3>
-<p>Wei ら（2022）の <strong>Chain-of-Thought（CoT）</strong> は、「段階を踏んで考えよ」という中間トークン列を先に生成させることで、算術や常識推論タスクの正答率が上がる例を示した（*2）。これはプロンプト設計による <strong>文脈内</strong> の操作であり、重みを更新しない。</p>
+<p>Wei ら（2022）の <strong>Chain-of-Thought（CoT）</strong> は、「段階を踏んで考えよ」という中間トークン列を先に生成させることで、算術や常識推論タスクの正答率が上がる例を示した<a class="fn-ref" href="#fn-23">(*23)</a>。これはプロンプト設計による <strong>文脈内</strong> の操作であり、重みを更新しない。</p>
 <p><strong>Self-consistency</strong> は、同じ問題に対し複数の CoT 列をサンプルし、最終答えの多数決を取る。<strong>Best-of-N</strong> は複数完成列を生成し、報酬モデルや検証器で一つを選ぶ。いずれも <strong>推論時計算（Test-time Compute, TTC）</strong> ——学習済み重みは固定のまま、デコード時の forward 回数と生成長を増やす——の家族である。</p>
-<p>OpenAI の o1 系（2024）は、学習段階から長い内部推論列を引き出し、難問で推論時の計算を増やすと性能が伸びる、と報告している（*3）。UI の「考え中」は、この追加生成の待ち時間である。</p>
+<p>OpenAI の o1 系（2024）は、学習段階から長い内部推論列を引き出し、難問で推論時の計算を増やすと性能が伸びる、と報告している<a class="fn-ref" href="#fn-24">(*24)</a>。UI の「考え中」は、この追加生成の待ち時間である。</p>
 <figure class="article-figure"><img src="assets/llm-v3/test-time-compute.svg" alt="" /><figcaption>見るべき構造: 難問ほど思考トークン予算を増やしてから最終答えを出す。 (Source: 教育用模式図; OpenAI o1, 2024)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 同じ問題でも思考トークン予算を増やすと探索パスが変わりうる（真偽スイッチではない）</summary><iframe class="sim-frame" src="assets/sims/llm-v3/test-time-budget/index.html" title="test-time-budget" loading="lazy"></iframe></details>
 <p>思考トークンを増やせば探索は広がりうる。しかし「考えるほど必ず正しくなる」とは限らない。<strong>Overthinking</strong> ——不要に長い推論列が正答を上書きし、ベンチで性能が落ちる——という報告もあり、予算と品質は単調ではない。中間列も次トークン予測の産物であり、尤もらしい誤推論（幻覚の一種）になりうる。</p>
 <h3 id="報酬で選好するrlvr">報酬で選好する：RLVR</h3>
-<p><strong>RLVR（Reinforcement Learning from Verifiable Rewards）</strong> は、数学の正解、コードのテスト通過など <strong>検証可能な信号</strong> で方策を更新する枠組みである。DeepSeek-AI の <strong>DeepSeek-R1</strong> 報告（2025）は、SFT なしの R1-Zero でも長い推論列が現れ、検証可能領域でベンチが伸びる、と示している（*4）。</p>
+<p><strong>RLVR（Reinforcement Learning from Verifiable Rewards）</strong> は、数学の正解、コードのテスト通過など <strong>検証可能な信号</strong> で方策を更新する枠組みである。DeepSeek-AI の <strong>DeepSeek-R1</strong> 報告（2025）は、SFT なしの R1-Zero でも長い推論列が現れ、検証可能領域でベンチが伸びる、と示している<a class="fn-ref" href="#fn-25">(*25)</a>。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/deepseek-r1-1.png" alt="" /><figcaption>見るべき構造: R1 系は検証可能タスクで推論ベンチが伸びる位置づけを報告する。 (Source: DeepSeek-AI, 2025, Fig.1)</figcaption></figure>
 <figure class="article-figure"><img src="assets/llm-v3/reasoning-rl.svg" alt="" /><figcaption>見るべき構造: 検証可能報酬の RL が長い推論列を選好しうる。表示される思考もトークン生成である。 (Source: 教育用模式図; DeepSeek-R1 / OpenAI o1 系譜)</figcaption></figure>
 <p>RL で伸びたのは「真理を照合する器官」ではなく、報酬に合致するトークン列の出現確率である。文献の実在、最新ニュース、社内非公開事実——照合義務のある領域では、長い思考を増やしても外側検証は省略できない。</p>
@@ -410,36 +424,42 @@
 <p>推論方法を振っても、パラメータ内にない事実は生まれない。社内規程の最新版、いまの株価、手元の CSV の集計——文脈窓と凍結した重みだけでは触れない。Chat Model の後学習は口調と拒否境界を寄せても、世界の更新や計算機の実行は組み込まれていない。</p>
 <p>ここで木を取り違えない。<strong>誤:</strong> <code>Transformer → MoE → Agent</code>。<strong>正:</strong> 系譜ではモデル側の枝が止まり、構成では <code>LLM system → External systems → Agent</code> になる。<strong>RAG（Retrieval-Augmented Generation、検索拡張生成）</strong>、<strong>Function calling / Tool use</strong>、<strong>Agent</strong> オーケストレーションは、閉じた次トークン予測ループに <strong>外側の情報と行為</strong> を接続する <strong>アプリケーション層</strong> である——Transformer から「生えた」発明ではない。モデル性能とシステム性能を混同しない——ここが本章の契約である。</p>
 <h3 id="rag外側メモリを窓に載せる">RAG：外側メモリを窓に載せる</h3>
-<p><strong>RAG</strong> とは、Lewis ら（2020）が示した Retriever + Generator の二部構成である。質問が来ると Retriever が外部コーパス——社内 Wiki、論文 DB、Web インデックス——から関連文書を取り出し、Generator（通常は事前学習済み言語モデル）がそれらを文脈窓内の接頭辞に連結したうえで次トークン予測により回答を生成する（*1）。</p>
+<p><strong>RAG</strong> とは、Lewis ら（2020）が示した Retriever + Generator の二部構成である。質問が来ると Retriever が外部コーパス——社内 Wiki、論文 DB、Web インデックス——から関連文書を取り出し、Generator（通常は事前学習済み言語モデル）がそれらを文脈窓内の接頭辞に連結したうえで次トークン予測により回答を生成する<a class="fn-ref" href="#fn-26">(*26)</a>。</p>
 <figure class="article-figure paper-fig"><img src="assets/llm-v3/paper/rag-1.png" alt="" /><figcaption>見るべき構造: Retriever が文書を取り、Generator がそれに条件付けて生成する。 (Source: Lewis et al., 2020, Fig.1)</figcaption></figure>
 <figure class="article-figure"><img src="assets/llm-v3/rag-loop.svg" alt="" /><figcaption>見るべき構造: 質問→検索→条件付き生成。条件の出所は窓内入力ではなく外部インデックス。 (Source: 教育用模式図; Lewis et al., 2020)</figcaption></figure>
 <details class="sim-panel" open><summary>シミュレーションを開く — 取得文書が変わると条件付き出力分布が変わる</summary><iframe class="sim-frame" src="assets/sims/llm-v3/rag-retrieve/index.html" title="rag-retrieve" loading="lazy"></iframe></details>
 <p>具体例で固定する。質問が「当社の有給休暇は何日か」で、Retriever が 2023 年版規程の段落を返せば、Generator はその段落に条件付けされ続きやすい。同じ質問でも古い規程を返せば出力はそちらに引きずられる。検索の品質が上限を決めるが、「検索したから正しい」とは単体では保証されない。</p>
-<p>prose の組み立ては因果自己回帰のままである。検索結果にない文献を補完したり、スニペットの数字をずらしたり——幻覚は RAG 層でも単体では保証されない。</p>
+<p>文章の組み立ては因果自己回帰のままである。検索結果にない文献を補完したり、スニペットの数字をずらしたり——幻覚は RAG 層でも単体では保証されない。</p>
 <h3 id="ツールと行為実行境界はアプリ側">ツールと行為：実行境界はアプリ側</h3>
-<p><strong>Function calling / Tool use</strong> は、モデルが構造化された「使いたい道具」の宣言——関数名と引数——をトークン列として出力し、アプリケーションが解釈して実行し、結果を窓に戻す契約である。Anthropic や OpenAI の tool use API が示すパターンは、<code>tool_use</code> → アプリ実行 → <code>tool_result</code> 注入 → prose 継続の往復である（*2）。</p>
+<p><strong>Function calling / Tool use</strong> は、モデルが構造化された「使いたい道具」の宣言——関数名と引数——をトークン列として出力し、アプリケーションが解釈して実行し、結果を窓に戻す契約である。Anthropic や OpenAI の tool use API が示すパターンは、<code>tool_use</code> → アプリ実行 → <code>tool_result</code> 注入 → 文章継続の往復である<a class="fn-ref" href="#fn-27">(*27)</a>。</p>
 <figure class="article-figure"><img src="assets/llm-v3/tool-loop.svg" alt="" /><figcaption>見るべき構造: モデルは tool_use を出し、アプリが実行して tool_result を戻す。計算はモデル外。 (Source: 教育用模式図; Anthropic Tool use ドキュメント)</figcaption></figure>
 <p>モデルは SQL を実行したわけではない。DB が返した数値を読み、次トークン予測で説明文を組み立てている。ツールが正しくても、最終文が結果を書き換える失敗は起きうる。</p>
-<p>Yao らの <strong>ReAct</strong>（2022）は、推論（Reason）と行動（Act）と観察（Observe）を交互に刻むプロンプト／学習パターンである——思考トークンとツール呼び出しを同じループに載せる設計思想に近い（*3）。<strong>MCP（Model Context Protocol）</strong> などの配線規約は、ツールとデータソースを異なるホストからモデルに接続するための標準化であり、接続そのものは <strong>検証（verification）</strong> ではない。</p>
+<p>Yao らの <strong>ReAct</strong>（2022）は、推論（Reason）と行動（Act）と観察（Observe）を交互に刻むプロンプト／学習パターンである——思考トークンとツール呼び出しを同じループに載せる設計思想に近い<a class="fn-ref" href="#fn-28">(*28)</a>。<strong>MCP（Model Context Protocol）</strong> などの配線規約は、ツールとデータソースを異なるホストからモデルに接続するための標準化であり、接続そのものは <strong>検証（verification）</strong> ではない。</p>
 <h3 id="agent-と検証境界">Agent と検証境界</h3>
 <p><strong>Agent</strong> と呼ばれる構成は、モデルが方策（次に何を生成するか）を出し、オーケストレータがツール実行・状態更新・停止条件を管理するループである。能力の一部はモデルの条件付き分布にあり、タイムアウト・再試行・権限チェック・監査ログは外部システムにある。</p>
-<p>三つの境界を混同しない。<strong>真正性</strong>（出典と prose の一致、ツール結果と説明の一致）、<strong>権限</strong>（誰が何を実行できるか）、<strong>完了</strong>（タスクが終わったか、副作用が意図どおりか）は、モデル単体では保証されない——保証はアプリ層と人間手続きに残る。製品が「エージェント対応」と謳っても、検証なしに委任できる領域が広がるわけではない。</p>
+<p>三つの境界を混同しない。<strong>真正性</strong>（出典と文章の一致、ツール結果と説明の一致）、<strong>権限</strong>（誰が何を実行できるか）、<strong>完了</strong>（タスクが終わったか、副作用が意図どおりか）は、モデル単体では保証されない——保証はアプリ層と人間手続きに残る。製品が「エージェント対応」と謳っても、検証なしに委任できる領域が広がるわけではない。</p>
 <p>長いタスクでは「計画→実行→観察→再計画」が数十往復し、各ステップが文脈窓を消費する。外部メモリ——ベクトル DB、セッション要約——は有限窓を補う製品層の装置だが、要約自体も次トークン予測であり、原文の完全保存ではない。</p>
-<h3 id="表現の拡張マルチモーダル短く">表現の拡張：マルチモーダル（短く）</h3>
-<p>画像・音声を同じチャットに載せる <strong>マルチモーダル</strong> 化は、独立の「次の歴史」ではない。<strong>表現層</strong> ——Encoder で視覚特徴を列に写し、既存のデコーダが条件付き生成する——の拡張である。Early Fusion、Late Fusion、統一トークン化など経路は異なるが、下流の保証構造は自動では書き換わらない。幻覚・グラウンディング・検証は、テキストのみの契約の延長として残る。</p>
+<h3 id="表現の拡張マルチモーダル">表現の拡張：マルチモーダル</h3>
+<p>画像・音声を同じチャットに載せる <strong>マルチモーダル</strong> 化は、独立の「次の歴史」ではない。<strong>表現層</strong> ——視覚や音声の特徴をトークン列（またはその代理）に写し、既存の言語デコーダが条件付き生成する——の拡張である。経路は複数あるが、一例として次を固定する。</p>
+<p><strong>経路例（接ぎ木型）:</strong> 画像 → 視覚 Encoder（例: ViT 系）→ 線形／MLP の <strong>投影層</strong> → 言語モデルの埋め込み空間に並べたトークン列 → 因果デコーダがテキストを生成する。画像は「見た」のではなく、投影された表現が接頭辞の一部になっただけである。</p>
+<div class="table-wrap"><table><thead><tr><th>型</th><th>何が起きているか</th><th>よくある誤解</th></tr></thead><tbody><tr><td><strong>接ぎ木（grafted）</strong></td><td>既存 LM に Encoder＋投影を後付け</td><td>「画像理解モジュールが独立に真偽を保証する」</td></tr><tr><td><strong>ネイティブ（joint / early）</strong></td><td>初期から複数モダリティを同一語彙・同一損失に寄せる</td><td>「統一トークン化＝幻覚の消滅」</td></tr></tbody></table></div>
+<p>どちらも下流の保証構造は自動では書き換わらない。幻覚・グラウンディング・検証は、テキストのみの契約の延長として残る。</p>
+<p><strong>主張の分解例:</strong> 「マルチモーダルにしたら幻覚が消えた」</p>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>読み方</th></tr></thead><tbody><tr><td>観測事実になりうるもの</td><td>あるベンチ／あるタスク分布で、引用一致や物体記述の誤差が減った、という報告</td></tr><tr><td>強い推論</td><td>「視覚接地が一般に真偽保証を増やす」</td></tr><tr><td>保証の飛躍</td><td>「画像を入力できる＝事実が正しい」「スクリーンショットを渡せば捏造引用が消える」</td></tr></tbody></table></div>
+<p>画像を条件にしても、モデルは依然として次トークン分布から文章を組み立てる。参照と本文の一致、出典の真正性、権限と副作用は、外側の検証とアプリ契約に残る。</p>
 <figure class="article-figure"><img src="assets/llm-v3/multimodal-paths.svg" alt="" /><figcaption>見るべき構造: モダリティ接続の三経路。いずれも生成核は条件付き次トークン予測に帰着しうる。 (Source: 教育用模式図)</figcaption></figure>
 <h2 id="置換と併用の枝mambahybrid拡散lm">置換と併用の枝——Mamba・Hybrid・拡散LM</h2>
 <div class="table-wrap"><table><thead><tr><th>項目</th><th>内容</th></tr></thead><tbody><tr><td>対象レイヤー</td><td>置換／併用の枝（モデル構造の挑戦）</td></tr><tr><td>Map ①の動機枝</td><td><strong>骨格を疑う／置き換える</strong>——高速化枝（同じ Attention を速くする）とは別</td></tr><tr><td>改善対象</td><td>全対全 Attention の二次コスト、KV メモリ、自己回帰の逐次性・誤り伝播</td></tr><tr><td>変えなかった骨格（主流）</td><td>2024–2026 の商用・オープンウェイト中心は依然 <strong>Decoder-only Transformer + 自己回帰</strong></td></tr><tr><td>新しいコスト</td><td>長系列での in-context 再現性、反復 denoise のレイテンシ、エコシステム未成熟</td></tr><tr><td>現在の位置づけ</td><td>研究枝／併用（主流を置き換えたとは言い切れない並行提案）</td></tr><tr><td>未解決問題</td><td>Transformer／自己回帰を置き換える</td></tr></tbody></table></div>
 <p>第3部のほとんどは、<strong>同じ Transformer 骨格のまま</strong> ある層を改善する話だった。本章だけ枝が違う。<strong>置換／併用の枝</strong> ——Attention や自己回帰そのものを疑い、別の系列変換や生成枠組みを提案する研究である。地図上、これらは歴史の「次の駅」ではなく、主流から <strong>並行して伸びる分岐</strong> である。</p>
 <figure class="article-figure"><img src="assets/llm-v3/transformer-motive-branches-v2.svg" alt="" /><figcaption>見るべき構造: Map ①の動機枝。本章は右端の Replace spine。高速化枝や MoE とは別の圧力。 (Source: 教育用模式図)</figcaption></figure>
 <h3 id="state-space-model-と-mamba">State Space Model と Mamba</h3>
-<p><strong>State Space Model（状態空間モデル, SSM）</strong> は、連続時間の動力学を離散化し、隠れ状態の更新で系列を処理する枠組みである。RNN に似た逐次更新を持ちながら、特定の構造下では畳み込みと等価な並列計算が可能になる。Gu &amp; Dao の <strong>Mamba</strong>（2023）は、<strong>選択的状態空間（Selective State Space）</strong> により、入力に応じて状態遷移を選び分け、長系列で Transformer の二次計算量を避ける経路を示した（*1）。</p>
+<p><strong>State Space Model（状態空間モデル, SSM）</strong> は、連続時間の動力学を離散化し、隠れ状態の更新で系列を処理する枠組みである。RNN に似た逐次更新を持ちながら、特定の構造下では畳み込みと等価な並列計算が可能になる。Gu &amp; Dao の <strong>Mamba</strong>（2023）は、<strong>選択的状態空間（Selective State Space）</strong> により、入力に応じて状態遷移を選び分け、長系列で Transformer の二次計算量を避ける経路を示した<a class="fn-ref" href="#fn-29">(*29)</a>。</p>
 <p>Mamba が主張するのは、長距離依存を <strong>Attention の全対全参照</strong> なしに扱える可能性である。ただし、大規模スケールでの汎用性、マルチモーダル統合、ツール呼び出しとの相性は、Transformer 主流に比べて実証が浅い領域が残る。第8章の FlashAttention が「同じ Attention を速くする」枝であるのに対し、Mamba は <strong>Attention ブロックの置換候補</strong> として読む。</p>
 <h3 id="hybrid-アーキテクチャと-jamba">Hybrid アーキテクチャと Jamba</h3>
-<p><strong>Hybrid（ハイブリッド）</strong> 設計は、SSM 層と Transformer 層を交互に積み、両者の長所を取りにいく。Lieber らの <strong>Jamba</strong>（2024）は、Mamba ブロックと Attention ブロックを組み合わせ、さらに <strong>Mixture of Experts（MoE）</strong> を載せた大規模モデルである（*2）。帰結は明確だ——「Attention を完全に捨てる」のではなく、<strong>どの層で何をするか</strong> を再配分する。</p>
+<p><strong>Hybrid（ハイブリッド）</strong> 設計は、SSM 層と Transformer 層を交互に積み、両者の長所を取りにいく。Lieber らの <strong>Jamba</strong>（2024）は、Mamba ブロックと Attention ブロックを組み合わせ、さらに <strong>Mixture of Experts（MoE）</strong> を載せた大規模モデルである<a class="fn-ref" href="#fn-30">(*30)</a>。帰結は明確だ——「Attention を完全に捨てる」のではなく、<strong>どの層で何をするか</strong> を再配分する。</p>
 <p>Attention は局所的・内容依存的な参照に強い一方、長系列では KV Cache のメモリが支配的になる。SSM は長系列の圧縮伝播に向く一方、細かい in-context 操作の再現性は系ごとに差が出る。Jamba は <strong>層ごとの役割分担の再交渉</strong> であり、次トークン予測という目的関数そのものの変更ではない。</p>
 <h3 id="拡散型言語モデルと-llada">拡散型言語モデルと LLaDA</h3>
-<p><strong>自己回帰</strong> 以外の生成パラダイムとして、画像生成で成功した <strong>拡散モデル（Diffusion Model）</strong> を離散トークン列に適用する <strong>Diffusion Language Model（拡散型言語モデル）</strong> がある。Nie らの <strong>LLaDA</strong>（2025）は、マスクされたトークンを反復的に denoise し、左から右への厳密な逐次生成に依存しない大規模言語モデルを報告している（*3）。</p>
+<p><strong>自己回帰</strong> 以外の生成パラダイムとして、画像生成で成功した <strong>拡散モデル（Diffusion Model）</strong> を離散トークン列に適用する <strong>Diffusion Language Model（拡散型言語モデル）</strong> がある。Nie らの <strong>LLaDA</strong>（2025）は、マスクされたトークンを反復的に denoise し、左から右への厳密な逐次生成に依存しない大規模言語モデルを報告している<a class="fn-ref" href="#fn-31">(*31)</a>。</p>
 <p>拡散 LM が問い直すのは、<strong>生成の順序と修正可能性</strong> である。自己回帰では一度確定したトークンは条件に固定され、早期の誤りが後続を毒する。拡散型は全体を同時に扱いうるため、局所修正や並列デコードの余地がある——一方、推論時の反復ステップ数とレイテンシは新しいコストになる。</p>
 <figure class="article-figure"><img src="assets/llm-v3/alternatives-map.svg" alt="" /><figcaption>見るべき構造: 主流（Transformer＋自己回帰）と代替（SSM/Hybrid、拡散 LM）が並存する問題空間。各枝は異なるボトルネックを狙う。 (Source: 教育用模式図; Gu &amp; Dao 2023, Lieber et al. 2024, Nie et al. 2025)</figcaption></figure>
 <p>図が示すのは、代替経路が単一の「次世代」に収束しているのではなく、<strong>異なる制約</strong> を狙った分岐である。Mamba 系は長系列効率、拡散 LM は生成の非逐次性、ハイブリッドは層ごとの役割分担——いずれも Transformer 全対全 Attention のコストや自己回帰の不可逆性への応答である。</p>
@@ -448,11 +468,33 @@
 <p><strong>観測された事実:</strong> 2024–2026 年の商用・オープンウェイトの中心は、依然として Decoder-only Transformer と自己回帰推論である。スケーリング則、ICL、後学習、RAG、ツールのエコシステムは、この骨格の上に積まれている。</p>
 <p><strong>強い推論:</strong> SSM・ハイブリッド・拡散 LM は、それぞれ実在するボトルネックに対する技術的応答である。無視できる一過性のブームではない。</p>
 <p><strong>未確定な点:</strong> Attention、自己回帰、明示的思考トークン（CoT など中間列）が汎用言語知能の必要条件かどうかは、理論的にも実証的にも決着していない。Transformer は今後も中心か、自己回帰は必須か——詳細は第4部の論争アリーナへ。</p>
+<h2 id="データと評価">データと評価</h2>
+<p>第3部までで、構造・高速化・推論・外部接続・置換枝を見た。しかし製品発表の数字が動くとき、動いているのがアーキテクチャだけとは限らない。Map ②の八層のうち <strong>データ・経験</strong> と <strong>評価・保証</strong> は、名前は地図に載っているが、ここまで独立のツアーがなかった。本章は技術名の追加ではなく、<strong>主張を疑うための操作知</strong>である。</p>
+<p>終章の判断規則「<strong>データと評価は動いたか</strong>」は、ここから手を動かせるようになる。</p>
+<h3 id="なぜデータ評価層が製品主張を左右するか">なぜデータ／評価層が製品主張を左右するか</h3>
+<p>同じ Decoder-only 骨格でも、コーパスの品質・合成データの比率・蒸留の教師・ベンチの測定分布が変われば、リーダーボードは動く。逆に、層を一つ増やしたように見えて、実は評価セットへの漏洩やサンプリング設定の差だけ、ということもある。機構を説明できるだけでは、発表文の倍率を裁定できない。</p>
+<h3 id="汚染合成蒸留機構レベル">汚染・合成・蒸留（機構レベル）</h3>
+<p><strong>汚染（contamination）</strong> は、評価に使う問題やその近傍が、事前学習・後学習・プロンプト例に混入している状態を指す。得点は「能力」ではなく「見たことがある続きの再配分」に近づく。対策は完全ではない——重複除去、n-gram 重複検査、開催後の新規セット——だが、<strong>汚染耐性を報告しない倍率</strong>は比較不能に近い。</p>
+<p><strong>合成データ</strong> は、モデルや規則で作ったテキストを学習信号にすることだ。量は増やしやすいが、教師モデルの癖・幻覚・分布の狭さが生徒に写る。合成が増えた事実と、実世界分布への汎化は別命題である。</p>
+<p><strong>蒸留</strong> は、大きな教師の出力分布（または軌跡）を小さい生徒が真似る手続きである。推論コストを下げうる一方、教師の失敗モードも圧縮して引き継ぎうる。製品の「小型で同性能」は、測定分布と教師の出所を見ないと裁定できない。</p>
+<h3 id="発表のベンチ主張を疑う5点チェック">発表のベンチ主張を疑う5点チェック</h3>
+<p>新しいスコアや「○倍」に出会ったら、次を順に問う。</p>
+<ol><li><strong>測定分布</strong> — どのタスク集合か。実業務の分布に近いか。</li><li><strong>比較対象</strong> — 前世代自社か、同規模 Dense か、人間か。比較が無い倍率は宣伝に近い。</li><li><strong>サンプリング設定</strong> — temperature、多数決、ツール有無、推論時計算の上限は揃っているか。</li><li><strong>汚染耐性</strong> — 学習コーパスとの重複検査や新規セットでの追試はあるか。</li><li><strong>再現性</strong> — シード・プロンプト・公開チェックポイントで追えるか。</li></ol>
+<p>この五つは、演習3の製品発表分解と、終章の判断規則「データと評価は動いたか」に直結する。</p>
+<h3 id="補助欄短い論争カード">補助欄：短い論争カード</h3>
+<p><strong>論点:</strong> ベンチ改善は実務能力の証拠か。</p>
+<div class="table-wrap"><table><thead><tr><th>立場</th><th>主張</th></tr></thead><tbody><tr><td>代理指標派</td><td>再現可能な比較として有用；完全否定は設計を盲目にする</td></tr><tr><td>懐疑派</td><td>汚染・ゲーミング・分布外失敗で過信の材料になりやすい</td></tr><tr><td>線引き</td><td>得点は測定分布での統計的優位であり、個別事例の真偽・副作用の保証ではない</td></tr></tbody></table></div>
 <h2 id="演習3-製品発表の分解第3部のあと">演習3　製品発表の分解（第3部のあと）</h2>
-<p>次の（型としての）製品発表を分解する。実在製品の引用ではなく、読み方の練習である。</p>
-<p><strong>発表文:</strong> 「新モデルは推論能力が3倍、100万トークンを完全に記憶し、Agent として自律的に仕事を完了する。」</p>
+<p>直前の「データと評価」章の5点チェック（測定分布／比較対象／サンプリング設定／汚染耐性／再現性）を手元に置く。</p>
+<p><strong>input_material（問1）:</strong> 「新モデルは推論能力が3倍、100万トークンを完全に記憶し、Agent として自律的に仕事を完了する。」（型としての発表文。実在製品の引用ではない。）</p>
+<p><strong>operation:</strong> 改善層・測定指標・比較対象・非保証・アプリ側責任に分解して記入する。必要なら5点チェックも添える。</p>
+<p><strong>self_check:</strong> 「3倍」「完全に記憶」「自律的に完了」を、層と保証の言葉に翻訳できているか。Agent を系譜の子に置いていないか。</p>
 <div class="table-wrap"><table><thead><tr><th>問い</th><th>自分の分解</th></tr></thead><tbody><tr><td>改善された層はどこか（複数可）</td><td></td></tr><tr><td>測定指標は何か（明示／暗黙）</td><td></td></tr><tr><td>比較対象は何か</td><td></td></tr><tr><td>保証されていないことは何か</td><td></td></tr><tr><td>アプリケーション側に残る責任は何か</td><td></td></tr></tbody></table></div>
-<p>参考の分解:</p>
+<h3 id="問2未解答のまま残す">問2（未解答のまま残す）</h3>
+<p><strong>input_material（問2）:</strong> 「当社の新モデルは、社内ベンチで事実正答率 99%、マルチモーダル入力により幻覚を解消し、オープンウェイトでも安全です。」</p>
+<p>同じ表で分解せよ。参考解答は付けない。確信度と反証条件も一言添える。</p>
+<div class="table-wrap"><table><thead><tr><th>問い</th><th>自分の分解</th></tr></thead><tbody><tr><td>改善された層はどこか（複数可）</td><td></td></tr><tr><td>測定指標は何か（明示／暗黙）</td><td></td></tr><tr><td>比較対象は何か</td><td></td></tr><tr><td>保証されていないことは何か</td><td></td></tr><tr><td>アプリケーション側に残る責任は何か</td><td></td></tr><tr><td>5点チェックで最も怪しい点</td><td></td></tr><tr><td>確信度と反証条件</td><td></td></tr></tbody></table></div>
+<h3 id="書いたあとで見る参考の分解問1のみ">書いたあとで見る参考の分解（問1のみ）</h3>
 <ul><li><strong>層:</strong> 「推論能力3倍」→ 推論・探索／学習／データ／評価のどれかが動いた可能性。構造だけとは限らない。「100万トークン」→ 文脈窓・サービング。「Agent」→ 外部システム＋UI／制度。</li><li><strong>測定:</strong> 「3倍」はどのベンチか、どのサンプリングか、汚染耐性は見たかが未提示なら、評価層が空洞。</li><li><strong>比較:</strong> 前世代の自社モデルか、同規模 Dense か、人間か——比較対象が無い倍率は宣伝文に近い。</li><li><strong>非保証:</strong> 「完全に記憶」は有限窓と位置効果の事実と衝突しやすい。「自律的に完了」は権限・副作用・停止条件なしには保証できない。</li><li><strong>アプリ責任:</strong> ツール実行、承認、監査、失敗時の人間エスカレーションは外側に残る。</li></ul>
 <p>できた操作: 倍率と完了宣言を、層・指標・比較・非保証・責任に切り分ける。</p>
 <h2 id="第4部-論争を分解する">第4部　論争を分解する</h2>
@@ -461,26 +503,55 @@
 <p>Part I–III で技術史・層マップ・未解決問題への応答を並べた。知識のあとに、意見を選ぶ材料を置く。ここは勝ち負けを決める場ではなく、<strong>どの事実にどの価値を載せるか</strong>を選ぶアリーナである。</p>
 <p>各論争は次の型に揃える。</p>
 <div class="table-wrap"><table><thead><tr><th>欄</th><th>意味</th></tr></thead><tbody><tr><td>共通して確認されている事実</td><td>両者が同意しうる観測</td></tr><tr><td>本当に争われている命題</td><td>意見が分かれる一文</td></tr><tr><td>測定方法</td><td>何をどう測ると自分の側が強いか</td></tr><tr><td>前提</td><td>暗黙の仮定</td></tr><tr><td>価値観</td><td>何を重視するか（技術／経済／社会／規範のどれに近いか）</td></tr><tr><td>利害関係</td><td>誰が得をし、誰がリスクを負うか</td></tr><tr><td>反証条件</td><td>どんな証拠が出れば立場を見直すか</td></tr></tbody></table></div>
-<p>立場を今すぐ固定する必要はない——演習4と第5部で、読者が自分の暫定意見を書く。</p>
+<p>立場を今すぐ固定する必要はない——演習4と第5部で、読者が自分の暫定意見を書く。カードは三つの束に分ける。<strong>骨格系</strong>（何が計算の中心か）、<strong>システム系</strong>（どこまでがモデルでどこからが製品か）、<strong>評価系</strong>（何を測り、何を社会に持ち込むか）。</p>
+<h3 id="骨格系">骨格系</h3>
+<p>骨格が替わるか、同じ骨格の上で伸びるか——第3部の置換枝と MoE を、意見の型に載せ直す。</p>
 <h3 id="transformerは終わるのか">Transformerは終わるのか？</h3>
 <div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>2026 年時点の商用・オープンウェイトの中心は Transformer 系自己回帰；Mamba/Jamba 等は長系列効率を狙う実在する研究枝である。</td></tr><tr><td>争点</td><td>主流骨格は今後も中心か、SSM/Hybrid 等へ置き換わりうるか。</td></tr><tr><td>測定</td><td>中心継続派: エコシステム・ツール統合・ハード最適化の慣性。置換派: コンテキスト長あたりのメモリ・遅延・スループット。</td></tr><tr><td>前提</td><td>「終わる」が意味するのは研究の死か、製品シェアの交代か。</td></tr><tr><td>価値観</td><td>技術的（効率限界）と経済的（既存積層の償却）が交錯。</td></tr><tr><td>利害</td><td>フレームワーク提供者・クラウド・新規アーキ研究者で利害が異なる。</td></tr><tr><td>立場 A</td><td>改良は Transformer 内部と推論基盤で進む。</td></tr><tr><td>立場 B</td><td>長文・KV ボトルネックで骨格入れ替えが起こりうる。</td></tr><tr><td>反証条件</td><td>同品質帯で、運用コストを含めて Transformer 系を継続的に下回る代替が製品の中心シェアを取る／取らない。</td></tr></tbody></table></div>
+<h3 id="moeはdenseより優れているのか">MoEはDenseより優れているのか？</h3>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>MoE は疎活性化で推論コストを抑えつつ容量を増やしうる；ルーティングは難所。</td></tr><tr><td>争点</td><td>Dense に対し普遍的に優位か。</td></tr><tr><td>測定</td><td>MoE 派: トークンあたりコストとスケール効率。Dense 派: 再現性・デプロイ単純さ・小規模品質。</td></tr><tr><td>前提</td><td>「優れている」の定義（研究フロンティアか運用か開放性か）。</td></tr><tr><td>価値観</td><td>技術的に加え、経済的（誰が巨大 MoE を訓練できるか）・社会的（集中化）を問える。</td></tr><tr><td>利害</td><td>巨大クラスタ所有者／オープン再現を狙う共同体。</td></tr><tr><td>立場 A</td><td>効率フロンティアを押し上げる。</td></tr><tr><td>立場 B</td><td>タスクと規模ごとに Dense が勝つ場面が残る。</td></tr><tr><td>追加の自問</td><td>MoE は知能の進歩か、コスト構造の進歩か、集中化を促すか、オープンでも再現可能か。</td></tr><tr><td>反証条件</td><td>同データ・同評価で、運用コスト込みの優位が広いタスク帯で安定する／崩れる。</td></tr></tbody></table></div>
+<h3 id="システム系">システム系</h3>
+<p>モデル単体の能力と、外側の検索・ツール・窓の設計を混同しない束である。</p>
 <h3 id="rlvrは新しい能力を生むのか">RLVRは新しい能力を生むのか？</h3>
 <div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>検証可能報酬は、数学・コード等で正答率を上げうる。</td></tr><tr><td>争点</td><td>新能力の獲得か、既存経路の選択確率変更か。</td></tr><tr><td>測定</td><td>新能力派: 推論ベンチ改善幅と行動様式の安定化。選択派: 分布内サンプリング効率と汎化外失敗。</td></tr><tr><td>前提</td><td>「能力」を行動様式の変化と定義するか、保証付き問題解決と定義するか。</td></tr><tr><td>価値観</td><td>技術的評価が中心だが、教育・労働への社会的含意も絡む。</td></tr><tr><td>利害</td><td>推論課金・ベンチ競争・評価設計者。</td></tr><tr><td>立場 A</td><td>RL が稀な行動様式を安定して引き出す——実質的新能力。</td></tr><tr><td>立場 B</td><td>再重み付けであり、真偽保証は付かない。</td></tr><tr><td>反証条件</td><td>事前学習分布にほぼ存在しなかったクラスの課題で、再現可能な一般化が示される／示されない。</td></tr></tbody></table></div>
 <h3 id="agentはモデル性能かシステム性能か">Agentはモデル性能かシステム性能か</h3>
-<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>ツール実行・停止・権限はアプリケーション側；モデル出力は宣言と prose の生成に留まる。</td></tr><tr><td>争点</td><td>「エージェントができた」は基盤モデルの進歩か、ワークフロー製品の成熟か。</td></tr><tr><td>測定</td><td>モデル派: ツール使用ベンチ。システム派: 本番成功率・監査可能性・副作用。</td></tr><tr><td>前提</td><td>完了の定義に人間監督を含めるか。</td></tr><tr><td>価値観</td><td>技術的＋規範的（誰が責任を負うか）＋経済的（誰がオーケストレーションを売るか）。</td></tr><tr><td>利害</td><td>モデル提供者／アプリ事業者／利用者／規制当局。</td></tr><tr><td>立場 A</td><td>長い計画・ツール選択はモデル能力の一部。</td></tr><tr><td>立場 B</td><td>信頼できる完了はシステム設計の産物。</td></tr><tr><td>反証条件</td><td>同一オーケストレーションでモデル差だけが完了率を支配する／同一モデルで設計差だけが支配する、の再現実験。</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>ツール実行・停止・権限はアプリケーション側；モデル出力は宣言と文章の生成に留まる。</td></tr><tr><td>争点</td><td>「エージェントができた」は基盤モデルの進歩か、ワークフロー製品の成熟か。</td></tr><tr><td>測定</td><td>モデル派: ツール使用ベンチ。システム派: 本番成功率・監査可能性・副作用。</td></tr><tr><td>前提</td><td>完了の定義に人間監督を含めるか。</td></tr><tr><td>価値観</td><td>技術的＋規範的（誰が責任を負うか）＋経済的（誰がオーケストレーションを売るか）。</td></tr><tr><td>利害</td><td>モデル提供者／アプリ事業者／利用者／規制当局。</td></tr><tr><td>立場 A</td><td>長い計画・ツール選択はモデル能力の一部。</td></tr><tr><td>立場 B</td><td>信頼できる完了はシステム設計の産物。</td></tr><tr><td>反証条件</td><td>同一オーケストレーションでモデル差だけが完了率を支配する／同一モデルで設計差だけが支配する、の再現実験。</td></tr></tbody></table></div>
 <h3 id="長文脈はragを置き換えるのか">長文脈はRAGを置き換えるのか？</h3>
 <div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>窓は拡大傾向だが有限；長列でも中間部の参照精度は一様ではない。</td></tr><tr><td>争点</td><td>窓拡大は RAG を不要にするか。</td></tr><tr><td>測定</td><td>長文脈派: 全文投入の利便と実装単純化。RAG 派: relevant 断片精度・鮮度・コスト。</td></tr><tr><td>前提</td><td>「置き換え」が全ユースケースか、一部ドメインか。</td></tr><tr><td>価値観</td><td>技術的＋経済的（トークン費用）。</td></tr><tr><td>利害</td><td>検索インフラ提供者／長文脈 API 提供者。</td></tr><tr><td>立場 A</td><td>百万トークン級で全文投入が十分な場面が増える。</td></tr><tr><td>立場 B</td><td>キュレーション・鮮度・位置効果は窓だけでは解けない。</td></tr><tr><td>反証条件</td><td>更新頻度の高いコーパスで、窓のみが RAG 付きをコスト込みで安定的に上回る／下回る。</td></tr></tbody></table></div>
-<h3 id="moeはdenseより優れているのか">MoEはDenseより優れているのか？</h3>
-<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>MoE は疎活性化で推論コストを抑えつつ容量を増やしうる；ルーティングは難所。</td></tr><tr><td>争点</td><td>Dense に対し普遍的に優位か。</td></tr><tr><td>測定</td><td>MoE 派: トークンあたりコストとスケール効率。Dense 派: 再現性・デプロイ単純さ・小規模品質。</td></tr><tr><td>前提</td><td>「優れている」の定義（研究フロンティアか運用か開放性か）。</td></tr><tr><td>価値観</td><td>技術的に加え、経済的（誰が巨大 MoE を訓練できるか）・社会的（集中化）を問える。</td></tr><tr><td>利害</td><td>巨大クラスタ所有者／オープン再現を狙う共同体。</td></tr><tr><td>立場 A</td><td>効率フロンティアを押し上げる。</td></tr><tr><td>立場 B</td><td>タスクと規模ごとに Dense が勝つ場面が残る。</td></tr><tr><td>追加の自問</td><td>MoE は知能の進歩か、コスト構造の進歩か、集中化を促すか、オープンでも再現可能か。</td></tr><tr><td>反証条件</td><td>同データ・同評価で、運用コスト込みの優位が広いタスク帯で安定する／崩れる。</td></tr></tbody></table></div>
+<h3 id="評価系">評価系</h3>
+<p>測定と、測定の外側にある権利・公開の規範を並べる。技術論争だけで意見を閉じない。</p>
 <h3 id="ベンチマーク性能を実社会の能力とみなせるか">ベンチマーク性能を実社会の能力とみなせるか</h3>
-<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>ベンチ改善は測定分布での統計的優位を示す；個別事例の真偽・副作用は別命題。</td></tr><tr><td>争点</td><td>リーダーボード得点は実務信頼にどこまで換算できるか。</td></tr><tr><td>測定</td><td>重視派: 再現可能な比較。懐疑派: 分布外失敗・ゲーミング・実害。</td></tr><tr><td>前提</td><td>利用場面がベンチ分布に近いか。</td></tr><tr><td>価値観</td><td>技術的＋規範的（過信の実害）＋社会的（教育・採用への影響）。</td></tr><tr><td>利害</td><td>ベンチ主催者／モデル広報／現場利用者。</td></tr><tr><td>立場 A</td><td>代理指標として有用。</td></tr><tr><td>立場 B</td><td>乖離が大きく、過信の材料になりうる。</td></tr><tr><td>反証条件</td><td>対象業務での前向き試験がベンチ順位と安定相関する／しない。</td></tr></tbody></table></div>
-<p>六枚を読んだあと、ここで立場を確定する必要はない。演習4で自分の価値・事実・反証条件を書き、第5部で競合する圧縮モデルと比較する。</p>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>ベンチ改善は測定分布での統計的優位を示す；個別事例の真偽・副作用は別命題。データ汚染や合成データの比率は得点を動かしうる（「データと評価」章の5点チェック）。</td></tr><tr><td>争点</td><td>リーダーボード得点は実務信頼にどこまで換算できるか。</td></tr><tr><td>測定</td><td>重視派: 再現可能な比較。懐疑派: 分布外失敗・ゲーミング・実害。</td></tr><tr><td>前提</td><td>利用場面がベンチ分布に近いか。</td></tr><tr><td>価値観</td><td>技術的＋規範的（過信の実害）＋社会的（教育・採用への影響）。</td></tr><tr><td>利害</td><td>ベンチ主催者／モデル広報／現場利用者。</td></tr><tr><td>立場 A</td><td>代理指標として有用。</td></tr><tr><td>立場 B</td><td>乖離が大きく、過信の材料になりうる。</td></tr><tr><td>反証条件</td><td>対象業務での前向き試験がベンチ順位と安定相関する／しない。</td></tr></tbody></table></div>
+<h3 id="学習データ利用著作権">学習データ利用・著作権</h3>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>大規模事前学習はウェブ等の公開テキストを大規模に用いることが多い。複数法域で、著作物の利用・出力の類似・オプトアウトをめぐる訴訟・規制議論が進行している（個別判決の結論は管轄と時点に依存する）。</td></tr><tr><td>争点</td><td>現行の大規模収集は公正利用／権利制限の範囲か、許諾と補償が必要か。</td></tr><tr><td>測定</td><td>許諾派: ライセンス取得率・報酬分配。現行維持派: 学習の変容性・競争と研究への影響。</td></tr><tr><td>前提</td><td>「学習」と「複製・公衆送信」を同一視するか、別概念とするか。</td></tr><tr><td>価値観</td><td>規範的（著作者の権利）＋経済的（誰が訓練できるか）＋社会的（文化生産）。</td></tr><tr><td>利害</td><td>権利者団体／基盤モデル提供者／利用者／再利用者。</td></tr><tr><td>立場 A</td><td>大規模収集は創造のインフラとして広く認められるべき。</td></tr><tr><td>立場 B</td><td>許諾なき利用は権利侵害リスクが高く、許諾・除外・補償が前提になるべき。</td></tr><tr><td>反証条件</td><td>主要法域で、学習利用の許諾要件または除外が安定した判例・立法として固まる／固まらない。</td></tr></tbody></table></div>
+<h3 id="オープンウェイトと安全性">オープンウェイトと安全性</h3>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>内容</th></tr></thead><tbody><tr><td>共通事実</td><td>重みを公開する系と、API のみの系が併存する。公開は再現・監査・派生を容易にする一方、悪用者も同じ重みにアクセスしうる、というトレードオフが議論されている。</td></tr><tr><td>争点</td><td>フロンティア級の重み公開は、安全上の利益（監査・防御研究）がリスク（悪用）を上回るか。</td></tr><tr><td>測定</td><td>公開派: 独立監査・紅隊・派生研究の速度。制限派: 悪用事例・拡散の不可逆性。</td></tr><tr><td>前提</td><td>「安全」を誰がどの失敗モードで定義するか。</td></tr><tr><td>価値観</td><td>規範的（害の予防）＋社会的（集中 vs 分散）＋経済的（誰がフロンティアを握るか）。</td></tr><tr><td>利害</td><td>オープン共同体／閉鎖 API 事業者／規制当局／潜在的被害者。</td></tr><tr><td>立場 A</td><td>公開と監査可能性が長期の安全に資する。</td></tr><tr><td>立場 B</td><td>一定規模以上は公開制限と利用監視が必要。</td></tr><tr><td>反証条件</td><td>公開ウェイト由来の実害が、同規模の閉鎖系より再現可能に大きい／小さく、政策効果の前向き評価が安定する。</td></tr></tbody></table></div>
+<p>カードを読んだあと、ここで立場を確定する必要はない。演習4で自分の価値・事実・反証条件を書き、第5部で競合する圧縮モデルと比較する。AGI の到達時期や投資助言はこのアリーナの外に置く。</p>
 <h2 id="演習4-立場形成第4部のあと">演習4　立場形成（第4部のあと）</h2>
-<p>自分の意見を持つとは、断定することではない。<strong>どの事実に基づき、何を重視し、どんな新証拠が出れば意見を変えるか</strong>を言えることである。次を記入する（第5部の前に、著者の見方を読む前に）。</p>
+<p>自分の意見を持つとは、断定することではない。<strong>どの事実に基づき、何を重視し、どんな新証拠が出れば意見を変えるか</strong>を言えることである。</p>
+<p><strong>input_material:</strong> 第1–4部で触れた観測事実と、第4部の論争カード（骨格系／システム系／評価系）。必要なら直前までの製品発表分解も使う。</p>
+<p><strong>operation:</strong> 次表を、著者の見方を読む前に記入する。価値・許容できない失敗・事実・暫定結論・反証条件を揃える。</p>
+<p><strong>self_check:</strong> 暫定結論が、確認できる事実から飛躍しすぎていないか。反証条件が「気分が変わったら」になっていないか。AGI 時期や投資助言に逃げていないか。</p>
 <div class="table-wrap"><table><thead><tr><th>項目</th><th>記入</th></tr></thead><tbody><tr><td>私が重視する価値</td><td>（例: 壊れにくい完了／研究上の能力上限／開放性／低コスト …）</td></tr><tr><td>私が許容できない失敗</td><td>（例: 幻覚による実害／権限逸脱／評価のゲーミング …）</td></tr><tr><td>現在確認できる事実</td><td>（第1–4部で触れた観測に限定してよい）</td></tr><tr><td>そこから導く暫定的な結論</td><td>（一文）</td></tr><tr><td>結論を変える反証条件</td><td>（どんな測定・事故・論文が出たら見直すか）</td></tr></tbody></table></div>
 <p>評価軸のチェック（必要なら複数選ぶ）:</p>
 <ol><li><strong>技術的</strong> — 本当に能力が増えたか  </li><li><strong>経済的</strong> — 誰のコストを下げ、誰に集中をもたらすか  </li><li><strong>社会的</strong> — 仕事、教育、情報環境に何を起こすか  </li><li><strong>規範的</strong> — どの失敗を許容し、誰が責任を持つべきか  </li></ol>
-<p>できた操作: 暫定結論に、価値・事実・反証条件を添える。第5部では、この記入を著者の競合モデルと比較する。</p>
+<p>できた操作: 暫定結論に、価値・事実・反証条件を添える。次のケース通し章に記入例があるが、<strong>自分の欄を上書きしない</strong>。第5部では、この記入を著者の競合モデルと比較する。</p>
+<h2 id="ケース通しdeepseek-r1-を地図から意見まで">ケース通し：DeepSeek-R1 を地図から意見まで</h2>
+<p>演習4で自分の暫定意見を書いたあと、<strong>同じ型で一回だけ通した記入例</strong>を見る。これは上書き用の正解ではない。型の実演である。読者の記入を捨てないこと。</p>
+<p>対象は DeepSeek-AI の <strong>DeepSeek-R1</strong> 報告（2025）である<a class="fn-ref" href="#fn-32">(*32)</a>。「推論特化で強い」という世間の要約を、地図→タグ→層→論争→意見の順に落とす。</p>
+<h3 id="1-どちらの地図か三タグ">1. どちらの地図か／三タグ</h3>
+<div class="table-wrap"><table><thead><tr><th>属性</th><th>置き方</th></tr></thead><tbody><tr><td>地図</td><td>主に Map ②（学習・推論・評価）。Map ①では「推論・整列を伸ばしたい」動機枝。Agent の子ではない。</td></tr><tr><td>系譜</td><td>自己回帰 Transformer 系の上に載る後学習／RL の枝</td></tr><tr><td>構成層</td><td>学習目標・後学習＋推論・探索＋評価・保証（データも関与）</td></tr><tr><td>改善動機</td><td>検証可能領域での推論ベンチ伸長；長い内部推論列の誘発</td></tr></tbody></table></div>
+<h3 id="2-層で何が動いたか主張の分解">2. 層で何が動いたか（主張の分解）</h3>
+<p>報告が示す観測（要約）:</p>
+<ul><li><strong>RLVR</strong> 型の検証可能報酬（数学の正解、コードのテスト等）で方策を更新しうる。</li><li>SFT なしの R1-Zero でも長い推論列が現れ、検証可能領域でベンチが伸びる、と報告されている。</li><li>中間の長い列も、結局は次トークン予測の産物である——照合義務を代替しない。</li></ul>
+<p>動いた層の候補: 学習（RL）／推論（test-time の長い探索）／評価（どのベンチか）。構造骨格の交代（Attention の廃止）ではない。</p>
+<h3 id="3-近い論争-id">3. 近い論争 ID</h3>
+<p>第4部の「<strong>RLVR は新しい能力を生むのか？</strong>」に最も近い。二次的に「ベンチ＝実社会か」も触れる。</p>
+<h3 id="4-記入済み模範意見上書き禁止">4. 記入済み模範意見（上書き禁止）</h3>
+<p>次は著者の一例である。演習4の自分の欄を消さない。</p>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>記入例（著者の一例）</th></tr></thead><tbody><tr><td>重視する価値</td><td>検証可能領域での再現可能な改善；過信による実害の抑制</td></tr><tr><td>許容できない失敗</td><td>「考え中」表示を真偽保証と誤読すること；検証不能領域への一般化の断定</td></tr><tr><td>確認できる事実</td><td>報告は検証可能報酬と長い推論列・ベンチ改善を述べる<a class="fn-ref" href="#fn-32">(*32)</a>。中間列もトークン生成である。</td></tr><tr><td>暫定結論</td><td>R1 系は <strong>検証可能領域での探索・選択確率を変える後学習＋推論時計算の枝</strong> として読む。一般知能の跳躍や全タスクの保証としては読まない。</td></tr><tr><td>反証条件</td><td>検証不能で実害の大きい領域でも、独立監査付きの前向き試験が安定して改善を示す／示さない。</td></tr></tbody></table></div>
+<h3 id="5-携帯チェックこのケースで一度">5. 携帯チェック（このケースで一度）</h3>
+<ol><li>どちらの地図か → Map ②中心（学習／推論／評価）。</li><li>何を測り、何と比較したか → 報告のベンチとベースラインを原文で確認する。</li><li>単体で保証されないものは何か → 真偽・権限・実社会完了。</li></ol>
 <h2 id="第5部-自分の暫定モデルを作る">第5部　自分の暫定モデルを作る</h2>
 <p>歴史と地図と論争を手にしたうえで、信頼と利用をどこに置くかを決める。ここで初めて、複数の競合する圧縮モデルを提示する。その前に、読者自身が暫定モデルを一言で書いておく。著者の見方は一例であり、正しい唯一解ではない。「どのモデルが正しいか」ではなく、「どの判断にどのモデルを使うと誤りが少ないか」を選ぶ。</p>
 <h2 id="自分はどう考えるか">自分はどう考えるか</h2>
@@ -492,20 +563,20 @@
 <p>書けたら、下の事実棚と競合モデルを見て、必要なら修正する。修正してよい。最初の一文が最終結論である必要はない。</p>
 <h3 id="観測された事実">観測された事実</h3>
 <p>検証可能な記述だけを置く。</p>
-<ul><li>学習の直接目的は、多くの系で <strong>条件付き次トークン予測</strong> —— 与えられた接頭辞のあとに来る離散トークンの尤度最大化——である<a class="fn-ref" href="#fn-32">(*32)</a>。</li><li><strong>Transformer</strong> は Self-Attention により学習時の位置方向並列化を可能にし、<strong>因果マスク</strong> 付きデコーダでは生成時に左から右への逐次確定が残る<a class="fn-ref" href="#fn-33">(*33)</a>。</li><li>大規模事前学習と有限 <strong>Context Window（文脈窓）</strong> により、重み更新なしでプロンプトだけタスクを切り替える <strong>In-context Learning（文脈内学習）</strong> が観測される<a class="fn-ref" href="#fn-34">(*34)</a>。</li><li><strong>Post-training（後学習）</strong> —— SFT、RLHF、DPO 等——は口調・指示追従・拒否境界を大きく変えるが、事実の自動保証ではない<a class="fn-ref" href="#fn-35">(*35)</a>。</li><li>性能はアーキテクチャだけでなく、<strong>データ・経験</strong>（品質、合成、蒸留、汚染）と <strong>評価・保証</strong>（何を測ったか）に依存する。</li><li><strong>RAG（検索拡張生成）</strong>、<strong>Tool use（ツール呼び出し）</strong>、エージェントのオーケストレーションは、モデル外側のアプリケーション契約である。実行と検証はアプリ層に残る<a class="fn-ref" href="#fn-36">(*36)</a>。</li><li>マルチモーダル化は表現層の拡張であり、幻覚・グラウンディング・検証の問題を自動では消さない。</li><li>2026 年時点の主流は Transformer 系自己回帰だが、SSM/Hybrid、拡散 LM などの代替経路が並存している。</li></ul>
+<ul><li>学習の直接目的は、多くの系で <strong>条件付き次トークン予測</strong> —— 与えられた接頭辞のあとに来る離散トークンの尤度最大化——である<a class="fn-ref" href="#fn-33">(*33)</a>。</li><li><strong>Transformer</strong> は Self-Attention により学習時の位置方向並列化を可能にし、<strong>因果マスク</strong> 付きデコーダでは生成時に左から右への逐次確定が残る<a class="fn-ref" href="#fn-34">(*34)</a>。</li><li>大規模事前学習と有限 <strong>Context Window（文脈窓）</strong> により、重み更新なしでプロンプトだけタスクを切り替える <strong>In-context Learning（文脈内学習）</strong> が観測される<a class="fn-ref" href="#fn-35">(*35)</a>。</li><li><strong>Post-training（後学習）</strong> —— SFT、RLHF、DPO 等——は口調・指示追従・拒否境界を大きく変えるが、事実の自動保証ではない<a class="fn-ref" href="#fn-36">(*36)</a>。</li><li>性能はアーキテクチャだけでなく、<strong>データ・経験</strong>（品質、合成、蒸留、汚染）と <strong>評価・保証</strong>（何を測ったか）に依存する。</li><li><strong>RAG（検索拡張生成）</strong>、<strong>Tool use（ツール呼び出し）</strong>、エージェントのオーケストレーションは、モデル外側のアプリケーション契約である。実行と検証はアプリ層に残る<a class="fn-ref" href="#fn-37">(*37)</a>。</li><li>マルチモーダル化は表現層の拡張であり、幻覚・グラウンディング・検証の問題を自動では消さない。</li><li>2026 年時点の主流は Transformer 系自己回帰だが、SSM/Hybrid、拡散 LM などの代替経路が並存している。</li></ul>
 <h3 id="強い推論">強い推論</h3>
 <p>事実から妥当な距離までの推論。反証可能性を意識して置く。</p>
-<ul><li>流暢な prose は、訓練分布に似た続きを高尤度にする結果であり、世界状態の正しさの証明ではない。Bender らの警告は、能力の有無ではなく <strong>保証の所在</strong> についての規範的含意を持つ<a class="fn-ref" href="#fn-37">(*37)</a>。</li><li>スケーリングは平均損失を改善しうるが、個別プロンプトの真偽や、窓外情報の扱いを自動解決しない。計算予算の重心は事前学習・後学習・推論時の間で移動しうる<a class="fn-ref" href="#fn-38">(*38)</a>。</li><li>Test-time compute（推論時計算）と Chain-of-Thought は、探索パスと正答率を変えうるが、中間列も次トークン予測の産物であり、照合義務を代替しない。</li><li>ベンチマークの高得点は、測定されたタスク分布での統計的優位を示す。実社会のタスク分布・利害・法制度との一致は別命題である。</li></ul>
+<ul><li>流暢な文章は、訓練分布に似た続きを高尤度にする結果であり、世界状態の正しさの証明ではない。Bender らの警告は、能力の有無ではなく <strong>保証の所在</strong> についての規範的含意を持つ<a class="fn-ref" href="#fn-38">(*38)</a>。</li><li>スケーリングは平均損失を改善しうるが、個別プロンプトの真偽や、窓外情報の扱いを自動解決しない。計算予算の重心は事前学習・後学習・推論時の間で移動しうる<a class="fn-ref" href="#fn-39">(*39)</a>。</li><li>Test-time compute（推論時計算）と Chain-of-Thought は、探索パスと正答率を変えうるが、中間列も次トークン予測の産物であり、照合義務を代替しない。</li><li>ベンチマークの高得点は、測定されたタスク分布での統計的優位を示す。実社会のタスク分布・利害・法制度との一致は別命題である。</li></ul>
 <h3 id="競合する圧縮モデル三つ">競合する圧縮モデル（三つ）</h3>
-<p>ここで初めて、利用と解釈のための圧縮モデルを提示する。技術の正式分解ではない。<strong>正しい唯一解を一つ選ばせるためではなく、判断の道具として選ばせるため</strong>にある。</p>
+<p>ここで初めて、利用と解釈のための圧縮モデルを提示する。技術の正式分解ではない。<strong>正しい唯一解を一つ選ばせるためではなく、判断の道具として選ばせるため</strong>にある。各モデルに取得可能な出典を添える。</p>
 <h3 id="モデル-a統計的圧縮条件付き生成器">モデル A：統計的圧縮・条件付き生成器</h3>
-<p>大規模言語モデル単体を、「膨大なパターンの検索」と「条件に合わせた翻訳」に近い装置として扱う。重みは過去コーパスの統計を圧縮し、プロンプトはクエリであり、出力は「らしい続き」への写像である。</p>
+<p>大規模言語モデル単体を、「膨大なパターンの検索」と「条件に合わせた翻訳」に近い装置として扱う。重みは過去コーパスの統計を圧縮し、プロンプトはクエリであり、出力は「らしい続き」への写像である。Bender らの Stochastic Parrots 論は、流暢さから理解・保証を短絡しないための規範的警告として、この読みに近い<a class="fn-ref" href="#fn-38">(*38)</a>。</p>
 <ul><li><strong>強み:</strong> 幻覚、保証の欠如、プロンプト依存を説明しやすい。  </li><li><strong>弱み:</strong> 新規組合せや内部表現による一般化を過小評価しやすい。  </li><li><strong>向く判断:</strong> 事実保証が要る委任、過信の抑制、プロダクトの検証境界設計。</li></ul>
 <h3 id="モデル-b学習された世界モデル表現変換器">モデル B：学習された世界モデル・表現変換器</h3>
-<p>次トークン予測を通じて、抽象概念・構造・転移可能な内部表現を獲得した系として扱う。予測は「検索」ではなく、構造を持つ変換である、と読む。</p>
+<p>次トークン予測を通じて、抽象概念・構造・転移可能な内部表現を獲得した系として扱う。予測は「検索」ではなく、構造を持つ変換である、と読む。Li らは、Othello 盤面を次手予測だけで学習したネットワークの内部に、盤面状態を線形に読み出せる表現が現れる例を報告した<a class="fn-ref" href="#fn-40">(*40)</a>——「続き当て」が内部に世界の代理表現を持ちうる、という経験的手がかりである。</p>
 <ul><li><strong>強み:</strong> 抽象概念、転移、内部表現、学習データにない組合せへの汎化を説明しやすい。  </li><li><strong>弱み:</strong> 「理解」が事実保証や主体性まで意味するように拡張されやすい。  </li><li><strong>向く判断:</strong> 研究上の能力上限、表現学習、マルチタスク転移の解釈。</li></ul>
 <h3 id="モデル-c確率的部品を含む社会技術システム">モデル C：確率的部品を含む社会技術システム</h3>
-<p>モデル単体ではなく、RAG・ツール・Agent・人間・組織・制度まで含めた系として性能と責任を考える。</p>
+<p>モデル単体ではなく、RAG・ツール・Agent・人間・組織・制度まで含めた系として性能と責任を考える。Winner が論じたように、技術装置は中立な道具ではなく、権限と社会関係を配列しうる(<em>41)。Yao らの ReAct や Tool use の契約も、実行と停止がアプリ側に残る点で、この読みと整合する(</em>37)。</p>
 <ul><li><strong>強み:</strong> 完了率、権限、監査、実害を一つの絵で扱える。  </li><li><strong>弱み:</strong> 基盤モデル固有の能力を過小評価したり、責任の所在を拡散しやすい。  </li><li><strong>向く判断:</strong> Agent 製品、運用、規制、組織導入。</li></ul>
 <p><strong>どのモデルが正しいかではなく、どの判断にどのモデルを使うと誤りが少ないか</strong>を選ぶ。著者の実務上の既定は、保証が要る場面では A、能力の上限議論では B を忘れない、運用と責任では C——という使い分けである。これは一例であり、演習4の記入を上書きしない。</p>
 <p>高確率は訓練コーパスで似た接頭辞の後によく現れたという統計的事実にすぎない、という言い方は、入口の直感としては有効でも、内部表現による抽象化まで「検索」に寄せすぎると B の説明力を見落とす。逆に B だけを採ると、保証の所在が溶ける。C だけを採ると、モデル差が消えたように見える。道具を一つに固定しない。</p>
@@ -517,14 +588,20 @@
 <p>層を混ぜると判断が濁る。「モデルが悪い」のか「データが悪い」のか「Retriever が誤った」のか「評価が汚染されている」のか——介入が違う。</p>
 <h3 id="モデル単体では保証されないもの">モデル単体では保証されないもの</h3>
 <p>「できない」と言い切ると、能力の有無まで否定してしまう。ここでは <strong>単体では保証されない</strong> と線を引く。</p>
-<div class="table-wrap"><table><thead><tr><th>領域</th><th>単体では保証されない理由（層）</th></tr></thead><tbody><tr><td>事実の正しさ</td><td>事前学習・次トークン予測：尤度と真理の乖離</td></tr><tr><td>最新情報</td><td>事前学習のカットオフ；窓外は存在しない</td></tr><tr><td>長文の一貫した遵守</td><td>文脈窓・位置効果；要約による書き換え</td></tr><tr><td>計算・照会の正確性</td><td>ツール未使用時は prose による模倣</td></tr><tr><td>権限・副作用のない行為</td><td>アプリ層の実行と承認なし</td></tr><tr><td>再現性のある出力</td><td>推論層の Sampling</td></tr><tr><td>画像・音声の接地</td><td>表現層の拡張は参照の証明ではない</td></tr><tr><td>ベンチ＝実社会</td><td>評価層と利用分布の不一致</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>領域</th><th>単体では保証されない理由（層）</th></tr></thead><tbody><tr><td>事実の正しさ</td><td>事前学習・次トークン予測：尤度と真理の乖離</td></tr><tr><td>最新情報</td><td>事前学習のカットオフ；窓外は存在しない</td></tr><tr><td>長文の一貫した遵守</td><td>文脈窓・位置効果；要約による書き換え</td></tr><tr><td>計算・照会の正確性</td><td>ツール未使用時は文章による模倣</td></tr><tr><td>権限・副作用のない行為</td><td>アプリ層の実行と承認なし</td></tr><tr><td>再現性のある出力</td><td>推論層の Sampling</td></tr><tr><td>画像・音声の接地</td><td>表現層の拡張は参照の証明ではない</td></tr><tr><td>ベンチ＝実社会</td><td>評価層と利用分布の不一致</td></tr></tbody></table></div>
 <p>保証が要るときは、<strong>設計として外側（検索・ツール・テスト・人間・制度）に渡す</strong>。</p>
+<h3 id="携帯3問">携帯3問</h3>
+<p>新しい主張に出会ったら、まず次の三つだけを声に出す。</p>
+<ol><li><strong>どちらの地図か</strong>（系譜か構成か）。Agent を系譜の子に置いていないか。</li><li><strong>何を測り、何と比較したか</strong>（指標・比較対象・汚染耐性）。</li><li><strong>単体では保証されないものは何か</strong>（真偽・権限・完了）。</li></ol>
+<h3 id="公開主張監査カード">公開主張監査カード</h3>
+<p>発表文やニュースを一枚に落とすときの欄である。空欄のまま持って出る。</p>
+<div class="table-wrap"><table><thead><tr><th>欄</th><th>記入</th></tr></thead><tbody><tr><td>原文（一句）</td><td></td></tr><tr><td>主張型（能力／効率／保証／規範 …）</td><td></td></tr><tr><td>主に動いた層</td><td></td></tr><tr><td>指標</td><td></td></tr><tr><td>比較対象</td><td></td></tr><tr><td>情報源（論文／ブログ／広報）</td><td></td></tr><tr><td>交絡（データ・評価・サンプリング）</td><td></td></tr><tr><td>非保証</td><td></td></tr><tr><td>利害</td><td></td></tr><tr><td>暫定結論</td><td></td></tr><tr><td>確信度（低／中／高）</td><td></td></tr><tr><td>反証条件</td><td></td></tr></tbody></table></div>
 <h3 id="判断規則">判断規則</h3>
-<p>新しい主張や製品宣伝に直面したとき、次の順で問う。</p>
-<ol><li><strong>どちらの地図か</strong> — Map ①（技術史・系譜）か Map ②（システム構成）か。Agent を Map ①の子に置かない。</li><li><strong>三タグ</strong> — 系譜／構成層／改善動機。複数所属を許す。</li><li><strong>データと評価は動いたか</strong> — アーキだけで語らない。</li><li><strong>棚を分ける</strong> — 観測事実か、強い推論か、立場か。混ぜない。</li><li><strong>評価軸</strong> — 技術／経済／社会／規範のどれを今使うか。</li><li><strong>「単体では保証されない」で線を引く</strong> — 能力否定と保証否定を混同しない。</li><li><strong>圧縮モデルを選ぶ</strong> — A/B/C のどれが、この判断で誤りが少ないか。</li><li><strong>反証条件</strong> — 意見を変える証拠を先に言う。</li><li><strong>論争 ID に落とす</strong> — 第4部のどの問いに近いかを一言で言えるか。</li></ol>
+<p>新しい主張や製品宣伝に直面したとき、携帯3問のあとに、必要なら次の順で深掘りする。</p>
+<ol><li><strong>どちらの地図か</strong> — Map ①（技術史・系譜）か Map ②（システム構成）か。Agent を Map ①の子に置かない。</li><li><strong>三タグ</strong> — 系譜／構成層／改善動機。複数所属を許す。</li><li><strong>データと評価は動いたか</strong> — アーキだけで語らない（「データと評価」章の5点チェック）。</li><li><strong>棚を分ける</strong> — 観測事実か、強い推論か、立場か。混ぜない。</li><li><strong>評価軸</strong> — 技術／経済／社会／規範のどれを今使うか。</li><li><strong>「単体では保証されない」で線を引く</strong> — 能力否定と保証否定を混同しない。</li><li><strong>圧縮モデルを選ぶ</strong> — A/B/C のどれが、この判断で誤りが少ないか。</li><li><strong>反証条件</strong> — 意見を変える証拠を先に言う。</li><li><strong>論争 ID に落とす</strong> — 第4部のどの問いに近いかを一言で言えるか。</li></ol>
 <p>症状から層への短い対応表。</p>
-<div class="table-wrap"><table><thead><tr><th>症状</th><th>まず疑う層</th></tr></thead><tbody><tr><td>言い回しだけ変わる再生成</td><td>推論（Sampling）</td></tr><tr><td>長い貼り付け後にルール消失</td><td>文脈窓・製品側要約</td></tr><tr><td>存在しない引用・数値</td><td>データ／事前学習＋幻覚；外側検証未実施</td></tr><tr><td>「検索した」表示でも誤り</td><td>外部（RAG）と prose の合成</td></tr><tr><td>ツール結果と本文の不一致</td><td>外部（Tool use）</td></tr><tr><td>「考え中」でも誤答</td><td>推論（test-time compute）；照合は別</td></tr><tr><td>ベンチだけ強い</td><td>評価・保証（汚染・分布）</td></tr><tr><td>画像を見ていない説明</td><td>表現（マルチモーダル）＋幻覚</td></tr></tbody></table></div>
-<h3 id="life-placement">life placement</h3>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>まず疑う層</th></tr></thead><tbody><tr><td>言い回しだけ変わる再生成</td><td>推論（Sampling）</td></tr><tr><td>長い貼り付け後にルール消失</td><td>文脈窓・製品側要約</td></tr><tr><td>存在しない引用・数値</td><td>データ／事前学習＋幻覚；外側検証未実施</td></tr><tr><td>「検索した」表示でも誤り</td><td>外部（RAG）と文章の合成</td></tr><tr><td>ツール結果と本文の不一致</td><td>外部（Tool use）</td></tr><tr><td>「考え中」でも誤答</td><td>推論（test-time compute）；照合は別</td></tr><tr><td>ベンチだけ強い</td><td>評価・保証（汚染・分布）</td></tr><tr><td>画像を見ていない説明</td><td>表現（マルチモーダル）＋幻覚</td></tr></tbody></table></div>
+<h3 id="日常への置き場">日常への置き場</h3>
 <p>いま話題になっている主張——新モデル、規制論、仕事への影響、安全宣伝——について、次を声に出してみる。</p>
 <p><strong>どの歴史的ホップの話か。どの層の話か。それは事実・強い推論・意見のどれか。どの圧縮モデルで読むか。反証条件は何か。</strong></p>
 <p>例: 「100 万トークンの窓で全部覚える」——層は文脈窓とサービング（事実は有限；完全記憶は推論・立場の混線になりやすい）。「推論特化で人間超え」——ホップは Decoding·TTC（事実はベンチ改善；実社会能力は推論・立場）。「マルチモーダルで幻覚が消えた」——保証は表現層では増えない。</p>
@@ -535,7 +612,7 @@
 <p><strong>何が未解決か。</strong> 真理と流暢さの分離、保証の設計、ベンチと現実の溝、Attention・自己回帰・思考トークンの必然性、計算予算の配分、そして <strong>あなたがどの層に信頼を置き、どのモデルで判断するか</strong>。</p>
 <p>観測された連鎖の上で、保証は層ごとに設計し、解釈は読者が選び直せる——それが、この記事の出口である。四つの能力——説明・配置・分解・暫定意見——が、最新技術が更新され続けても追随するための道具になる。</p>
       </article>
-<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> Claude E. Shannon, &quot;Prediction and Entropy of Printed English,&quot; Bell System Technical Journal, 1951.</li><li id="fn-2"><a href="#fnref-2">(*2)</a> Tom B. Brown et al., &quot;Language Models are Few-Shot Learners,&quot; NeurIPS 2020 / arXiv:2005.14165.</li><li id="fn-3"><a href="#fnref-3">(*3)</a> Emily M. Bender et al., &quot;On the Dangers of Stochastic Parrots,&quot; FAccT 2021 / ACM DL.</li><li id="fn-4"><a href="#fnref-4">(*4)</a> Yoshua Bengio, Réjean Duybin, Pascal Vincent, Christian Janvin, &quot;A Neural Probabilistic Language Model,&quot; JMLR 3, 2003.</li><li id="fn-5"><a href="#fnref-5">(*5)</a> Jeffrey L. Elman, &quot;Finding Structure in Time,&quot; Cognitive Science, 1990.</li><li id="fn-6"><a href="#fnref-6">(*6)</a> Sepp Hochreiter, Jürgen Schmidhuber, &quot;Long Short-Term Memory,&quot; Neural Computation, 1997.</li><li id="fn-7"><a href="#fnref-7">(*7)</a> Ilya Sutskever, Oriol Vinyals, Quoc V. Le, &quot;Sequence to Sequence Learning with Neural Networks,&quot; NeurIPS 2014 / arXiv:1409.3215.</li><li id="fn-8"><a href="#fnref-8">(*8)</a> Dzmitry Bahdanau, Kyunghyun Cho, Yoshua Bengio, &quot;Neural Machine Translation by Jointly Learning to Align and Translate,&quot; ICLR 2015 / arXiv:1409.0473.</li><li id="fn-9"><a href="#fnref-9">(*9)</a> Ashish Vaswani et al., &quot;Attention Is All You Need,&quot; NeurIPS 2017 / arXiv:1706.03762.</li><li id="fn-10"><a href="#fnref-10">(*10)</a> Jain &amp; Wallace らは、attention 重みと重要トークンの対応が必ずしも一致しない例を示し、説明としての限界を議論した。</li><li id="fn-11"><a href="#fnref-11">(*11)</a> Jared Kaplan et al., &quot;Scaling Laws for Neural Language Models,&quot; arXiv:2001.08361, 2020.</li><li id="fn-12"><a href="#fnref-12">(*12)</a> Rico Sennrich et al., &quot;Neural Machine Translation of Rare Words with Subword Units,&quot; arXiv:1508.07909, 2016.</li><li id="fn-13"><a href="#fnref-13">(*13)</a> Tom B. Brown et al., &quot;Language Models are Few-Shot Learners,&quot; arXiv:2005.14165, 2020.</li><li id="fn-14"><a href="#fnref-14">(*14)</a> Nelson F. Liu et al., &quot;Lost in the Middle: How Language Models Use Long Contexts,&quot; arXiv:2307.03172, 2023.</li><li id="fn-15"><a href="#fnref-15">(*15)</a> Long Ouyang et al., &quot;Training language models to follow instructions with human feedback,&quot; arXiv:2203.02155, 2022.</li><li id="fn-16"><a href="#fnref-16">(*16)</a> Rafael Rafailov et al., &quot;Direct Preference Optimization: Your Language Model is Secretly a Reward Model,&quot; arXiv:2305.18290, 2023.</li><li id="fn-17"><a href="#fnref-17">(*17)</a> Noam Shazeer et al., &quot;Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer,&quot; arXiv:1701.06538, 2017.</li><li id="fn-18"><a href="#fnref-18">(*18)</a> Jiang et al., &quot;Mixtral of Experts,&quot; arXiv:2401.04088, 2024.</li><li id="fn-19"><a href="#fnref-19">(*19)</a> Dao et al., &quot;FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness,&quot; arXiv:2205.14135, 2022.</li><li id="fn-20"><a href="#fnref-20">(*20)</a> Kwon et al., &quot;Efficient Memory Management for Large Language Model Serving with PagedAttention,&quot; arXiv:2309.06180, 2023.</li><li id="fn-21"><a href="#fnref-21">(*21)</a> Leviathan et al., &quot;Fast Inference from Transformers via Speculative Decoding,&quot; arXiv:2211.17192, 2022.</li><li id="fn-22"><a href="#fnref-22">(*22)</a> Holtzman et al., &quot;The Curious Case of Neural Text Degeneration,&quot; ICLR 2020 / arXiv:1904.09751.</li><li id="fn-23"><a href="#fnref-23">(*23)</a> Wei et al., &quot;Chain-of-Thought Prompting Elicits Reasoning in Large Language Models,&quot; arXiv:2201.11903, 2022.</li><li id="fn-24"><a href="#fnref-24">(*24)</a> OpenAI, &quot;Learning to Reason with LLMs,&quot; 2024. https://openai.com/index/learning-to-reason-with-llms/</li><li id="fn-25"><a href="#fnref-25">(*25)</a> DeepSeek-AI, &quot;DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning,&quot; arXiv:2501.12948, 2025.</li><li id="fn-26"><a href="#fnref-26">(*26)</a> Lewis et al., &quot;Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,&quot; arXiv:2005.11401, 2020.</li><li id="fn-27"><a href="#fnref-27">(*27)</a> Anthropic, &quot;Tool use,&quot; Agents and Tools documentation, 2024–2026. https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview</li><li id="fn-28"><a href="#fnref-28">(*28)</a> Yao et al., &quot;ReAct: Synergizing Reasoning and Acting in Language Models,&quot; arXiv:2210.03629, 2022.</li><li id="fn-29"><a href="#fnref-29">(*29)</a> A. Gu &amp; T. Dao, &quot;Mamba: Linear-Time Sequence Modeling with Selective State Spaces,&quot; arXiv:2312.00752, 2023.</li><li id="fn-30"><a href="#fnref-30">(*30)</a> O. Lieber et al., &quot;Jamba: A Hybrid Transformer-Mamba Language Model,&quot; arXiv:2403.19887, 2024.</li><li id="fn-31"><a href="#fnref-31">(*31)</a> F. Nie et al., &quot;Large Language Diffusion Models,&quot; arXiv:2502.09992, 2025.</li><li id="fn-32"><a href="#fnref-32">(*32)</a> 問題設定の古典: C. E. Shannon, &quot;Prediction and Entropy of Printed English,&quot; <em>Bell System Technical Journal</em>, 1951. 大規模 LM: T. B. Brown et al., GPT-3, 2020, https://arxiv.org/abs/2005.14165</li><li id="fn-33"><a href="#fnref-33">(*33)</a> A. Vaswani et al., &quot;Attention Is All You Need,&quot; 2017, https://arxiv.org/abs/1706.03762</li><li id="fn-34"><a href="#fnref-34">(*34)</a> T. B. Brown et al., GPT-3, 2020; 窓内位置効果: N. Liu et al., &quot;Lost in the Middle,&quot; 2023, https://arxiv.org/abs/2307.03172</li><li id="fn-35"><a href="#fnref-35">(*35)</a> L. Ouyang et al., InstructGPT, 2022, https://arxiv.org/abs/2203.02155; R. Rafailov et al., DPO, 2023, https://arxiv.org/abs/2305.18290</li><li id="fn-36"><a href="#fnref-36">(*36)</a> P. Lewis et al., RAG, 2020, https://arxiv.org/abs/2005.11401; Anthropic Tool use 概要, https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview</li><li id="fn-37"><a href="#fnref-37">(*37)</a> E. M. Bender et al., &quot;On the Dangers of Stochastic Parrots,&quot; 2021, https://dl.acm.org/doi/10.1145/3442188.3445922</li><li id="fn-38"><a href="#fnref-38">(*38)</a> J. Kaplan et al., &quot;Scaling Laws for Neural Language Models,&quot; 2020, https://arxiv.org/abs/2001.08361; Hoffmann et al., Chinchilla, 2022, https://arxiv.org/abs/2203.15556</li></ol></section>
+<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> Claude E. Shannon, &quot;Prediction and Entropy of Printed English,&quot; Bell System Technical Journal, 1951.</li><li id="fn-2"><a href="#fnref-2">(*2)</a> Tom B. Brown et al., &quot;Language Models are Few-Shot Learners,&quot; NeurIPS 2020 / arXiv:2005.14165.</li><li id="fn-3"><a href="#fnref-3">(*3)</a> Emily M. Bender et al., &quot;On the Dangers of Stochastic Parrots,&quot; FAccT 2021 / ACM DL.</li><li id="fn-4"><a href="#fnref-4">(*4)</a> Yoshua Bengio, Réjean Ducharme, Pascal Vincent, Christian Janvin, &quot;A Neural Probabilistic Language Model,&quot; JMLR 3, 2003.</li><li id="fn-5"><a href="#fnref-5">(*5)</a> Jeffrey L. Elman, &quot;Finding Structure in Time,&quot; Cognitive Science, 1990.</li><li id="fn-6"><a href="#fnref-6">(*6)</a> Sepp Hochreiter, Jürgen Schmidhuber, &quot;Long Short-Term Memory,&quot; Neural Computation, 1997.</li><li id="fn-7"><a href="#fnref-7">(*7)</a> Ilya Sutskever, Oriol Vinyals, Quoc V. Le, &quot;Sequence to Sequence Learning with Neural Networks,&quot; NeurIPS 2014 / arXiv:1409.3215.</li><li id="fn-8"><a href="#fnref-8">(*8)</a> Dzmitry Bahdanau, Kyunghyun Cho, Yoshua Bengio, &quot;Neural Machine Translation by Jointly Learning to Align and Translate,&quot; ICLR 2015 / arXiv:1409.0473.</li><li id="fn-9"><a href="#fnref-9">(*9)</a> Ashish Vaswani et al., &quot;Attention Is All You Need,&quot; NeurIPS 2017 / arXiv:1706.03762.</li><li id="fn-10"><a href="#fnref-10">(*10)</a> Sarthak Jain and Byron C. Wallace, &quot;Attention is not Explanation,&quot; NAACL 2019 / arXiv:1902.10186.</li><li id="fn-11"><a href="#fnref-11">(*11)</a> Jared Kaplan et al., &quot;Scaling Laws for Neural Language Models,&quot; arXiv:2001.08361, 2020.</li><li id="fn-12"><a href="#fnref-12">(*12)</a> Tom B. Brown et al., &quot;Language Models are Few-Shot Learners,&quot; arXiv:2005.14165, 2020.</li><li id="fn-13"><a href="#fnref-13">(*13)</a> Rico Sennrich et al., &quot;Neural Machine Translation of Rare Words with Subword Units,&quot; arXiv:1508.07909, 2016.</li><li id="fn-14"><a href="#fnref-14">(*14)</a> Nelson F. Liu et al., &quot;Lost in the Middle: How Language Models Use Long Contexts,&quot; arXiv:2307.03172, 2023.</li><li id="fn-15"><a href="#fnref-15">(*15)</a> Long Ouyang et al., &quot;Training language models to follow instructions with human feedback,&quot; arXiv:2203.02155, 2022.</li><li id="fn-16"><a href="#fnref-16">(*16)</a> Rafael Rafailov et al., &quot;Direct Preference Optimization: Your Language Model is Secretly a Reward Model,&quot; arXiv:2305.18290, 2023.</li><li id="fn-17"><a href="#fnref-17">(*17)</a> Noam Shazeer et al., &quot;Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer,&quot; arXiv:1701.06538, 2017.</li><li id="fn-18"><a href="#fnref-18">(*18)</a> Jiang et al., &quot;Mixtral of Experts,&quot; arXiv:2401.04088, 2024.</li><li id="fn-19"><a href="#fnref-19">(*19)</a> Dao et al., &quot;FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness,&quot; arXiv:2205.14135, 2022.</li><li id="fn-20"><a href="#fnref-20">(*20)</a> Kwon et al., &quot;Efficient Memory Management for Large Language Model Serving with PagedAttention,&quot; arXiv:2309.06180, 2023.</li><li id="fn-21"><a href="#fnref-21">(*21)</a> Leviathan et al., &quot;Fast Inference from Transformers via Speculative Decoding,&quot; arXiv:2211.17192, 2022.</li><li id="fn-22"><a href="#fnref-22">(*22)</a> Holtzman et al., &quot;The Curious Case of Neural Text Degeneration,&quot; ICLR 2020 / arXiv:1904.09751.</li><li id="fn-23"><a href="#fnref-23">(*23)</a> Wei et al., &quot;Chain-of-Thought Prompting Elicits Reasoning in Large Language Models,&quot; arXiv:2201.11903, 2022.</li><li id="fn-24"><a href="#fnref-24">(*24)</a> OpenAI, &quot;Learning to Reason with LLMs,&quot; 2024. https://openai.com/index/learning-to-reason-with-llms/</li><li id="fn-25"><a href="#fnref-25">(*25)</a> DeepSeek-AI, &quot;DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning,&quot; arXiv:2501.12948, 2025.</li><li id="fn-26"><a href="#fnref-26">(*26)</a> Lewis et al., &quot;Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,&quot; arXiv:2005.11401, 2020.</li><li id="fn-27"><a href="#fnref-27">(*27)</a> Anthropic, &quot;Tool use,&quot; Agents and Tools documentation, 2024–2026. https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview</li><li id="fn-28"><a href="#fnref-28">(*28)</a> Yao et al., &quot;ReAct: Synergizing Reasoning and Acting in Language Models,&quot; arXiv:2210.03629, 2022.</li><li id="fn-29"><a href="#fnref-29">(*29)</a> A. Gu &amp; T. Dao, &quot;Mamba: Linear-Time Sequence Modeling with Selective State Spaces,&quot; arXiv:2312.00752, 2023.</li><li id="fn-30"><a href="#fnref-30">(*30)</a> O. Lieber et al., &quot;Jamba: A Hybrid Transformer-Mamba Language Model,&quot; arXiv:2403.19887, 2024.</li><li id="fn-31"><a href="#fnref-31">(*31)</a> F. Nie et al., &quot;Large Language Diffusion Models,&quot; arXiv:2502.09992, 2025.</li><li id="fn-32"><a href="#fnref-32">(*32)</a> DeepSeek-AI, &quot;DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning,&quot; arXiv:2501.12948, 2025.</li><li id="fn-33"><a href="#fnref-33">(*33)</a> 問題設定の古典: C. E. Shannon, &quot;Prediction and Entropy of Printed English,&quot; <em>Bell System Technical Journal</em>, 1951. 大規模 LM: T. B. Brown et al., GPT-3, 2020, https://arxiv.org/abs/2005.14165</li><li id="fn-34"><a href="#fnref-34">(*34)</a> A. Vaswani et al., &quot;Attention Is All You Need,&quot; 2017, https://arxiv.org/abs/1706.03762</li><li id="fn-35"><a href="#fnref-35">(*35)</a> T. B. Brown et al., GPT-3, 2020; 窓内位置効果: N. Liu et al., &quot;Lost in the Middle,&quot; 2023, https://arxiv.org/abs/2307.03172</li><li id="fn-36"><a href="#fnref-36">(*36)</a> L. Ouyang et al., InstructGPT, 2022, https://arxiv.org/abs/2203.02155; R. Rafailov et al., DPO, 2023, https://arxiv.org/abs/2305.18290</li><li id="fn-37"><a href="#fnref-37">(*37)</a> P. Lewis et al., RAG, 2020, https://arxiv.org/abs/2005.11401; Anthropic Tool use 概要, https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview; S. Yao et al., ReAct, 2022, https://arxiv.org/abs/2210.03629</li><li id="fn-38"><a href="#fnref-38">(*38)</a> E. M. Bender et al., &quot;On the Dangers of Stochastic Parrots,&quot; 2021, https://dl.acm.org/doi/10.1145/3442188.3445922</li><li id="fn-39"><a href="#fnref-39">(*39)</a> J. Kaplan et al., &quot;Scaling Laws for Neural Language Models,&quot; 2020, https://arxiv.org/abs/2001.08361; Hoffmann et al., Chinchilla, 2022, https://arxiv.org/abs/2203.15556</li><li id="fn-40"><a href="#fnref-40">(*40)</a> K. Li et al., &quot;Emergent World Representations: Exploring a Sequence Model Trained on a Synthetic Task,&quot; ICLR 2023 / arXiv:2210.13382</li><li id="fn-41"><a href="#fnref-41">(*41)</a> L. Winner, &quot;Do Artifacts Have Politics?,&quot; <em>Daedalus</em> 109(1), 1980.</li></ol></section>
     </main>
     <aside class="toc" aria-label="目次">
       <p class="toc-label">目次</p>
@@ -559,10 +636,12 @@
 <li><a href="#推論のアルゴリズム探索と考える時間">推論のアルゴリズム——探索と考える時間</a></li>
 <li><a href="#外部システムragツールエージェント">外部システム——RAG・ツール・エージェント</a></li>
 <li><a href="#置換と併用の枝mambahybrid拡散lm">置換と併用の枝——Mamba・Hybrid・拡散LM</a></li>
+<li><a href="#データと評価">データと評価</a></li>
 <li><a href="#演習3-製品発表の分解第3部のあと">演習3　製品発表の分解（第3部のあと）</a></li>
 <li><a href="#第4部-論争を分解する">第4部　論争を分解する</a></li>
 <li><a href="#現在議論されていること">現在議論されていること</a></li>
 <li><a href="#演習4-立場形成第4部のあと">演習4　立場形成（第4部のあと）</a></li>
+<li><a href="#ケース通しdeepseek-r1-を地図から意見まで">ケース通し：DeepSeek-R1 を地図から意見まで</a></li>
 <li><a href="#第5部-自分の暫定モデルを作る">第5部　自分の暫定モデルを作る</a></li>
 <li><a href="#自分はどう考えるか">自分はどう考えるか</a></li>
       </ol>

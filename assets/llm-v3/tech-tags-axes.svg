@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="820" height="420" viewBox="0 0 820 420" role="img" aria-label="Three-axis tags for classifying techniques">
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="420" viewBox="0 0 820 420" role="img" aria-label="技術分類の三軸タグ">
   <rect width="820" height="420" fill="#f2f3f0"/>
-  <text x="24" y="34" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Three tags per technique</text>
-  <text x="24" y="58" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Do not force one parent. Classify by genealogy, layer, and motive.</text>
+  <text x="24" y="34" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">技術ごとの三タグ</text>
+  <text x="24" y="58" fill="#4a4c48" font-family="Georgia, serif" font-size="13">一親に固定しない。系譜・層・動機で分類する。</text>
 
   <g font-family="Georgia, serif">
     <rect x="40" y="90" width="230" height="200" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
-    <text x="60" y="124" fill="#0d7a6c" font-size="16" font-weight="600">Genealogy</text>
-    <text x="60" y="154" fill="#1a1c1a" font-size="13">What did it presuppose?</text>
+    <text x="60" y="124" fill="#0d7a6c" font-size="16" font-weight="600">系譜</text>
+    <text x="60" y="154" fill="#1a1c1a" font-size="13">何を前提にしたか？</text>
     <text x="60" y="184" fill="#4a4c48" font-size="12">Transformer / Attention</text>
     <text x="60" y="206" fill="#4a4c48" font-size="12">RNN / Seq2Seq</text>
     <text x="60" y="228" fill="#4a4c48" font-size="12">SSM / Diffusion</text>
-    <text x="60" y="260" fill="#4a4c48" font-size="12">Multiple parents OK (DAG)</text>
+    <text x="60" y="260" fill="#4a4c48" font-size="12">複数親 OK（DAG）</text>
 
     <rect x="295" y="90" width="230" height="200" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
-    <text x="315" y="124" fill="#0d7a6c" font-size="16" font-weight="600">Layer</text>
-    <text x="315" y="154" fill="#1a1c1a" font-size="13">Where in a product?</text>
-    <text x="315" y="184" fill="#4a4c48" font-size="12">data / learning / structure</text>
-    <text x="315" y="206" fill="#4a4c48" font-size="12">inference / serving</text>
-    <text x="315" y="228" fill="#4a4c48" font-size="12">external / eval / UI</text>
-    <text x="315" y="260" fill="#4a4c48" font-size="12">Multi-layer OK (e.g. RLVR)</text>
+    <text x="315" y="124" fill="#0d7a6c" font-size="16" font-weight="600">層</text>
+    <text x="315" y="154" fill="#1a1c1a" font-size="13">製品のどこか？</text>
+    <text x="315" y="184" fill="#4a4c48" font-size="12">データ／学習／構造</text>
+    <text x="315" y="206" fill="#4a4c48" font-size="12">推論／配信</text>
+    <text x="315" y="228" fill="#4a4c48" font-size="12">外部／評価／UI</text>
+    <text x="315" y="260" fill="#4a4c48" font-size="12">複数層 OK（例: RLVR）</text>
 
     <rect x="550" y="90" width="230" height="200" rx="8" fill="#fff" stroke="#a85a2a" stroke-width="2"/>
-    <text x="570" y="124" fill="#a85a2a" font-size="16" font-weight="600">Motive</text>
-    <text x="570" y="154" fill="#1a1c1a" font-size="13">Which constraint?</text>
-    <text x="570" y="184" fill="#4a4c48" font-size="12">scale / long context</text>
-    <text x="570" y="206" fill="#4a4c48" font-size="12">latency / memory</text>
-    <text x="570" y="228" fill="#4a4c48" font-size="12">capability / verify</text>
-    <text x="570" y="260" fill="#4a4c48" font-size="12">data scarcity / replace</text>
+    <text x="570" y="124" fill="#a85a2a" font-size="16" font-weight="600">動機</text>
+    <text x="570" y="154" fill="#1a1c1a" font-size="13">どの制約か？</text>
+    <text x="570" y="184" fill="#4a4c48" font-size="12">巨大化／長文</text>
+    <text x="570" y="206" fill="#4a4c48" font-size="12">遅延／メモリ</text>
+    <text x="570" y="228" fill="#4a4c48" font-size="12">能力／検証</text>
+    <text x="570" y="260" fill="#4a4c48" font-size="12">データ不足／置換</text>
   </g>
 
   <rect x="40" y="310" width="740" height="70" rx="8" fill="#e8f7f4" stroke="#0d7a6c"/>
-  <text x="60" y="340" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">Worked example: GQA</text>
-  <text x="60" y="364" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">Genealogy: Transformer/Attention | Layer: model structure | Motive: KV cache</text>
+  <text x="60" y="340" fill="#0d7a6c" font-family="Georgia, serif" font-size="14" font-weight="600">具体例: GQA</text>
+  <text x="60" y="364" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">系譜: Transformer/Attention｜層: モデル構造｜動機: KV cache</text>
 </svg>

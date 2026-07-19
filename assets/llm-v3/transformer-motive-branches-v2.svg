@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520" role="img" aria-label="Transformer research branches labeled by motive">
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520" role="img" aria-label="Transformer 以降の研究枝（動機ラベル付き）">
   <rect width="860" height="520" fill="#f2f3f0"/>
-  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">Tree 1 detail - motives after Transformer</text>
-  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Each branch answers what pressure created this technique - still research genealogy.</text>
+  <text x="24" y="32" fill="#1a1c1a" font-family="Georgia, serif" font-size="20" font-weight="600">木①詳細 — Transformer 以降の動機</text>
+  <text x="24" y="54" fill="#4a4c48" font-family="Georgia, serif" font-size="13">各枝は、この技術を生んだ圧力は何か — なお研究系譜。</text>
 
   <rect x="340" y="78" width="180" height="48" rx="8" fill="#e8f7f4" stroke="#0d7a6c" stroke-width="2"/>
   <text x="372" y="108" fill="#0d7a6c" font-family="Georgia, serif" font-size="16" font-weight="600">Transformer</text>
@@ -12,50 +12,50 @@
   <g font-family="Georgia, serif">
     <path d="M120 150 V175" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="40" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
-    <text x="52" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Scale capacity</text>
-    <text x="52" y="222" fill="#4a4c48" font-size="11">want more capacity</text>
+    <text x="52" y="200" fill="#0d7a6c" font-size="13" font-weight="600">容量を伸ばす</text>
+    <text x="52" y="222" fill="#4a4c48" font-size="11">より多くの容量</text>
     <text x="52" y="248" fill="#1a1c1a" font-size="13">Dense</text>
     <text x="52" y="270" fill="#1a1c1a" font-size="13">MoE (sparse FFN)</text>
-    <text x="52" y="292" fill="#4a4c48" font-size="11">same Attention spine</text>
+    <text x="52" y="292" fill="#4a4c48" font-size="11">同じ Attention 背骨</text>
 
     <path d="M280 150 V175" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="200" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
-    <text x="212" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Long context</text>
-    <text x="212" y="222" fill="#4a4c48" font-size="11">want longer windows</text>
+    <text x="212" y="200" fill="#0d7a6c" font-size="13" font-weight="600">長文</text>
+    <text x="212" y="222" fill="#4a4c48" font-size="11">より長い窓</text>
     <text x="212" y="248" fill="#1a1c1a" font-size="13">RoPE / YaRN</text>
     <text x="212" y="270" fill="#1a1c1a" font-size="13">GQA / MLA (KV)</text>
-    <text x="212" y="292" fill="#4a4c48" font-size="11">positions and memory</text>
+    <text x="212" y="292" fill="#4a4c48" font-size="11">位置とメモリ</text>
 
     <path d="M440 150 V175" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="360" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
-    <text x="372" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Serve faster</text>
-    <text x="372" y="222" fill="#4a4c48" font-size="11">want lower latency</text>
+    <text x="372" y="200" fill="#0d7a6c" font-size="13" font-weight="600">より速く配信</text>
+    <text x="372" y="222" fill="#4a4c48" font-size="11">より低い遅延</text>
     <text x="372" y="248" fill="#1a1c1a" font-size="13">FlashAttention</text>
     <text x="372" y="270" fill="#1a1c1a" font-size="13">KV Cache / Spec / Quant</text>
-    <text x="372" y="292" fill="#4a4c48" font-size="11">delivery, not smarter</text>
+    <text x="372" y="292" fill="#4a4c48" font-size="11">配送であり賢さではない</text>
 
     <path d="M600 150 V175" stroke="#0d7a6c" stroke-width="2"/>
     <rect x="520" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#0d7a6c" stroke-width="1.5"/>
-    <text x="532" y="200" fill="#0d7a6c" font-size="13" font-weight="600">Better answers</text>
-    <text x="532" y="222" fill="#4a4c48" font-size="11">want stronger decode</text>
+    <text x="532" y="200" fill="#0d7a6c" font-size="13" font-weight="600">より良い答え</text>
+    <text x="532" y="222" fill="#4a4c48" font-size="11">より強い生成</text>
     <text x="532" y="248" fill="#1a1c1a" font-size="13">SFT / RLHF / DPO</text>
     <text x="532" y="270" fill="#1a1c1a" font-size="13">CoT / TTC / RLVR</text>
-    <text x="532" y="292" fill="#4a4c48" font-size="11">train and decode</text>
+    <text x="532" y="292" fill="#4a4c48" font-size="11">学習と生成</text>
 
     <path d="M760 150 V175" stroke="#393b38" stroke-width="2"/>
     <rect x="680" y="175" width="160" height="130" rx="8" fill="#fff" stroke="#393b38" stroke-width="1.5"/>
-    <text x="692" y="200" fill="#1a1c1a" font-size="13" font-weight="600">Replace spine</text>
-    <text x="692" y="222" fill="#4a4c48" font-size="11">question the backbone</text>
+    <text x="692" y="200" fill="#1a1c1a" font-size="13" font-weight="600">背骨を置換</text>
+    <text x="692" y="222" fill="#4a4c48" font-size="11">背骨を疑う</text>
     <text x="692" y="248" fill="#1a1c1a" font-size="13">Mamba / SSM</text>
     <text x="692" y="270" fill="#1a1c1a" font-size="13">Hybrid / Diff LM</text>
-    <text x="692" y="292" fill="#4a4c48" font-size="11">parallel branch</text>
+    <text x="692" y="292" fill="#4a4c48" font-size="11">並行枝</text>
   </g>
 
   <rect x="40" y="340" width="780" height="120" rx="8" fill="#fff8f0" stroke="#a85a2a" stroke-width="1.5"/>
-  <text x="60" y="372" fill="#a85a2a" font-family="Georgia, serif" font-size="15" font-weight="600">Do not hang these under Transformer</text>
+  <text x="60" y="372" fill="#a85a2a" font-family="Georgia, serif" font-size="15" font-weight="600">これらを Transformer の下にぶら下げない</text>
   <text x="60" y="398" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">RAG / Tool use / MCP / Memory / Agent</text>
-  <text x="60" y="424" fill="#4a4c48" font-family="Georgia, serif" font-size="13">They use a Transformer (or other) model. Place them on Tree 2 - system composition / application layer.</text>
-  <text x="60" y="446" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Wrong: Transformer -&gt; Agent. Right: LLM system -&gt; External systems -&gt; Agent.</text>
+  <text x="60" y="424" fill="#4a4c48" font-family="Georgia, serif" font-size="13">これらは Transformer（等）を使う。木② — システム構成／応用層に置く。</text>
+  <text x="60" y="446" fill="#4a4c48" font-family="Georgia, serif" font-size="12">誤り: Transformer → Agent。正しい: LLM システム → External → Agent。</text>
 
-  <text x="24" y="500" fill="#4a4c48" font-family="Georgia, serif" font-size="12">Source: educational schematic. Motives are pedagogical labels, not exclusive taxonomy.</text>
+  <text x="24" y="500" fill="#4a4c48" font-family="Georgia, serif" font-size="12">出典: 教育用模式図。動機は教育ラベルであり排他的分類ではない。</text>
 </svg>
