@@ -51,6 +51,9 @@ a:hover {
 }
 
 .site-header {
+  /* Same shell width as .page-shell — do not full-bleed the sticky bar. */
+  width: min(100%, var(--shell-max));
+  margin: 0 auto;
   border-bottom: 1px solid var(--ink-line);
   font-family: var(--font-serif);
   font-size: 1rem;
@@ -62,8 +65,8 @@ a:hover {
 }
 
 .site-header-inner {
-  width: min(100%, var(--shell-max));
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: 0.85rem var(--page-inline-pad);
   display: flex;
   align-items: center;
