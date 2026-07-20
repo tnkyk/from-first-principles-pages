@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>amdahls-ceiling</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .meter { height: 18px; background: var(--ink-hover); border: 1px solid var(--ink-line); margin: 0.4rem 0 0.8rem; }
+    .fill { height: 100%; background: var(--accent-soft); border-right: 2px solid var(--accent); }
+    .row { display: grid; grid-template-columns: 7rem 1fr; gap: 0.5rem; align-items: center; margin: 0.35rem 0; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 直列割合が残ると加速は頭打ちになる</p>
+    <div class="panel">
+      <div class="row"><label for="serial">直列割合</label>
+        <input id="serial" type="range" min="5" max="80" value="20" /></div>
+      <div class="row"><label for="n">並列度</label>
+        <input id="n" type="range" min="1" max="64" value="8" /></div>
+      <p class="mono" id="nums"></p>
+      <div class="meter"><div class="fill" id="bar"></div></div>
+      <p class="hint" id="hint"></p>
+    </div>
+  </div>
+  <script>
+    const serial = document.getElementById("serial");
+    const n = document.getElementById("n");
+    const nums = document.getElementById("nums");
+    const bar = document.getElementById("bar");
+    const hint = document.getElementById("hint");
+    function update() {
+      const s = serial.valueAsNumber / 100;
+      const p = 1 - s;
+      const N = n.valueAsNumber;
+      const speedup = 1 / (s + p / N);
+      const ceiling = 1 / s;
+      nums.textContent = "直列 " + Math.round(s * 100) + "% / 並列度 " + N +
+        " → 加速 " + speedup.toFixed(2) + "×（上限 " + ceiling.toFixed(2) + "×）";
+      bar.style.width = Math.min(100, (speedup / Math.max(ceiling, 1)) * 100) + "%";
+      hint.textContent = N >= 32 && s >= 0.2
+        ? "並列度を増やしても、直列部分が天井を決める。"
+        : "直列を減らすか、並列化できる仕事の形を変えないと頭打ちになる。";
+    }
+    serial.oninput = n.oninput = update;
+    update();
+  </script>
+</body>
+</html>

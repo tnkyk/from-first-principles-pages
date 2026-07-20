@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="460" viewBox="0 0 900 460" role="img" aria-label="アクセラレータ競合の比較地図">
+  <rect width="900" height="460" fill="#f2f3f0"/>
+  <text x="24" y="36" fill="#1e201e" font-family="Georgia, serif" font-size="20" font-weight="600">同一問題への複数解（得た／失った）</text>
+  <text x="24" y="58" fill="#393b38" font-family="Georgia, serif" font-size="13">順位表ではない。適用範囲の違い。</text>
+  <g font-family="Georgia, serif" font-size="12">
+    <rect x="40" y="90" width="270" height="320" rx="8" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="60" y="125" fill="#35d0bb" font-size="16" font-weight="600">GPU</text>
+    <text x="60" y="160" fill="#1e201e">得る: 柔軟な並列・生態</text>
+    <text x="60" y="185" fill="#1e201e">失う: 特化効率・電力</text>
+    <text x="60" y="220" fill="#393b38">向く: 研究・多様な核</text>
+    <text x="60" y="245" fill="#393b38">向かない: 固定核の最安</text>
+    <text x="60" y="280" fill="#a9aaa5">競合問題: 行列コスト／</text>
+    <text x="60" y="300" fill="#a9aaa5">端末推論（部分）</text>
+    <rect x="330" y="90" width="270" height="320" rx="8" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="350" y="125" fill="#35d0bb" font-size="16" font-weight="600">TPU</text>
+    <text x="350" y="160" fill="#1e201e">得る: 行列効率</text>
+    <text x="350" y="185" fill="#1e201e">失う: 汎用性・入手経路</text>
+    <text x="350" y="220" fill="#393b38">向く: 安定した大規模 NN</text>
+    <text x="350" y="245" fill="#393b38">向かない: 奇妙な制御流</text>
+    <text x="350" y="280" fill="#a9aaa5">競合問題: DNN コスト</text>
+    <rect x="620" y="90" width="250" height="320" rx="8" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="640" y="125" fill="#35d0bb" font-size="16" font-weight="600">NPU</text>
+    <text x="640" y="160" fill="#1e201e">得る: 低電力・常時性</text>
+    <text x="640" y="185" fill="#1e201e">失う: 規模・移植性</text>
+    <text x="640" y="220" fill="#393b38">向く: オンデバイス推論</text>
+    <text x="640" y="245" fill="#393b38">向かない: 巨大学習</text>
+    <text x="640" y="280" fill="#a9aaa5">競合問題: エッジ予算</text>
+  </g>
+</svg>

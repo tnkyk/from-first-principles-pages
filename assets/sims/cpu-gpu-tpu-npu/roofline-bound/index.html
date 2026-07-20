@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>roofline-bound</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    canvas { width: 100%; max-width: 420px; height: auto; border: 1px solid var(--ink-line); background: var(--page); display: block; margin: 0.5rem 0; }
+    .row { display: grid; grid-template-columns: 8rem 1fr; gap: 0.5rem; align-items: center; margin: 0.35rem 0; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 演算強度が低いとピーク演算に届かない</p>
+    <div class="panel">
+      <div class="row"><label for="oi">演算強度</label>
+        <input id="oi" type="range" min="5" max="200" value="20" /></div>
+      <div class="row"><label for="bw">帯域屋根</label>
+        <input id="bw" type="range" min="20" max="120" value="50" /></div>
+      <div class="row"><label for="peak">ピーク演算</label>
+        <input id="peak" type="range" min="40" max="200" value="100" /></div>
+      <canvas id="c" width="420" height="260"></canvas>
+      <p class="mono" id="out"></p>
+      <p class="hint">点の高さが達成できる性能の上限。左にいるほどメモリ束縛。</p>
+    </div>
+  </div>
+  <script>
+    const oi = document.getElementById("oi");
+    const bw = document.getElementById("bw");
+    const peak = document.getElementById("peak");
+    const out = document.getElementById("out");
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+    const ink = getComputedStyle(document.body).getPropertyValue("--ink").trim() || "#f2f3f0";
+    const accent = getComputedStyle(document.body).getPropertyValue("--accent").trim() || "#35d0bb";
+    const dim = getComputedStyle(document.body).getPropertyValue("--ink-dim").trim() || "#c2c3bf";
+    function update() {
+      const I = oi.valueAsNumber / 10; // 0.5..20
+      const B = bw.valueAsNumber;
+      const P = peak.valueAsNumber;
+      const attained = Math.min(P, B * I);
+      const ridge = P / B;
+      out.textContent = "強度 " + I.toFixed(1) + " → 上限 " + attained.toFixed(1) +
+        "（帯域×強度 " + (B * I).toFixed(1) + " / ピーク " + P + "）";
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = dim;
+      ctx.beginPath(); ctx.moveTo(40, H - 30); ctx.lineTo(W - 20, H - 30); ctx.lineTo(40, H - 30); ctx.lineTo(40, 20); ctx.stroke();
+      // roof
+      const xMax = 20;
+      const xOf = (x) => 40 + (x / xMax) * (W - 70);
+      const yOf = (y) => (H - 30) - (y / Math.max(P, B * xMax)) * (H - 60);
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(xOf(0.01), yOf(B * 0.01));
+      ctx.lineTo(xOf(ridge), yOf(P));
+      ctx.lineTo(xOf(xMax), yOf(P));
+      ctx.stroke();
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      ctx.arc(xOf(Math.min(I, xMax)), yOf(attained), 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.font = "12px monospace";
+      ctx.fillText(attained < P ? "メモリ束縛" : "計算束縛", xOf(Math.min(I, xMax)) + 10, yOf(attained) - 8);
+    }
+    oi.oninput = bw.oninput = peak.oninput = update;
+    update();
+  </script>
+</body>
+</html>
