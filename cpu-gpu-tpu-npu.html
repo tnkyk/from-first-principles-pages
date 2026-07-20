@@ -42,12 +42,14 @@
 <p>ここで固定する問いは一つである。<strong>制御に強い CPU は、なぜ大量の同型演算では足りなく見えるのか。</strong></p>
 <h3 id="汎用-cpu">汎用 CPU</h3>
 <p><strong>汎用 CPU</strong>とは、命令列を正しい順序で進め、分岐、割り込み、OS、メモリ階層、周辺機器との調停を低遅延で扱う実行装置である。重要なのは「何でも最速」ではなく、「次に何をすべきかが毎瞬間変わる仕事を、安全に、短い待ち時間で進める」ことだ。条件分岐が多いプログラム、ユーザー入力、ファイル I/O、例外処理、プロセス切り替えは、計算の中身より制御の正しさが先に来る。</p>
+<p>Google Cloud の TPU 解説が CPU を説明するときも、von Neumann 型の柔軟性——どんなソフトでも載せられること——を利点として先に置く。同時に、計算のたびにメモリへ値を読み書きする往復が、スループットの上限になりうることも認める<a class="fn-ref" href="#fn-1">(*1)</a>。この往復そのものが「悪い」のではない。分岐や例外が多い仕事では、柔軟な制御が価値になる。だが、同じ式を何百万回も回す仕事では、制御の豊かさは毎回必要とは限らない。</p>
 <p>この設計で得るものは、汎用性と低遅延である。OS は CPU を中心に動き、他の計算部品に仕事を渡すときも、最初の段取りは CPU 側に残る。一方で失うものもある。チップ面積と電力のかなりの部分は、分岐予測、キャッシュ、投機実行、命令の依存関係処理など、制御をうまく見せるために使われる。画素ごとに同じ式を適用する、行列の各要素へ同じ積和を走らせる、という仕事では、その制御の豊かさは全要素に毎回必要とは限らない。</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/problem-lineage.svg" alt="" /><figcaption>見るべき構造: CPU は制御と低遅延を得るが、データ並列の仕事が増えるとスループット不足を露呈する。GPU、TPU、NPU は順位表ではなく、この問題連鎖上の応答として読む。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/problem-lineage.svg" alt="" /><figcaption>見るべき構造: CPU は制御と低遅延を得るが、データ並列の仕事が増えるとスループット不足を露呈する。GPU、TPU、NPU は順位表ではなく、この問題連鎖上の応答として読む。 (Source: Original educational diagram based on Amdahl 1967, NVIDIA CUDA docs, Jouppi et al. ISCA 2017, Coral/Apple/Qualcomm public docs)</figcaption></figure>
 <p>図で先に見ておくべきなのは、CPU が「古い駅」だから退場するのではない、という点である。CPU は現在もホスト側の制御として残る。問題は、CPU の得意さがそのまま大量同型演算の効率にはならないことだ。</p>
 <h3 id="amdahl-の直列上限">Amdahl の直列上限</h3>
-<p><strong>Amdahl の直列上限</strong>とは、仕事の一部がどれだけ速く並列化されても、並列化できない直列部分が全体の加速を頭打ちにする、という限界である。Gene Amdahl は 1967 年、単一プロセッサ方式の妥当性を論じる中で、並列化可能な割合だけを見ても全体速度は決まらないことを示した<a class="fn-ref" href="#fn-1">(*1)</a>。式で書けば、全体のうち直列割合を \(s\)、並列部分を \(N\) 倍速くできるとき、理想化した加速は \(1 / (s + (1-s)/N)\) に近づく。\(N\) を無限に増やしても、上限は \(1/s\) で止まる。</p>
+<p><strong>Amdahl の直列上限</strong>とは、仕事の一部がどれだけ速く並列化されても、並列化できない直列部分が全体の加速を頭打ちにする、という限界である。Gene Amdahl は 1967 年、単一プロセッサ方式の妥当性を論じる中で、並列化可能な割合だけを見ても全体速度は決まらないことを示した<a class="fn-ref" href="#fn-2">(*2)</a>。式で書けば、全体のうち直列割合を \(s\)、並列部分を \(N\) 倍速くできるとき、理想化した加速は \(1 / (s + (1-s)/N)\) に近づく。\(N\) を無限に増やしても、上限は \(1/s\) で止まる。</p>
 <p>この式は「CPU はだめ」という結論ではない。むしろ、並列化の前に仕事の形を見よ、という警告である。たとえば画像処理の一部は画素ごとに独立だが、ファイルを読む、処理範囲を決める、結果を集める、エラーを処理する、ユーザーへ返す、という段取りは直列に残りやすい。CPU を何個も足しても、直列部分が 10% なら理想上限は 10 倍であり、直列部分が 1% でも 100 倍で止まる。現実には通信、同期、キャッシュの取り合いがさらに上限を下げる。</p>
+<p>並列の「形」を見るための古典的なラベルもある。Flynn は 1972 年、命令ストリームとデータストリームの多重度で計算機組織を分類した<a class="fn-ref" href="#fn-3">(*3)</a>。単一命令・単一データ（SISD）に近い逐次制御、単一命令・複数データ（SIMD）寄りの一斉演算、複数命令・複数データ（MIMD）寄りの協調などである。ここでの目的は分類表の暗記ではない。分岐だらけの制御と、同じ命令を多数のデータへ流す仕事は、そもそも並列の入れ方が違う、という感覚を持つことだ。後の GPU の SIMT は、この感覚の上で「スレッド単位の見え方」と「束ねた発行」を両立させる。</p>
 <details class="sim-panel" open><summary>シミュレーションを開く — 直列割合が残ると加速は頭打ちになる</summary><iframe class="sim-frame" src="assets/sims/cpu-gpu-tpu-npu/amdahls-ceiling/index.html" title="amdahls-ceiling" loading="lazy"></iframe></details>
 <p>このシミュレーションで触るべきつまみは、プロセッサ数ではなく直列割合である。数を増やしても曲線が寝る瞬間が来る。その寝方が見えたとき、「もっと速い CPU を買う」だけでは解けない種類の問題が現れる。</p>
 <h3 id="スループット問題">スループット問題</h3>
@@ -59,47 +61,55 @@
 <p>画像の全画素を少し明るくする。三次元空間の頂点を同じ式で変換する。巨大な配列の各要素に同じ関数をかける。ひとつひとつは単純でも、数が多すぎる。CPU は段取りを整えられるが、すべての要素に豊かな分岐制御を毎回持ち込むと、必要以上に重い道具で砂を一粒ずつ運ぶような状態になる。</p>
 <p>ここで固定する問いは一つである。<strong>GPU は何を一斉に流し、何を一斉には流せなかったのか。</strong></p>
 <h3 id="gpgpu-simt">GPGPU / SIMT</h3>
-<p><strong>GPGPU</strong>とは、グラフィックス用に発達した GPU を、描画以外の汎用計算にも使う考え方である。中核は <strong>SIMT（Single Instruction, Multiple Threads）</strong> である。SIMT では、プログラマは多数のスレッドがそれぞれスカラーなプログラムを走らせるように書く。GPU 側では近いスレッド群が warp として束ねられ、同じ命令を多数のデータへ流す。NVIDIA の CUDA Programming Guide は、SIMT を、スレッド単位の実行モデルを保ちながら命令発行をまとめる仕組みとして説明している<a class="fn-ref" href="#fn-2">(*2)</a>。</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/simt-warp.svg" alt="" /><figcaption>見るべき構造: SIMT では多数のスレッドが warp として束ねられ、同じ命令を異なるデータへ流す。分岐がそろうほど効率がよく、分岐が割れるほど一部レーンが待つ。 (Source: NVIDIA CUDA Programming Guide の概念を教育用に再構成)</figcaption></figure>
+<p><strong>GPGPU</strong>とは、グラフィックス用に発達した GPU を、描画以外の汎用計算にも使う考え方である。中核は <strong>SIMT（Single Instruction, Multiple Threads）</strong> である。SIMT では、プログラマは多数のスレッドがそれぞれスカラーなプログラムを走らせるように書く。GPU 側では近いスレッド群が warp として束ねられ、同じ命令を多数のデータへ流す。</p>
+<p>Lindholm らが 2008 年に記述した NVIDIA Tesla アーキテクチャでは、warp は最大 32 スレッドの束であり、分岐で経路が割れると、取られた経路を順に実行し、該当しないレーンを無効化する(<em>4)。現行の CUDA Programming Guide も同じ骨格を保つ。SIMT はスレッド単位の分岐を許すが、SIMD のように固定データ幅をプログラマに露出しない。利用率が最大になるのは、warp 内の制御経路がそろうときである(</em>5)。</p>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/simt-warp.svg" alt="" /><figcaption>見るべき構造: SIMT では多数のスレッドが warp として束ねられ、同じ命令を異なるデータへ流す。分岐がそろうほど効率がよく、分岐が割れるほど一部レーンが待つ。 (Source: Lindholm et al. 2008 / NVIDIA CUDA Programming Guide の概念を教育用に再構成)</figcaption></figure>
 <p>この定義で大事なのは、GPU が「何でも並列化する」わけではないことだ。並列化したのは、同じ命令を多数のデータへ適用する形である。各スレッドが別々の制御判断を持ち、warp の中で分岐先が割れると、GPU は両方の経路を順に実行し、該当しないレーンを止める。つまり、制御の自由は残るが、自由すぎる制御は効率を落とす。</p>
 <p>得たものは明確である。多数の軽い演算器と高いメモリ帯域を使い、画素、頂点、粒子、配列、行列の一部のような同型大量演算を高いスループットで流せる。失ったものも明確である。分岐だらけの小さな処理、逐次依存が強い処理、頻繁な同期を必要とする処理では、GPU の幅が埋まらない。GPU は CPU を不要にしたのではなく、CPU が段取りを作ったあと、大量に似た仕事を流す場所を作った。</p>
-<h3 id="スループット志向">スループット志向</h3>
+<h3 id="スループット志向とホストデバイス">スループット志向とホスト／デバイス</h3>
 <p><strong>スループット志向</strong>とは、一つのスレッドを最短時間で終わらせるより、同時に抱える多数のスレッド全体で、単位時間あたりの完了量を大きくする設計である。CPU が複雑な制御で単一スレッドの待ちを減らすなら、GPU は多数のスレッドを用意し、あるスレッドがメモリ待ちになった間に別のスレッドを進める。個々の待ち時間を消すのではなく、待ち時間を他の仕事で隠す。</p>
-<p>この発想は、前章のスループット問題への自然な応答である。直列の段取りは CPU に残し、並列化できる大きな塊だけを GPU に渡す。すると、CPU と GPU の境界そのものが実務上の問題になる。データ転送、カーネル起動、結果回収が演算より大きければ、GPU のピーク性能は見かけ倒しになる。</p>
+<p>CUDA のプログラミングモデルは、最初からヘテロジニアスである。アプリは CPU（ホスト）で始まり、GPU（デバイス）へデータを移し、カーネルを起動し、結果を回収する<a class="fn-ref" href="#fn-5">(*5)</a>。ホストとデバイスが同時に動けるとしても、データ移動と起動の固定費は消えない。直列の段取りは CPU に残し、並列化できる大きな塊だけを GPU に渡す。すると、CPU と GPU の境界そのものが実務上の問題になる。転送と起動が演算より大きければ、GPU のピーク性能は見かけ倒しになる。</p>
 <p>だから GPU 向きの仕事は、単に「計算が重い」では足りない。データが大量にあり、同じ形の演算が多く、分岐がそろい、メモリ移動の固定費を償却できることが必要になる。ここで速さは、コア数や TFLOPS の数字だけでは読めない。演算器がどれだけ多くても、データが届かなければ待つだけである。</p>
 <h3 id="メモリ壁と-roofline">メモリ壁と Roofline</h3>
-<p><strong>Roofline</strong>とは、実効性能の上限を、ピーク演算性能とメモリ帯域の二つの屋根で見るモデルである。Williams、Waterman、Patterson らは 2009 年、演算強度、すなわちメモリから運ぶデータ量あたりにどれだけ演算するかを横軸に置き、帯域で決まる斜めの屋根と、ピーク演算で決まる水平の屋根を使って性能限界を可視化した<a class="fn-ref" href="#fn-3">(*3)</a>。</p>
+<p>プロセッサが速くなっても、DRAM が追いつかなければ効果は薄れる——Wulf と McKee が 1995 年に指摘した「メモリ壁」である(<em>6)。<strong>Roofline</strong>は、その感覚を現場の屋根として描くモデルだ。Williams、Waterman、Patterson らは 2009 年、演算強度（運ぶデータ量あたりの演算量）を横軸に置き、帯域で決まる斜めの屋根と、ピーク演算で決まる水平の屋根で実効上限を可視化した(</em>7)。</p>
 <figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/roofline-sketch.svg" alt="" /><figcaption>見るべき構造: 演算強度が低い領域ではメモリ帯域の屋根にぶつかり、演算器のピーク性能まで届かない。演算強度が十分高い領域では水平のピーク演算屋根が支配する。 (Source: Williams, Waterman, Patterson, 2009 の Roofline 概念を教育用に再構成)</figcaption></figure>
 <p>Roofline が教えるのは、GPU の限界を「演算器が足りない」だけで考えないことだ。たとえば配列を一度読み、少し計算して一度書くだけの処理は、演算強度が低い。どれほど多くの演算器を持つ GPU でも、メモリからデータを運ぶ速度が屋根になる。反対に、一度読み込んだデータを何度も使い回して多くの積和を行う処理は、演算強度が高くなり、ピーク演算に近づきやすい。</p>
 <details class="sim-panel" open><summary>シミュレーションを開く — 演算強度が低いとピーク演算に届かない</summary><iframe class="sim-frame" src="assets/sims/cpu-gpu-tpu-npu/roofline-bound/index.html" title="roofline-bound" loading="lazy"></iframe></details>
 <p>このシミュレーションで触るべきつまみは、ピーク演算だけではない。演算強度を低くしたまま演算器の数を増やしても、点は斜めの屋根の下に張り付く。GPU の幅は、データ再利用とメモリ配置がそろったときに初めて効く。逆にいえば、GPU で遅いから GPU が不要なのではなく、仕事の形が GPU の屋根に合っていない可能性がある。</p>
-<p>GPU 内の Tensor Core などは、この骨格の内側で演算密度を上げる改善であり、別の系譜駅ではない。焦点は名前ではなく、演算強度、メモリ帯域、制御のそろい方である。</p>
+<p>GPU 内の Tensor Core などは、この骨格の内側で演算密度を上げる改善であり、別の系譜駅ではない<a class="fn-ref" href="#fn-8">(*8)</a>。焦点は名前ではなく、演算強度、メモリ帯域、制御のそろい方である。</p>
 <p>GPU が得たのは、同型大量演算を高い流量で処理する場所である。失ったのは、分岐と逐次依存に対する素直さである。グラフィックス、科学計算、機械学習の多くで中心になる一方、OS の制御、細かな対話処理、分岐の多い処理は CPU 側に残りやすい。「どちらが速いか」より、「どの屋根に当たっているか」と聞くほうが判断に近い。</p>
 <h2 id="tpu-は何を特化したか">TPU は何を特化したか</h2>
 <p>GPU まで来ると、同じ形の計算を大量に流す道は見えた。けれど、ニューラルネットワークの推論がデータセンターの実務に入り込むと、別の摩擦が前に出る。行列積は多い。しかもリクエストは待ってくれない。検索、翻訳、写真分類、推薦のようなサービスでは、平均が速いだけでは足りず、遅い一部のリクエストが利用者体験を壊す。大量の推論を安く、少ない電力で、99パーセンタイル遅延まで読める形で処理したい。この圧力が TPU を生んだ。</p>
-<p>ここで特化されたのは「AI」という曖昧な看板ではない。支配的な演算、つまりニューラルネットワーク推論に現れる行列とベクトルの積である。Google の ISCA 2017 論文が分析した初代 TPU は、データセンター内の推論向け ASIC として説明される。中心には 65,536 個の 8-bit MAC があり、ピークは 92 TOPS とされた。MAC は multiply-accumulate、掛け算して足し込む小さな作業単位だ。CPU や GPU が多種類の命令と制御を残したまま行列を処理するのに対し、TPU はこの小さな作業を巨大な面として敷き詰めた。[^jouppi-isca]</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/tpu-mac.svg" alt="" /><figcaption>見るべき構造: 汎用コアを増やすのではなく、行列推論で支配的な MAC を大きな面として並べ、データを流して効率を稼ぐ。 (Source: Jouppi et al., ISCA 2017)</figcaption></figure>
+<p>ここで特化されたのは「AI」という曖昧な看板ではない。支配的な演算、つまりニューラルネットワークに現れる行列とベクトルの積である。</p>
+<h3 id="ドメイン特化とシストリック">ドメイン特化とシストリック</h3>
+<p>汎用プロセッサの性能向上が鈍ると、大きな効率改善はドメイン特化へ寄らざるをえない——Hennessy と Patterson は、いわゆる「新しい黄金時代」の議論でそう位置づけた<a class="fn-ref" href="#fn-9">(*9)</a>。<strong>ドメイン特化アーキテクチャ（DSA）</strong>は、単機能の固定回路そのものというより、特定領域の仕事に合わせてシリコンとソフトを寄せる加速器のクラスである。GPU も広い意味では DSA の例に入るが、さらに狭い形——行列積の繰り返し——へ寄せたものが TPU である。</p>
+<p>その寄せ方の古典が <strong>シストリック配列</strong>である。Kung と Leiserson は、同一の演算素子が規則正しく計算し、データを隣へ流す網としてシストリックを定式化した(<em>10)。ポイントは、演算のたびに遠いメモリへ往復し続けるのではなく、データが素子のあいだを脈打つように流れることだ。Google Cloud の現行説明でも、CPU や GPU が演算ごとにレジスタや共有メモリへ触りやすいのに対し、TPU の行列ユニットは乗算のあいだメモリへ戻らず、結果を次の積和へ渡す、と対比される(</em>11)。</p>
+<p>Google の ISCA 2017 論文が分析した初代 TPU は、データセンター内の推論向け ASIC として説明される。中心には 65,536 個の 8-bit MAC があり、ピークは 92 TOPS とされた。MAC は multiply-accumulate、掛け算して足し込む小さな作業単位だ。CPU や GPU が多種類の命令と制御を残したまま行列を処理するのに対し、TPU はこの小さな作業を巨大な面として敷き詰めた<a class="fn-ref" href="#fn-12">(*12)</a>。</p>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/tpu-mac.svg" alt="" /><figcaption>見るべき構造: 汎用コアを増やすのではなく、行列推論で支配的な MAC を大きな面（シストリック寄りのデータ流）として並べ、乗算のあいだのメモリ往復を減らして効率を稼ぐ。 (Source: Jouppi et al., ISCA 2017 / Kung &amp; Leiserson の概念を教育用に再構成)</figcaption></figure>
 <h3 id="汎用性を削ると何が得られるか">汎用性を削ると何が得られるか</h3>
 <p>汎用プロセッサは、どんな仕事が来てもそこそこ処理できるように、命令の解釈、分岐、キャッシュ、例外、仮想化、スケジューリングなどの仕組みを持つ。これは価値である。同時に、同じ掛け算と足し算を何億回も繰り返す場面では、価値でない部分にもシリコン面積と電力が使われる。TPU の発想は、その余白を削り、対象ドメインで何度も現れる形に面積を戻すことだった。</p>
-<p>Jouppi らの測定では、当時のサーバ級 CPU と GPU に対して、TPU はニューラルネットワーク推論で 15-30 倍の性能差を示し、TOPS/W では 30-80 倍と報告された。もちろん、この数字は「すべての計算で TPU が勝つ」という意味ではない。測っている対象が推論ワークロードで、設計もそこに寄せてあるから勝つ。第一原理の言い方に戻すと、入力問題の形が支配的に同じなら、一般性を捨てた回路は無駄な動きを減らせる。[^tpu-pdf]</p>
-<p>もう一つ重要なのは、論文が tail latency、つまり遅い側の遅延にも注意している点だ。大規模サービスでは、一部の処理が極端に遅れると、全体の応答が詰まる。GPU は高スループットだが、複雑な実行基盤、キャッシュ、スレッドスケジューリング、他ジョブとの干渉により、推論サービスの 99 パーセンタイル遅延を読むことが難しくなる場合がある。TPU は命令実行を単純化し、ソフトウェア管理のオンチップメモリを使い、決定的に近い実行を重視した。平均速度だけでなく、遅延の尾を読めることも、データセンター推論の費用に効く。</p>
+<p>Jouppi らの測定では、当時のサーバ級 CPU と GPU に対して、TPU はニューラルネットワーク推論で 15–30 倍の性能差を示し、TOPS/W では 30–80 倍と報告された。もちろん、この数字は「すべての計算で TPU が勝つ」という意味ではない。測っている対象が推論ワークロードで、設計もそこに寄せてあるから勝つ。第一原理の言い方に戻すと、入力問題の形が支配的に同じなら、一般性を捨てた回路は無駄な動きを減らせる<a class="fn-ref" href="#fn-12">(*12)</a>。</p>
+<p>もう一つ重要なのは、論文が tail latency、つまり遅い側の遅延にも注意している点だ。大規模サービスでは、一部の処理が極端に遅れると、全体の応答が詰まる。GPU は高スループットだが、キャッシュ、アウトオブオーダー、マルチスレッド、プリフェッチのような平均スループット向け最適化は、保証したい遅延とは相性が悪い場合がある。TPU はそうした時間変動の多い機構を削り、ソフトウェア管理の大きなオンチップメモリと決定的に近い実行を重視した。平均速度だけでなく、遅延の尾を読めることも、データセンター推論の費用に効く<a class="fn-ref" href="#fn-12">(*12)</a>。</p>
 <h3 id="tpu-は-gpu-の別名ではない">TPU は GPU の別名ではない</h3>
 <p>GPU と TPU はどちらも大量演算を扱う。ここで混乱が生まれる。GPU は CPU から見て、同型データ並列を大きく引き受ける汎用並列プロセッサになった。SIMT、広いメモリ帯域、多数のスレッド、成熟したソフトウェア生態を持つ。一方 TPU は、ニューラルネットワークの行列演算という狭い形に寄せた ASIC である。GPU の内部に Tensor Core のような行列ユニットが入っても、それは GPU 骨格の改善であって、系譜上の「GPU の次の種類」ではない。同様に、TPU は GPU が名前を変えたものではない。</p>
 <p>この区別は、製品ニュースを読むときに効く。「新世代 GPU はテンソル演算が速い」という発表は、GPU 系の improves として読む。「推論コストを下げるために行列演算へシリコンを固定した ASIC」は、TPU 的なドメイン特化として読む。どちらもニューラルネットワークを処理できるが、起源が違う。片方は汎用並列プロセッサの中に行列加速を取り込む道、もう片方は支配的演算へ設計を固定する道である。</p>
+<p>現行の Cloud TPU では、MXU（行列乗算ユニット）、ベクトル／スカラユニット、HBM、チップ間インターコネクト、Pod／スライスといった層が公開されている<a class="fn-ref" href="#fn-11">(*11)</a>。これは「TPU という名前の魔法」ではなく、行列特化の骨格の上に、学習規模や疎な埋め込みなどへの improves と構成が積み上がっている、と読む。</p>
 <h3 id="勝ち方は費用の形に依存する">勝ち方は費用の形に依存する</h3>
 <p>TPU の勝ち方は、絶対王者の勝ち方ではない。大量の安定した推論、モデル形状の予測可能性、データセンター内での統制、ソフトウェアスタックを合わせ込める環境があると、特化の利益が出やすい。演算の形が変わり続ける、未対応演算が多い、小さな実験を頻繁に動かす、既存ツールとの互換が最重要、という現場では、GPU の柔軟性が効く。</p>
 <p>得たものは明確だ。MAC を巨大に並べ、データ移動を設計し、決定的な実行へ寄せることで、ニューラルネットワーク推論のコストとエネルギーを下げた。失ったものも明確だ。汎用命令の広さ、変化するモデルへの柔軟な追随、広いソフトウェア生態の自由度は削られる。だから TPU は「GPU より新しいから上」という駅ではなく、GPU と同じニューラルネットワーク費用問題に対する別の解であり、特定条件では GPU と競合する。</p>
 <p>クラウドで GPU 時間と TPU 時間が別メニューになる理由も、ここから読める。売られているのは名前ではなく、制約の違う実行経路である。GPU は広い並列計算の重力を持ち、TPU は行列推論、そして後続世代では学習を含む特化経路を持つ。読者が見るべき問いは、「どちらが偉いか」ではない。「自分のワークロードは、支配的な行列演算へ固定してよいほど安定しているか」「電力、遅延、費用のどれが痛いか」「ソフトウェアをその経路へ合わせ込めるか」である。</p>
-<p>[^jouppi-isca]: Norman P. Jouppi et al., &quot;In-Datacenter Performance Analysis of a Tensor Processing Unit&quot;, ISCA 2017, Google Research. https://research.google/pubs/in-datacenter-performance-analysis-of-a-tensor-processing-unit/</p>
-<p>[^tpu-pdf]: Norman P. Jouppi et al., &quot;In-Datacenter Performance Analysis of a Tensor Processing Unit&quot;, paper PDF mirror, especially the reported 65,536 8-bit MACs, 92 TOPS, 15-30x performance, 30-80x TOPS/W, and latency discussion. https://course.ece.cmu.edu/~ece742/S23/paper_pdfs/tpu.pdf</p>
 <h2 id="npu-はどの制約への応答か">NPU はどの制約への応答か</h2>
 <p>スマートフォンで写真を撮る。声で起こす。キーボードが次の語を出す。イヤホンが周囲の音を処理する。これらは巨大なデータセンターの一括推論とは違う圧力を受けている。バッテリは小さい。手の中の筐体は熱くできない。処理は一回だけでなく、画面の裏で何度も起きる。カメラ、マイク、位置、個人の文脈を扱うので、すべてをクラウドへ送る判断にも抵抗がある。この端末側の制約が、NPU を必要にした。</p>
-<p>NPU は「小さい TPU」ではない。どちらもニューラルネットワークを速くしたいが、痛点が違う。TPU はデータセンターで大量推論の費用とエネルギーを下げるため、支配的な行列演算にシリコンを寄せた。NPU は端末の電力、熱、遅延、プライバシーの予算内で、オンデバイス推論を成立させるために SoC の中へ置かれる。大きな建物で電力と冷却を管理する話と、ポケットの中で常時オンに近い処理を続ける話は、同じ「AI アクセラレータ」という語で包むには圧力が違いすぎる。</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/hetero-composition.svg" alt="" /><figcaption>見るべき構造: 端末 SoC では CPU、GPU、NPU、メモリ、ランタイムが構成として並び、NPU は系譜の次駅ではなく端末予算に置かれた役割で読む。 (Source: Original educational diagram based on Apple Core ML and Qualcomm Hexagon product documentation)</figcaption></figure>
+<p>NPU は「小さい TPU」ではない。どちらもニューラルネットワークを速くしたいが、痛点が違う。TPU はデータセンターで大量推論の費用とエネルギーを下げるため、支配的な行列演算にシリコンを寄せた。NPU は端末の電力、熱、遅延、プライバシーの予算内で、オンデバイス推論を成立させるために SoC の中へ置かれる。大きな建物で電力と冷却を管理する話と、ポケットの中で常時オンに近い処理を続ける話は、同じ「AI アクセラレータ」という語で包むには圧力が違いすぎる。Google の Coral 系 FAQ も、TPU をクラウド向け、NPU を電力制約下のエッジ推論向け、と役割を分けて書く<a class="fn-ref" href="#fn-13">(*13)</a>。</p>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/hetero-composition.svg" alt="" /><figcaption>見るべき構造: 端末 SoC では CPU、GPU、NPU、メモリ、ランタイムが構成として並び、NPU は系譜の次駅ではなく端末予算に置かれた役割で読む。 (Source: Original educational diagram based on Apple Core ML, Qualcomm Hexagon, and Coral Edge TPU documentation)</figcaption></figure>
 <h3 id="端末では平均速度より予算が先に来る">端末では平均速度より予算が先に来る</h3>
 <p>クラウドでは、同じモデルを大量のリクエストに対して処理し、サーバ台数、電力、応答遅延をまとめて最適化する。端末では、処理の粒度がもっと生活に近い。画面が点いていない間も音声トリガーを待つ。カメラのプレビュー中に被写体を認識する。写真アプリが端末内の画像を分類する。ここで毎回 GPU を大きく起こすと、瞬間的には速くても、電力と熱の予算を食う。CPU だけでは効率が足りない。だから、低電力でニューラルネットワーク推論を受け持つ専用ユニットが SoC の中に入る。</p>
-<p>Apple の Core ML は、モデル実行を CPU、GPU、Neural Engine などの計算資源へ割り当てる開発者向け経路として公開されている。重要なのは、Apple Neural Engine の内部を外から勝手に想像することではなく、製品経路として「オンデバイスの機械学習を、OS とフレームワークが適切な計算資源へ流す」形が前面に出ている点だ。開発者は Core ML の抽象を通じて実行先を選び、利用者は写真、音声、文章入力のような体験として受け取る。[^apple-coreml]</p>
-<p>Qualcomm の Hexagon も、同じく端末側の経路として読むのが安全である。Hexagon は DSP の文脈を含む製品群として、AI Engine や Snapdragon SoC の中で機械学習、信号処理、低電力処理の役割を担う。ここでも必要なのは、未公開の細部を推測することではない。端末には CPU、GPU、DSP、NPU 的なユニットが同居し、ワークロードごとに電力と遅延の良い場所へ割り振る、という構成の事実を読む。[^qualcomm-hexagon]</p>
+<p>公開されている一次例として、Google の Edge TPU がある。Coral の FAQ とモジュール資料は、単体で約 4 TOPS（固定小数点）、おおよそ 2 W、すなわち約 2 TOPS/W を示す。主用途は推論であり、Cloud TPU のような大規模学習向けの速度とは役割が違う(<em>14)(</em>15)。数値を覚えて自慢するためではなく、「エッジ特化はピークの絶対値ではなく、ワットあたりと常時オン可能性で測られる」ことを固定するためだ。</p>
+<p>低ビット幅（量子化）も、ここで強制される部品になる。Edge TPU 向けモデルは、整数量子化を経てからコンパイルされる<a class="fn-ref" href="#fn-14">(*14)</a>。精度を少し譲り、演算密度と帯域と電力を買う。この交換は、データセンターの混合精度改善（improves）と似て見えるが、動機の重心が端末の予算にある。</p>
+<h3 id="端末の公開経路を読む">端末の公開経路を読む</h3>
+<p>公開資料はベンダー名のカタログではない。読むべきは「入力がどの層を通って、どこで測るか」である。</p>
+<p>典型的なオンデバイス経路は、だいたい次の順になる。センサやアプリ入力が来る → OS／ランタイムが仕事を切る → モデルが量子化・変換される → NPU（または GPU／CPU）が推論する → 対応できない演算は CPU／GPU へ落ちる → 体感は熱とバッテリと遅延で測る。ボトルネックは「NPU の TOPS」単体ではなく、変換の成否、フォールバック、DRAM 往復、熱スロットルのどこかに現れやすい。</p>
+<p>この経路を支える公開例として、Apple Core ML は CPU／GPU／Neural Engine への割当を <code>MLComputeUnits</code> で明示する(<em>16)。Qualcomm Hexagon NPU は Scalar＋Vector＋Tensor とソフト管理 TCM を公開し、DRAM 往復を減らす低電力経路として読む(</em>17)(<em>18)。Arm Ethos-N も CPU／GPU 併用と DRAM 削減を前提にする(</em>19)。細部は違うが、制約集合——電力、熱、帯域、常時オン——は共通に近い。内部マイクロアーキの推測はしない。</p>
 <h3 id="端末-npu-が得たもの">端末 NPU が得たもの</h3>
 <p>第一に、ローカルな遅延を得る。入力をクラウドへ送り、結果を待つ経路は、通信状態とサーバ側混雑に左右される。端末内で推論できれば、カメラのフレーム、マイク入力、キーボード候補のような短いループを閉じやすい。</p>
 <p>第二に、電力を得る。ニューラルネットワーク推論の一部を、CPU や GPU より低い電力で処理できるなら、同じ体験をバッテリの中へ収めやすい。常時オンに近い機能では、ピーク性能よりも「起こし続けられるか」が効く。</p>
@@ -110,9 +120,8 @@
 <p>最後に、測定の難しさである。NPU の TOPS が大きくても、実アプリの体感は、メモリ移動、前処理、後処理、OS のスケジューリング、熱によるクロック制約、モデル変換の成否に左右される。端末では特に、瞬間のピークよりも、熱がたまった後、画面が暗い時、他アプリが動いている時にどう振る舞うかが重要になる。NPU は魔法の箱ではなく、端末予算に合わせた一つの役割である。</p>
 <h3 id="読み方を変える">読み方を変える</h3>
 <p>NPU のニュースを読むときは、まず場所を見る。データセンターのラックに置かれるのか、スマホや PC の SoC に入るのか。次に圧力を見る。クラウド費用を下げたいのか、バッテリを守りたいのか、遅延を隠したいのか、個人データを端末に残したいのか。最後に失うものを見る。対応モデルは狭くならないか。API は分断されないか。実効性能はピーク TOPS と同じ方向を向いているか。</p>
+<p>Edge TPU のように公開されたエッジ ASIC を見ても、「Cloud TPU を小さくしただけ」と読まない。Coral 自身が、Cloud TPU と Edge TPU を速度と役割で分けて説明している<a class="fn-ref" href="#fn-14">(*14)</a>。同じ「テンソル」という言葉でも、起源の圧力が違えば、得たもの／失ったものの組も違う。</p>
 <p>この読み方をすると、NPU は CPU、GPU、TPU の後ろに直線で並ぶ「第四世代プロセッサ」ではなくなる。端末という場所で、CPU と GPU だけでは電力と熱に合わなくなった推論を引き受ける部品になる。SoC の中の構成要素として、ランタイムに呼ばれ、モデル変換に縛られ、バッテリと熱の範囲で働く。名前の新しさではなく、置かれた制約が NPU の輪郭を決める。</p>
-<p>[^apple-coreml]: Apple Developer Documentation, Core ML. https://developer.apple.com/documentation/coreml</p>
-<p>[^qualcomm-hexagon]: Qualcomm, Hexagon processors and AI acceleration product documentation. https://www.qualcomm.com/processors/hexagon</p>
 <h2 id="いまの位置を層で読む">いまの位置を層で読む</h2>
 <p>CPU、GPU、TPU、NPU を名前の列として覚えると、新しい発表が来るたびに列が伸びてしまう。「新しい駅は何か」という問いだけが残り、実際の判断に使えない。ここで必要なのは、ひとつの万能地図ではなく、用途の違う地図を選ぶ操作である。木は近似である。厳密には、技術は多所属のグラフにいる。教育用の木は、入口で迷わないための読み方であり、所属が一意であるという主張ではない。</p>
 <p>最初に分けるべきなのは、系譜の木と構成の木だ。系譜の木は「どの問題から生まれたか」を読む。構成の木は「いまシステムのどこに置かれているか」を読む。この二つを一枚で無宣言に混ぜると、GPU 内の Tensor Core を新しいプロセッサ種別に見せたり、端末 SoC の NPU を CPU、GPU、TPU の直線的な後継に見せたりする。地図の辺の意味を先に選ぶことが、誤読を減らす。</p>
@@ -124,15 +133,19 @@
 <p>構成の木を使う合図は、「実際のシステムでどこが何を担当するか」が知りたい時だ。いまの計算機は、単体チップの優劣だけでは動かない。CPU がホストとして OS、ドライバ、制御、入出力を扱う。GPU や TPU はアクセラレータ層で大きな並列計算を引き受ける。スマホや PC の edge SoC では、CPU、GPU、NPU、メモリ、画像処理、信号処理が同じパッケージ内で協調する。software 層では、CUDA、XLA、Core ML、ドライバ、ランタイム、モデル変換が仕事を割り振る。</p>
 <figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/hetero-composition.svg" alt="" /><figcaption>見るべき構造: 構成の木では、host、accelerator、edge SoC、software の層を分け、CPU、GPU、TPU、NPU を入れ子と割り振りの関係で読む。 (Source: Original educational diagram based on NVIDIA CUDA documentation, Google Cloud TPU architecture documentation, Apple Core ML, and Qualcomm Hexagon documentation)</figcaption></figure>
 <p>この図で読める問いは、「どれが一番速いか」ではない。「誰が仕事を投げるか」「データはどこを通るか」「前処理と後処理はどの層か」「対応していない演算はどこへ落ちるか」である。たとえば Core ML は、開発者がモデルをオンデバイスで実行するための抽象を提供し、利用可能な計算資源へ処理を割り当てる。CUDA は GPU に対するプログラミングモデルと実行基盤を提供する。Google Cloud TPU の公開資料は、TPU が単独の名前ではなく、ホスト、ランタイム、ネットワーク、ソフトウェアと組で使われることを示す。Qualcomm の Hexagon 文書も、端末 SoC 内で AI、信号処理、低電力処理が構成として読まれることを示す。[^cuda-docs][^cloud-tpu][^apple-coreml-cmap][^qualcomm-cmap]</p>
-<h3 id="四つの層で置く">四つの層で置く</h3>
-<p>host 層は、CPU、OS、ドライバ、入出力の場所である。低遅延の制御、例外、ファイル、ネットワーク、人間とのインタラクションがここに残る。accelerator 層は、GPU や TPU のように、ホストから仕事を渡され、大きな並列計算を処理する場所である。edge SoC 層は、端末の中で CPU、GPU、NPU などが同居し、熱と電力の小さな箱の中で働く場所である。software 層は、これらを読者のアプリから見える形にする場所である。</p>
-<p>ニュースを診断する時は、まず地図を選ぶ。発表が「どの問題に応答したか」を語っているなら系譜の木を選ぶ。発表が「製品の中でどこに載るか」を語っているなら構成の木を選ぶ。発表が「TOPS が何倍」「新 API 対応」「クラウドと端末の両方」と言うなら、判断軸の地図へ進む。数字は地図ではない。数字は、どの層で、どの圧力に対して測られたかが決まって初めて読める。</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/judgment-axes.svg" alt="" /><figcaption>見るべき構造: 新発表は Origin、Locus、Pressure の三軸で座標付けし、系譜の新枝か、構成内の配置か、既存骨格の改善かを分ける。 (Source: Original judgment diagram based on the article&#x27;s Bounded Typed Knowledge Graph)</figcaption></figure>
+<h3 id="五つの層で置く">五つの層で置く</h3>
+<p>host 層は、CPU、OS、ドライバ、入出力の場所である。低遅延の制御、例外、ファイル、ネットワーク、人間とのインタラクションがここに残る。accelerator 層は、GPU や TPU のように、ホストから仕事を渡され、大きな並列計算を処理する場所である。edge SoC 層は、端末の中で CPU、GPU、NPU などが同居し、熱と電力の小さな箱の中で働く場所である。software 層は、これらを読者のアプリから見える形にする場所である。evaluation 層は、ピーク数字ではなく Roofline、実ワークロード、電力、テール遅延で読む場所である。</p>
+<p>ニュースを診断する時は、まず地図を選ぶ。発表が「どの問題に応答したか」を語っているなら系譜の木を選ぶ。発表が「製品の中でどこに載るか」を語っているなら構成の木を選ぶ。発表が「TOPS が何倍」「新 API 対応」「クラウドと端末の両方」と言うなら、判断軸の地図へ進む。数字は地図ではない。数字は、どの層で、どの圧力に対して測られたかが決まって初めて読める。Edge TPU のような公開エッジ ASIC も、系譜では NPU 枝、構成では edge SoC、評価では電力あたり、と層を分けて置く。</p>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/judgment-axes.svg" alt="" /><figcaption>見るべき構造: 新発表は Origin、Locus、Pressure の三軸で座標付けし、系譜の新枝か、構成内の配置か、既存骨格の改善かを分ける。 (Source: Original educational judgment diagram based on public architecture sources and article concepts)</figcaption></figure>
 <h3 id="originlocuspressure">Origin、Locus、Pressure</h3>
 <p>Origin は起源である。何の解として生まれたのか。CPU の弱点からか、GPU の汎用並列のオーバーヘッドからか、データセンター推論の費用からか、端末の電力と熱からか。起源を見れば、名前が似ていても枝を分けられる。</p>
 <p>Locus は位置である。host、accelerator、edge SoC、software のどこに置かれるのか。クラウド TPU の話は accelerator と software の組で読む。スマホ NPU の話は edge SoC と software の組で読む。GPU の新命令や Tensor Core の強化は、accelerator 層の GPU 内改善として読む。</p>
 <p>Pressure は圧力である。何を稼ごうとしているのか。スループット、効率、電力、遅延、互換、プライバシーのどれが前景か。たとえば「TOPS 2倍」は Pressure の一部にすぎない。実アプリで効くかは、モデル形状、メモリ移動、対応演算、ランタイム、熱制約と組で決まる。</p>
 <p>診断の型は短い。ニュースを一文で読む。次に、系譜か構成か判断軸かを選ぶ。Origin に「何の制約への応答か」を書く。Locus に「どの層か」を書く。Pressure に「何を稼ぐのか」を書く。最後に、得たもの、失ったもの、適用範囲を書く。この手順を踏むと、「新しいから上」「数字が大きいから勝ち」「AI チップだから同じ」という反射から離れられる。</p>
+<h3 id="四部品の比較台帳">四部品の比較台帳</h3>
+<p>章をまたいで覚えた内容を、ここで一度横並びに戻す。順位表ではなく、得た／失った／適用の台帳である。</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>得たもの</th><th>失ったもの</th><th>向く仕事</th><th>向かない仕事</th><th>見る指標</th><th>よくある誤読</th></tr></thead><tbody><tr><td>CPU</td><td>制御・低遅延・汎用</td><td>同型大量演算の面積／電力効率</td><td>OS、分岐、段取り、対話</td><td>画素・行列の巨大流量</td><td>遅延、直列残差</td><td>「古いから退場」</td></tr><tr><td>GPU</td><td>同型並列のスループット</td><td>分岐割れ・転送固定費の素直さ</td><td>グラフィックス、科学計算、DNN 実務</td><td>細かい分岐だらけの制御</td><td>演算強度、帯域、利用率</td><td>「AI 専用チップ」単独視</td></tr><tr><td>TPU</td><td>行列特化の費用／エネルギー</td><td>柔軟性・広いソフト生態</td><td>安定した大規模 NN</td><td>頻繁に形が変わる試作</td><td>TOPS/W、テール遅延、単価</td><td>「GPU の次世代」</td></tr><tr><td>NPU</td><td>端末予算内の推論</td><td>モデル規模・移植性</td><td>常時オン、低遅延、端末内処理</td><td>データセンター級の巨大モデル単独</td><td>TOPS/W、熱、持続</td><td>「小さい TPU」</td></tr></tbody></table></div>
+<p>この表は入口である。自分の仕事を一行選ぶときは、Pressure（何が痛いか）と Locus（どこで動くか）を先に書いてから戻る。</p>
 <p>[^cuda-docs]: NVIDIA, CUDA C++ Programming Guide, Programming Model and SIMT descriptions. https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html</p>
 <p>[^cloud-tpu]: Google Cloud, Cloud TPU architecture overview. https://docs.cloud.google.com/tpu/docs/system-architecture-tpu-vm</p>
 <p>[^apple-coreml-cmap]: Apple Developer Documentation, Core ML. https://developer.apple.com/documentation/coreml</p>
@@ -145,7 +158,7 @@
 <p>「専用チップは速いが、ソフトウェアに閉じ込められる」</p>
 <p>どれも完全な嘘ではない。だから厄介である。嘘なら捨てればよい。半分正しい言葉は、どの半分が事実で、どの半分が測定の前提で、どの半分が価値判断なのかを分けないと、人を動かすスローガンになる。</p>
 <p>この章の仕事は、著者の勝者を決めることではない。数字とスローガンを、共通事実、争点、測定、価値、利害、反証条件へ分解することだ。</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/accelerator-compete.svg" alt="" /><figcaption>見るべき構造: GPU、TPU、NPU は同じ一位争いではなく、違う圧力に応じた競合解として読む。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/accelerator-compete.svg" alt="" /><figcaption>見るべき構造: GPU、TPU、NPU は同じ一位争いではなく、違う圧力に応じた競合解として読む。 (Source: Original educational diagram based on Jouppi et al. ISCA 2017, CUDA Programming Guide, Coral Edge TPU FAQ, and product primary docs)</figcaption></figure>
 <h2 id="共有できる事実">共有できる事実</h2>
 <p>まず、争う前に共有できる土台を置く。</p>
 <p>第一に、ピーク性能は実行性能ではない。Roofline モデルは、実効性能がピーク演算能力だけでなく、演算強度とメモリ帯域の上限にも縛られることを示す。演算器が多くても、データを運べなければ屋根に届かない。</p>
@@ -202,6 +215,20 @@
 <h3 id="反証条件">反証条件</h3>
 <p>「CUDA 重力が勝つ」という主張は、代替の専用経路が同等の開発体験を持ち、主要ワークロードで明確に低コストかつ低電力を示し、退出費も低いときに弱くなる。</p>
 <p>「専用効率が勝つ」という主張は、モデル変化や未対応演算のために実効利用率が落ち、移植費とデバッグ費を含めると GPU 生態系のほうが速く安いと示されたときに弱くなる。</p>
+<h2 id="争点カード4-npuは小さいtpuか">争点カード4 NPUは小さいTPUか</h2>
+<h3 id="共通事実">共通事実</h3>
+<p>TPU も NPU も、ニューラルネットワークの演算を専用に寄せる。どちらも「汎用 CPU だけでは足りない」への応答であり、行列やテンソル寄りの演算にシリコンを使う。</p>
+<p>同時に、公開一次情報は役割を分ける。Cloud TPU はデータセンターの学習／大規模推論向け、Edge TPU は低電力デバイスの推論向け、と Coral の FAQ は明示する。Google の Coral NPU FAQ も、TPU＝クラウド、NPU＝電力制約下のエッジ推論、と定義を分ける。</p>
+<h3 id="争点">争点</h3>
+<p>争点は「どちらも AI 向けか」ではない。「制約集合が同じだから、片方はもう片方の縮小版か」である。</p>
+<p>小さい TPU 説は、同じ行列特化をスケールダウンしただけだと読む。別枝説は、データセンターの費用・テール遅延と、端末のバッテリ・熱・常時オン・プライバシーは、得たもの／失ったものの組が違うと読む。</p>
+<h3 id="測定">測定</h3>
+<div class="table-wrap"><table><thead><tr><th>聞くこと</th><th>小さいTPU説に有利</th><th>別枝説に有利</th></tr></thead><tbody><tr><td>主な制約</td><td>同じ行列費用の縮小</td><td>電力・熱・常時オンが前景</td></tr><tr><td>成功指標</td><td>絶対 TOPS／学習規模</td><td>TOPS/W、持続、局所遅延</td></tr><tr><td>ソフトウェア</td><td>クラウド経路の縮小移植</td><td>端末 SDK・量子化・SoC 統合</td></tr><tr><td>失敗モード</td><td>モデル規模不足だけ</td><td>API 分断・熱スロットル・対応演算欠落</td></tr></tbody></table></div>
+<h3 id="価値と利害">価値と利害</h3>
+<p>マーケは「AI チップ」一語で棚をまとめたい。読者は短い比喩で覚えたい。実装者は、クラウド特化と端末特化を同じ設計図で語ると誤発注する。</p>
+<h3 id="反証条件">反証条件</h3>
+<p>NPU＝小さい TPU 説は、端末ユニットがクラウドと同じ成功指標（大規模学習スループット、Pod 規模、同一ソフト経路）で測られ、電力制約が本質でないと示されたときに強くなる。</p>
+<p>別枝説は、端末で電力・熱・プライバシーを外してもクラウド特化と同じ選択になる、と示されたときに弱くなる。</p>
 <h2 id="分解の型">分解の型</h2>
 <p>争点カードを読むときは、次の順に手を動かす。</p>
 <h3 id="共有事実を先に固定する">共有事実を先に固定する</h3>
@@ -263,7 +290,9 @@
 <h3 id="チェック3-クラウドとエッジを一つの場所に潰していないか">チェック3 クラウドとエッジを一つの場所に潰していないか</h3>
 <p>「クラウドとエッジの両方に対応」と書いてあるとき、同じチップが同じ意味で両方に置かれるとは限らない。</p>
 <p>クラウドではデータセンター・アクセラレータとして、端末では SoC 内 NPU として、あるいは同名ブランドの別実装として現れるかもしれない。Locus を一つに決められないなら、「複数の可能性がある」と書くほうが正確である。</p>
-<h3 id="チェック4-自分の保留理由を書いたか">チェック4 自分の保留理由を書いたか</h3>
+<h3 id="チェック4-npuを小さいtpuと書いていないか">チェック4 NPUを小さいTPUと書いていないか</h3>
+<p>端末向け推論ユニットを、データセンター TPU の縮小版として一語で片づけていないか確認する。電力・熱・常時オン・プライバシーが起源なら、系譜上は別枝として置く。</p>
+<h3 id="チェック5-自分の保留理由を書いたか">チェック5 自分の保留理由を書いたか</h3>
 <p>足りない情報があるとき、無理に結論を出さない。</p>
 <p>「実ワークロードと電力が不明なので、TOPS 二倍を実効改善とはまだ置けない」</p>
 <p>「配置層が曖昧なので、系譜の新枝ではなく構成上の候補として保留する」</p>
@@ -272,7 +301,7 @@
 <p>判断章で最初にすることは、著者の意見を読むことではない。自分の文脈を書くことである。</p>
 <p>CPU、GPU、TPU、NPU の議論は、抽象的に聞くと「どれが一番よいか」に見える。しかし実際の判断は、いつも場所を持っている。仕事でクラウド費用を下げたいのか。研究で新しいモデルを試したいのか。趣味でローカル推論を動かしたいのか。授業で概念を理解したいのか。スマホのバッテリを守りたいのか。</p>
 <p>文脈が違えば、同じ事実から違う結論が出る。違う結論が出ること自体は失敗ではない。失敗は、文脈を書かずに結論だけを一般化することである。</p>
-<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/judgment-axes.svg" alt="" /><figcaption>見るべき構造: 新しい主張は起源・位置・圧力の三軸へ置き、チップ名の印象から離れて読む。 (Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/cpu-gpu-tpu-npu/judgment-axes.svg" alt="" /><figcaption>見るべき構造: 新しい主張は起源・位置・圧力の三軸へ置き、チップ名の印象から離れて読む。 (Source: Original educational judgment diagram based on public architecture sources and article concepts)</figcaption></figure>
 <h2 id="まず自分で書く">まず自分で書く</h2>
 <p>次の空欄を、自分の状況で埋める。</p>
 <h3 id="文脈">文脈</h3>
@@ -290,7 +319,7 @@
 <h3 id="何を見るモデルか">何を見るモデルか</h3>
 <p>GPU-first モデルは、アクセラレータ選択を「シリコン性能」だけでなく、「使える道具圏」として見る。</p>
 <p>GPU は、大量同型演算に強いだけではない。CUDA、cuDNN、コンパイラ、プロファイラ、デバッガ、既存コード、開発者経験が積み上がっている。この生態系は、ある新しいチップがピーク効率で勝っていても、実務で勝ち切れない理由になる。</p>
-<p>NVIDIA の CUDA Programming Guide は、SIMT の実行モデル、メモリ階層、カーネル、プログラミングモデルを公式に提供している。これは「GPU が常に最良」という証拠ではない。しかし、GPU を選ぶときに利用できるソフトウェア面の厚みを示す軟らかい証拠にはなる。</p>
+<p>NVIDIA の CUDA Programming Guide は、SIMT の実行モデル、メモリ階層、カーネル、プログラミングモデルを公式に提供している。これは「GPU が常に最良」という定理ではない。GPU を選ぶときの<strong>ソフトウェア生態／実行モデルの厚み</strong>を示す運用モデルである。ピーク効率の証明ではなく、道具圏の重力の証拠として読む。</p>
 <h3 id="強い場面">強い場面</h3>
 <p>このモデルは、次の文脈で強い。</p>
 <div class="table-wrap"><table><thead><tr><th>条件</th><th>理由</th></tr></thead><tbody><tr><td>モデルや演算が変わる</td><td>汎用並列と成熟ツールが逃げ道になる</td></tr><tr><td>既存 CUDA 資産が大きい</td><td>移植費が判断を支配する</td></tr><tr><td>研究開発や試行錯誤が多い</td><td>専用効率より柔軟性が価値になる</td></tr><tr><td>複数ワークロードが混在する</td><td>GPU を多用途に使い回せる</td></tr><tr><td>人材と運用が GPU 前提</td><td>学習コストと障害対応が小さい</td></tr></tbody></table></div>
@@ -311,7 +340,7 @@
 <h2 id="競合モデルc-エッジ予算とヘテロ構成を優先する">競合モデルC エッジ予算とヘテロ構成を優先する</h2>
 <h3 id="何を見るモデルか">何を見るモデルか</h3>
 <p>エッジ予算モデルは、端末での推論をクラウド縮小版として見ない。端末には端末の圧力がある。バッテリ、熱、即時応答、通信の不安定さ、プライバシー境界、SoC 内の限られた面積がそれである。</p>
-<p>Apple Core ML は、アプリがモデルをオンデバイスで実行するための経路を提供し、Apple Neural Engine などのベンダー側アクセラレータ利用へ接続する。Qualcomm Hexagon も、端末側 AI アクセラレーションの存在証明になる。これらは「すべての NPU が同じ」という根拠ではないが、オンデバイス推論が CPU/GPU だけでなく専用経路を必要としていることを示す一次的な実例である。</p>
+<p>Apple Core ML は、アプリがモデルをオンデバイスで実行するための経路を提供し、Apple Neural Engine などのベンダー側アクセラレータ利用へ接続する。Qualcomm Hexagon や Coral Edge TPU も、端末側 AI アクセラレーションの存在証明になる。これらは「すべての NPU が同じ」や「万能の端末モデル」の根拠ではない。示しているのは、オンデバイス推論が CPU／GPU だけでなく専用経路を必要としうる、という<strong>実行経路の実例</strong>である。</p>
 <p>このモデルでは、NPU は小さい TPU ではない。端末 SoC の中で、CPU、GPU、ISP、DSP、メモリ、OS、ランタイムと一緒に置かれる部品である。</p>
 <h3 id="強い場面">強い場面</h3>
 <p>このモデルは、次の文脈で強い。</p>
@@ -343,9 +372,9 @@
 <p>「端末 NPU が対象モデルをネイティブに実行できず、CPU/GPU へフォールバックするなら、オンデバイス優先を撤回する」</p>
 <p>この一文があると、意見は陣営名ではなく、検証できる設計判断になる。</p>
 <h2 id="出典メモ">出典メモ</h2>
-<p>GPU-first モデルの根拠は、NVIDIA CUDA Programming Guide の SIMT とプログラミングモデルの公開説明を、ソフトウェア重力の軟らかい証拠として使う。</p>
-<p>ドメイン特化 ASIC モデルの根拠は、Jouppi et al., In-Datacenter Performance Analysis of a Tensor Processing Unit, ISCA 2017 を使う。特に、データセンター推論、コスト、エネルギー、ドメイン特化の動機を読む。</p>
-<p>エッジ予算モデルの根拠は、Apple Core ML と Qualcomm Hexagon の製品一次情報を、オンデバイス推論経路と端末側アクセラレーションの存在証明として使う。</p>
+<p>GPU-first モデル（A）の根拠は、NVIDIA CUDA Programming Guide の SIMT とプログラミングモデルの公開説明を、<strong>ソフトウェア生態／実行モデルの厚み</strong>の証拠として使う。普遍的最適性の証明ではない。</p>
+<p>ドメイン特化 ASIC モデル（B）の根拠は、Jouppi et al., In-Datacenter Performance Analysis of a Tensor Processing Unit, ISCA 2017 を使う。特に、データセンター推論、コスト、エネルギー、ドメイン特化の動機を読む。</p>
+<p>エッジ予算モデル（C）の根拠は、Apple Core ML、Qualcomm Hexagon、Coral Edge TPU／NPU FAQ の製品一次情報を、<strong>オンデバイス実行経路と端末制約の存在証明</strong>として使う。単一の万能 NPU モデルの主張ではない。</p>
 <h2 id="出口命題">出口命題</h2>
 <p>よい判断は、GPU、TPU、NPU のどれを信じるかではなく、自分の文脈でどの制約が噛み、どのモデルを主道具にし、何が起きたら撤回するかまで書けることである。</p>
 <h2 id="final-judgment-drill">final judgment drill</h2>
@@ -393,6 +422,10 @@
 <p>例の骨格はこうである。</p>
 <p>私の文脈は「ここに書く」であり、主な制約は「ここに書く」である。争点カードについて共有できる事実は「ここに書く」である。そこから強く言えるのは「ここに書く」である。したがって、現時点では「ここに書く」を暫定的に選ぶ。もし「ここに測定可能な条件を書く」が示されたら、この判断を撤回する。</p>
 <p>この骨格を埋めれば、結論が GPU-first でも、専用 ASIC 優先でも、NPU 優先でも、保留でもよい。</p>
+<h3 id="校正例写経しない">校正例（写経しない）</h3>
+<p>次は「正解」ではなく、事実／推論／立場／反証の分離が足りているかの物差しである。自分の文脈で書き直す。</p>
+<p>私の文脈は、趣味で手元 PC のローカル LLM を動かすことであり、主な制約は互換と熱である。争点カード「GPU only is enough」について共有できる事実は、GPU が同型並列と成熟したソフト経路を持ち、専用経路は移行費と対応演算の穴を抱えやすい、ということだ。強く言えるのは、変化するモデルを試す用途では、専用効率より既存 GPU 経路のほうが総コストを下げやすい、ということである。したがって、現時点では GPU-first を暫定採用する。もし対象モデルが安定し、専用経路が移植費込みで電力と単価を継続的に下げ、デバッグ可能性も保てると測定できたら、この判断を撤回する。</p>
+<p>写す必要はない。自分の表で、同じ分離ができているかを見る。</p>
 <h2 id="self-check">self_check</h2>
 <h3 id="チェック1-著者モデルをコピーしていないか">チェック1 著者モデルをコピーしていないか</h3>
 <p>JUDGE に出てきた A、B、C のモデルを、そのまま自分の結論にしていないか確認する。</p>
@@ -465,7 +498,7 @@
 <p>地図に置く。事実と推論と立場を分ける。自分の制約を書く。反証条件を添える。</p>
 <p>そこまでできれば、チップ名の競争は、あなたの判断の材料に戻る。</p>
       </article>
-<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> Gene M. Amdahl, &quot;Validity of the Single Processor Approach to Achieving Large Scale Computing Capabilities,&quot; AFIPS Conference Proceedings, 1967.</li><li id="fn-2"><a href="#fnref-2">(*2)</a> NVIDIA, &quot;CUDA C++ Programming Guide,&quot; Programming Model / SIMT sections, retrieved 2026-07-20.</li><li id="fn-3"><a href="#fnref-3">(*3)</a> Samuel Williams, Andrew Waterman, David Patterson, &quot;Roofline: An Insightful Visual Performance Model for Multicore Architectures,&quot; Communications of the ACM, 2009.</li></ol></section>
+<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> Google Cloud, &quot;TPU architecture,&quot; section on how a CPU works / Von Neumann bottleneck. https://docs.cloud.google.com/tpu/docs/system-architecture-tpu-vm</li><li id="fn-2"><a href="#fnref-2">(*2)</a> Gene M. Amdahl, &quot;Validity of the Single Processor Approach to Achieving Large Scale Computing Capabilities,&quot; AFIPS Conference Proceedings, 1967. https://www3.cs.stonybrook.edu/~rezaul/Spring-2019/CSE613/reading/Amdahl-1967.pdf</li><li id="fn-3"><a href="#fnref-3">(*3)</a> Michael J. Flynn, &quot;Some Computer Organizations and Their Effectiveness,&quot; IEEE Transactions on Computers, 1972. https://doi.org/10.1109/tc.1972.5009071</li><li id="fn-4"><a href="#fnref-4">(*4)</a> Erik Lindholm, John Nickolls, Stuart Oberman, John Montrym, &quot;NVIDIA Tesla: A Unified Graphics and Computing Architecture,&quot; IEEE Micro, 2008. https://www.cs.cmu.edu/afs/cs/academic/class/15869-f11/www/readings/lindholm08_tesla.pdf</li><li id="fn-5"><a href="#fnref-5">(*5)</a> NVIDIA, &quot;CUDA Programming Guide,&quot; Programming Model / SIMT / Heterogeneous Systems, retrieved 2026-07-20. https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html</li><li id="fn-6"><a href="#fnref-6">(*6)</a> Wm. A. Wulf, Sally A. McKee, &quot;Hitting the Memory Wall: Implications of the Obvious,&quot; ACM SIGARCH Computer Architecture News, 1995. https://doi.org/10.1145/216585.216588</li><li id="fn-7"><a href="#fnref-7">(*7)</a> Samuel Williams, Andrew Waterman, David Patterson, &quot;Roofline: An Insightful Visual Performance Model for Multicore Architectures,&quot; Communications of the ACM, 2009. https://cacm.acm.org/research/roofline-an-insightful-visual-performance-model-for-multicore-architectures/</li><li id="fn-8"><a href="#fnref-8">(*8)</a> NVIDIA, Tensor Cores product documentation (in-GPU matrix units as platform improves). https://www.nvidia.com/en-us/data-center/tensor-cores/</li><li id="fn-9"><a href="#fnref-9">(*9)</a> John L. Hennessy, David A. Patterson, &quot;A New Golden Age for Computer Architecture,&quot; Communications of the ACM, 2019. https://www.doc.ic.ac.uk/~wl/teachlocal/arch/papers/cacm19golden-age.pdf</li><li id="fn-10"><a href="#fnref-10">(*10)</a> H. T. Kung, Charles E. Leiserson, &quot;Systolic Arrays for (VLSI),&quot; CMU-CS-79-103, 1978/1979. https://eecs.harvard.edu/htk/static/files/1978-cmu-cs-report-kung-leiserson.pdf</li><li id="fn-11"><a href="#fnref-11">(*11)</a> Google Cloud, &quot;TPU architecture,&quot; MXU / systolic array / host infeed-outfeed. https://docs.cloud.google.com/tpu/docs/system-architecture-tpu-vm</li><li id="fn-12"><a href="#fnref-12">(*12)</a> Norman P. Jouppi et al., &quot;In-Datacenter Performance Analysis of a TPU,&quot; ISCA 2017. https://research.google/pubs/in-datacenter-performance-analysis-of-a-tensor-processing-unit/</li><li id="fn-13"><a href="#fnref-13">(*13)</a> Google Developers, Coral NPU FAQ — &quot;How does the NPU differ from a TPU, GPU, and DSP?&quot; https://developers.google.com/coral/guides/faq</li><li id="fn-14"><a href="#fnref-14">(*14)</a> Coral, Edge TPU FAQ (≈4 TOPS, ≈2 W, inference-first vs Cloud TPU). https://coral.ai/docs/edgetpu/faq/</li><li id="fn-15"><a href="#fnref-15">(*15)</a> Coral Accelerator Module datasheet (4 TOPS int8, 2 TOPS/W). https://www.coral.ai/static/files/Coral-Accelerator-Module-datasheet.pdf</li><li id="fn-16"><a href="#fnref-16">(*16)</a> Apple Developer Documentation, MLComputeUnits. https://developer.apple.com/documentation/coreml/mlcomputeunits</li><li id="fn-17"><a href="#fnref-17">(*17)</a> Qualcomm, Hexagon NPU, Hot Chips 2023. https://hc2023.hotchips.org/assets/program/conference/day2/ML%20Inference/HC2023%20Qualcomm%20Hexagon%20NPU.pdf</li><li id="fn-18"><a href="#fnref-18">(*18)</a> Qualcomm, &quot;Unlocking on-device generative AI with an NPU and heterogeneous computing.&quot; https://www.qualcomm.com/content/dam/qcomm-martech/dm-assets/documents/Unlocking-on-device-generative-AI-with-an-NPU-and-heterogeneous-computing.pdf</li><li id="fn-19"><a href="#fnref-19">(*19)</a> Arm, Ethos-N product brief. https://armkeil.blob.core.windows.net/developer/Files/pdf/ethos/arm-ethos-n-product-brief.pdf</li></ol></section>
     </main>
     <aside class="toc" aria-label="目次">
       <p class="toc-label">目次</p>
@@ -481,6 +514,7 @@
 <li><a href="#争点カード1-topsだけで比べる">争点カード1 TOPSだけで比べる</a></li>
 <li><a href="#争点カード2-gpuだけで十分か">争点カード2 GPUだけで十分か</a></li>
 <li><a href="#争点カード3-ソフトウェアロックインか特化効率か">争点カード3 ソフトウェアロックインか、特化効率か</a></li>
+<li><a href="#争点カード4-npuは小さいtpuか">争点カード4 NPUは小さいTPUか</a></li>
 <li><a href="#分解の型">分解の型</a></li>
 <li><a href="#出口命題">出口命題</a></li>
 <li><a href="#placement-drill">placement drill</a></li>
