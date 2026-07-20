@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="460" viewBox="0 0 820 460" role="img" aria-label="Roofline モデルの教育用模式図">
+  <rect width="820" height="460" fill="#f2f3f0"/>
+  <text x="24" y="36" fill="#1e201e" font-family="Georgia, serif" font-size="20" font-weight="600">Roofline（教育用模式）</text>
+  <text x="24" y="58" fill="#393b38" font-family="Georgia, serif" font-size="13">横軸: 演算強度（演算/バイト）。縦軸: 達成性能。</text>
+  <line x1="80" y1="380" x2="760" y2="380" stroke="#393b38" stroke-width="2"/>
+  <line x1="80" y1="380" x2="80" y2="90" stroke="#393b38" stroke-width="2"/>
+  <text x="300" y="420" fill="#393b38" font-family="Georgia, serif" font-size="13">演算強度</text>
+  <text x="24" y="240" fill="#393b38" font-family="Georgia, serif" font-size="13">性能</text>
+  <polyline points="80,350 320,140 760,140" fill="none" stroke="#35d0bb" stroke-width="3"/>
+  <text x="500" y="125" fill="#35d0bb" font-family="Georgia, serif" font-size="13">ピーク演算屋根</text>
+  <text x="120" y="300" fill="#393b38" font-family="Georgia, serif" font-size="13">帯域屋根</text>
+  <circle cx="180" cy="300" r="8" fill="#35d0bb"/>
+  <text x="195" y="305" fill="#1e201e" font-family="Georgia, serif" font-size="12">メモリ束縛の核</text>
+  <circle cx="520" cy="160" r="8" fill="#c2c3bf" stroke="#393b38"/>
+  <text x="535" y="165" fill="#1e201e" font-family="Georgia, serif" font-size="12">計算束縛の核</text>
+  <text x="80" y="450" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">根拠: Williams, Waterman, Patterson, CACM 2009（概念の再構成）</text>
+</svg>

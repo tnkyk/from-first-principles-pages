@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" role="img" aria-label="問題系譜の教育用ツリー">
+  <rect width="900" height="520" fill="#f2f3f0"/>
+  <text x="24" y="36" fill="#1e201e" font-family="Georgia, serif" font-size="20" font-weight="600">問題の系譜（教育用近似）</text>
+  <text x="24" y="58" fill="#393b38" font-family="Georgia, serif" font-size="13">部品改善を次駅にしない。TPU と NPU は別制約への枝。</text>
+  <g font-family="Georgia, serif" font-size="13">
+    <rect x="40" y="90" width="160" height="70" rx="6" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="55" y="120" fill="#1e201e">汎用 CPU</text>
+    <text x="55" y="142" fill="#393b38">制御・低遅延</text>
+    <path d="M200 125 H250" stroke="#393b38" stroke-width="2"/>
+    <text x="205" y="115" fill="#a9aaa5" font-size="11">スループット不足</text>
+    <rect x="250" y="90" width="160" height="70" rx="6" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="265" y="120" fill="#1e201e">GPGPU / SIMT</text>
+    <text x="265" y="142" fill="#393b38">同型並列</text>
+    <path d="M410 125 H460" stroke="#393b38" stroke-width="2"/>
+    <text x="415" y="115" fill="#a9aaa5" font-size="11">行列コスト</text>
+    <rect x="460" y="90" width="160" height="70" rx="6" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="480" y="120" fill="#1e201e">TPU</text>
+    <text x="480" y="142" fill="#393b38">行列特化 ASIC</text>
+    <path d="M330 160 V220" stroke="#393b38" stroke-width="2"/>
+    <text x="340" y="200" fill="#a9aaa5" font-size="11">端末の電力・熱</text>
+    <rect x="250" y="230" width="160" height="70" rx="6" fill="#fff" stroke="#c2c3bf" stroke-width="2"/>
+    <text x="270" y="260" fill="#1e201e">NPU</text>
+    <text x="270" y="282" fill="#393b38">エッジ推論</text>
+    <rect x="40" y="340" width="820" height="140" rx="8" fill="#fff" stroke="#393b38"/>
+    <text x="60" y="370" fill="#35d0bb" font-size="14" font-weight="600">同骨格内の改善（次駅ではない）</text>
+    <text x="60" y="400" fill="#1e201e">GPU: Tensor Core / 低精度 / 帯域向上</text>
+    <text x="60" y="425" fill="#1e201e">TPU: 世代・インターコネクト改善</text>
+    <text x="60" y="450" fill="#1e201e">NPU: TOPS 向上・ベンダー ISA 拡張</text>
+  </g>
+</svg>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="440" viewBox="0 0 860 440" role="img" aria-label="TPU MAC アレイの教育用模式図">
+  <rect width="860" height="440" fill="#f2f3f0"/>
+  <text x="24" y="36" fill="#1e201e" font-family="Georgia, serif" font-size="20" font-weight="600">TPU の行列ユニット（教育用模式）</text>
+  <text x="24" y="58" fill="#393b38" font-family="Georgia, serif" font-size="13">巨大な MAC アレイへ重みと活性化を流し、行列積を一気にこなす。</text>
+  <g font-family="Georgia, serif" font-size="12">
+    <rect x="60" y="100" width="120" height="220" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="75" y="130" fill="#1e201e">活性化</text>
+    <text x="75" y="155" fill="#393b38">入力ストリーム</text>
+    <rect x="220" y="100" width="280" height="220" rx="6" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="280" y="140" fill="#35d0bb" font-size="14">MAC アレイ</text>
+    <rect x="250" y="160" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="285" y="160" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="320" y="160" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="355" y="160" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="390" y="160" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="425" y="160" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="250" y="190" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="285" y="190" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="320" y="190" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="355" y="190" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="390" y="190" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="425" y="190" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="250" y="220" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="285" y="220" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="320" y="220" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="355" y="220" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="390" y="220" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="425" y="220" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="250" y="250" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="285" y="250" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="320" y="250" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="355" y="250" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="390" y="250" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <rect x="425" y="250" width="28" height="22" fill="#35d0bb29" stroke="#35d0bb"/>
+    <text x="260" y="300" fill="#393b38">多数の乗算加算が同時</text>
+    <rect x="540" y="100" width="120" height="220" rx="6" fill="#fff" stroke="#393b38"/>
+    <text x="560" y="130" fill="#1e201e">重み</text>
+    <text x="560" y="155" fill="#393b38">読み出し</text>
+    <rect x="700" y="160" width="120" height="100" rx="6" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="720" y="205" fill="#1e201e">部分和</text>
+    <text x="720" y="230" fill="#393b38">出力</text>
+    <text x="60" y="360" fill="#1e201e">初代公開評価: 65,536 個の 8-bit MAC、ピーク 92 TOPS（Jouppi et al., 2017）</text>
+    <text x="60" y="385" fill="#393b38">決定的実行は尾部遅延の約束に合いやすい、と論文は述べる。</text>
+    <text x="60" y="415" fill="#a9aaa5">Source: Jouppi et al., ISCA 2017（概念の教育再構成）</text>
+  </g>
+</svg>
