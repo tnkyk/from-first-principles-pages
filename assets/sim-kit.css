@@ -11,11 +11,11 @@
   --font-serif: "Lora", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  /* Shell = header / page frame / catalog. Reading column uses --measure. */
+  /* Shell = header / page frame / catalog / reading column — same width. */
   --shell-max: 72rem;
   --page-inline-pad: 1.25rem;
-  --measure: 40rem;
-  --measure-wide: 56rem;
+  --measure: var(--shell-max);
+  --measure-wide: var(--shell-max);
   --radius: 4px;
 }
 
