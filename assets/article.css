@@ -589,6 +589,8 @@ figcaption {
   border-collapse: collapse;
   font-size: 0.92em;
   margin-top: 0.5em;
+  background: transparent;
+  color: var(--ink);
 }
 
 .article-deck .marpit > section th,
@@ -596,6 +598,47 @@ figcaption {
   border: 1px solid var(--ink-line);
   padding: 0.35em 0.55em;
   text-align: left;
+  background: var(--code-bg);
+  color: var(--ink);
+}
+
+.article-deck .marpit > section th {
+  background: color-mix(in srgb, var(--accent) 18%, var(--code-bg));
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.article-deck .marpit > section .viz,
+.article-deck .marpit > section .viz-stack,
+.article-deck .marpit > section .viz-flow,
+.article-deck .marpit > section .viz-axes {
+  width: 100%;
+  max-width: 100%;
+}
+
+.article-deck .marpit > section .viz-peak {
+  width: 100%;
+  height: auto;
+  max-height: 42%;
+  display: block;
+}
+
+.article-deck .marpit > section .viz-col h3,
+.article-deck .marpit > section .viz-axis .k,
+.article-deck .marpit > section .viz-layer .tag {
+  color: var(--accent) !important;
+}
+
+.article-deck .marpit > section .viz-col,
+.article-deck .marpit > section .viz-node,
+.article-deck .marpit > section .viz-layer,
+.article-deck .marpit > section .viz-axis {
+  background: var(--code-bg) !important;
+  border-color: var(--ink-line) !important;
+}
+
+.article-deck .marpit > section .viz-note {
+  color: var(--ink-dim) !important;
 }
 
 .article-deck-hint {
