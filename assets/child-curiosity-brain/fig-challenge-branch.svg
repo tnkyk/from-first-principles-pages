@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="challenge branch">
+  <rect width="720" height="300" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">挑戦は難度と評価圧で分岐する</text>
+  <rect x="280" y="60" width="160" height="50" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="318" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">同じ課題</text>
+  <path d="M360 110 V140" stroke="#c2c3bf" stroke-width="2"/>
+  <path d="M200 140 H520" stroke="#c2c3bf" stroke-width="2"/>
+  <path d="M200 140 V160" stroke="#c2c3bf" stroke-width="2"/>
+  <path d="M520 140 V160" stroke="#c2c3bf" stroke-width="2"/>
+  <rect x="80" y="165" width="240" height="80" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="110" y="195" fill="#35d0bb" font-family="Georgia, serif" font-size="14">挑戦として接近</text>
+  <text x="100" y="220" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">適度難度 / 自律 / 学習目標</text>
+  <rect x="400" y="165" width="240" height="80" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="430" y="195" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">脅威として回避</text>
+  <text x="415" y="220" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">過難度 / 評価不安 / 遂行目標</text>
+  <text x="24" y="280" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / SDT / Mueller and Dweck</text>
+</svg>

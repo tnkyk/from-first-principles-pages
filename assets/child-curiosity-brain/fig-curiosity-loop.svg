@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="joho gap loop">
+  <rect width="720" height="280" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">情報ギャップ - 探索 - 更新</text>
+  <rect x="40" y="70" width="150" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="58" y="100" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">部分知識</text>
+  <text x="58" y="122" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">欠けが顕在化</text>
+  <path d="M200 105 H250" stroke="#35d0bb" stroke-width="3"/>
+  <polygon points="250,100 262,105 250,110" fill="#35d0bb"/>
+  <rect x="270" y="70" width="150" height="70" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="292" y="100" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">好奇心駆動</text>
+  <text x="292" y="122" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">知りたい圧力</text>
+  <path d="M430 105 H480" stroke="#35d0bb" stroke-width="3"/>
+  <polygon points="480,100 492,105 480,110" fill="#35d0bb"/>
+  <rect x="500" y="70" width="170" height="70" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="528" y="100" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">探索・行為</text>
+  <text x="528" y="122" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">手を伸ばす</text>
+  <path d="M585 140 V175 H115 V140" stroke="#c2c3bf" stroke-width="2" fill="none"/>
+  <polygon points="110,140 120,140 115,128" fill="#c2c3bf"/>
+  <rect x="200" y="190" width="320" height="55" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="230" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">予測の更新（報酬予測誤差）</text>
+  <text x="24" y="268" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Loewenstein / Schultz / Kang</text>
+</svg>

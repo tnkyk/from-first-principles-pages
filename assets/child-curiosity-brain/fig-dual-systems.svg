@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="dual systems">
+  <rect width="720" height="280" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">発達レジーム：感度と制御の時間差</text>
+  <text x="80" y="80" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">児童期</text>
+  <text x="300" y="80" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">思春期</text>
+  <text x="520" y="80" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">成人初期</text>
+  <path d="M60 200 C 220 190, 280 90, 360 100 S 520 160, 660 150" stroke="#35d0bb" stroke-width="3" fill="none"/>
+  <text x="380" y="95" fill="#35d0bb" font-family="Georgia, serif" font-size="13">報酬・新奇性への感度</text>
+  <path d="M60 220 C 240 215, 400 180, 660 120" stroke="#c2c3bf" stroke-width="3" fill="none"/>
+  <text x="420" y="200" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">認知制御（ゆっくり成熟）</text>
+  <line x1="60" y1="230" x2="660" y2="230" stroke="#393b38" stroke-width="1"/>
+  <text x="24" y="262" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Steinberg dual systems</text>
+</svg>

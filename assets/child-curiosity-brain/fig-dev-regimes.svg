@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="340" viewBox="0 0 720 340" role="img" aria-label="composition layers">
+  <rect width="720" height="340" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">構成層（時間の矢印ではない）</text>
+  <rect x="40" y="60" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="1"/>
+  <text x="56" y="83" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L7 測定・制度・言説</text>
+  <rect x="40" y="104" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="1"/>
+  <text x="56" y="127" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L6 発達レジーム</text>
+  <rect x="40" y="148" width="640" height="36" rx="3" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="56" y="171" fill="#35d0bb" font-family="Georgia, serif" font-size="14">L5 能動・記憶</text>
+  <rect x="40" y="192" width="640" height="36" rx="3" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="56" y="215" fill="#35d0bb" font-family="Georgia, serif" font-size="14">L4 挑戦・目標</text>
+  <rect x="40" y="236" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="1"/>
+  <text x="56" y="259" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L3 好み・報酬学習 / L2 好奇心・情報 / L1 安全・関係</text>
+  <text x="24" y="310" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / 一現象は複数層にまたがりうる</text>
+</svg>

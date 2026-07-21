@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>gap-curiosity</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .meter { height: 16px; background: var(--ink-line); border-radius: 2px; overflow: hidden; margin: 0.5rem 0 1rem; }
+    .meter > i { display: block; height: 100%; background: var(--accent); width: 0%; }
+    label { display: block; color: var(--ink-dim); font-size: 12px; margin-top: 0.75rem; }
+    input[type="range"] { width: 100%; }
+    .readout { font-family: var(--font-mono); color: var(--accent); margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 部分知識があるとき、情報ギャップ駆動の接近が強まりやすい</p>
+    <div class="panel">
+      <p>トリビアの「知らなさ」を動かしてください。完全未知でも完全既知でも、知りたい圧力は小さくなります。</p>
+      <label for="know">いま知っている度合い（0＝何も知らない／1＝完全に知っている）</label>
+      <input id="know" type="range" min="0" max="100" value="45" />
+      <div class="readout" id="out"></div>
+      <div class="meter" aria-hidden="true"><i id="bar"></i></div>
+      <p class="hint" id="hint"></p>
+    </div>
+    <div class="sim-row">
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">教育用玩具。Loewenstein の情報ギャップの単峰イメージを触るための近似です。</p>
+  </div>
+  <script>
+    const know = document.getElementById("know");
+    const out = document.getElementById("out");
+    const bar = document.getElementById("bar");
+    const hint = document.getElementById("hint");
+    function drive(k) {
+      // single-peak around mid knowledge: 4k(1-k)
+      return 4 * k * (1 - k);
+    }
+    function render() {
+      const k = Number(know.value) / 100;
+      const d = drive(k);
+      out.textContent = "知りたい圧力 ≈ " + d.toFixed(2) + "（知っている度 " + k.toFixed(2) + "）";
+      bar.style.width = Math.round(d * 100) + "%";
+      if (k < 0.15) hint.textContent = "完全未知に近い：問い自体が立ちにくい。";
+      else if (k > 0.85) hint.textContent = "ほぼ既知：ギャップが閉じ、駆動が落ちる。";
+      else hint.textContent = "部分知識：欠けが顕在化し、接近したくなる帯。";
+    }
+    know.oninput = render;
+    document.getElementById("reset").onclick = () => { know.value = 45; render(); };
+    render();
+  </script>
+</body>
+</html>

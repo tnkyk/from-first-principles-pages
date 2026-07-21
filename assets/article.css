@@ -29,8 +29,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Prevent iOS from inventing a wider layout viewport when a child overflows. */
-  overflow-x: clip;
 }
 
 body {
@@ -41,10 +39,6 @@ body {
   font-size: 18px;
   line-height: 1.78;
   -webkit-font-smoothing: antialiased;
-  overflow-x: clip;
-  /* Long URLs / unbroken strings must wrap inside the shell, not widen it. */
-  overflow-wrap: anywhere;
-  word-wrap: break-word;
 }
 
 a {
@@ -105,28 +99,19 @@ a:hover {
   margin: 0 auto;
   padding: 2rem var(--page-inline-pad) 4rem;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 2rem;
-}
-
-/* Grid/flex min-size defaults to content; 900px SVGs otherwise force horizontal scroll. */
-.page-shell > *,
-.page-shell main,
-.page-shell .article-body,
-.page-shell .article-header {
-  min-width: 0;
-  max-width: 100%;
 }
 
 @media (min-width: 1100px) {
   .page-shell {
-    grid-template-columns: minmax(0, 1fr) 14rem;
+    grid-template-columns: 1fr 14rem;
     align-items: start;
   }
 }
 
 .article-header {
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
 }
 
 .back-link {
@@ -144,12 +129,12 @@ h1.title {
   font-size: clamp(2rem, 4vw, 2.25rem);
   line-height: 1.25;
   color: var(--ink);
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
 }
 
 .lede,
 .article-body > p {
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
 }
 
 .article-body h2 {
@@ -158,7 +143,7 @@ h1.title {
   font-size: 1.875rem;
   line-height: 1.3;
   margin: 2.75rem 0 1rem;
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
   color: var(--ink);
   scroll-margin-top: 5rem;
 }
@@ -168,14 +153,14 @@ h1.title {
   font-weight: 600;
   font-size: 1.25rem;
   margin: 2rem 0 0.75rem;
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
 }
 
 .article-body p,
 .article-body ul,
 .article-body ol {
   margin: 0 0 1.15rem;
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
   color: color-mix(in srgb, var(--ink) 92%, var(--ink-dim));
 }
 
@@ -200,14 +185,14 @@ h1.title {
 }
 
 .article-body .katex-display {
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
   margin: 1.25rem 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
 
 .article-body pre {
-  max-width: min(100%, var(--measure-wide));
+  max-width: var(--measure-wide);
   background: var(--code-bg);
   border: 1px solid var(--ink-line);
   border-radius: var(--radius);
@@ -225,13 +210,12 @@ h1.title {
 
 figure.article-figure {
   margin: 1.75rem 0;
-  max-width: min(100%, var(--measure-wide));
+  max-width: var(--measure-wide);
 }
 
 figure.article-figure img {
   display: block;
   width: 100%;
-  max-width: 100%;
   height: auto;
   min-height: 120px;
   border-radius: var(--radius);
@@ -315,7 +299,7 @@ figcaption {
 }
 
 .sim-panel {
-  max-width: min(100%, var(--measure-wide));
+  max-width: var(--measure-wide);
   border: 1px solid var(--ink-line);
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--page) 88%, #000);
@@ -342,9 +326,7 @@ figcaption {
 }
 
 .sim-frame {
-  display: block;
   width: 100%;
-  max-width: 100%;
   min-height: 360px;
   height: 420px;
   border: 0;
@@ -352,10 +334,9 @@ figcaption {
 }
 
 .table-wrap {
-  max-width: min(100%, var(--measure-wide));
+  max-width: var(--measure-wide);
   overflow-x: auto;
   margin: 1.25rem 0 1.5rem;
-  -webkit-overflow-scrolling: touch;
 }
 
 .article-body table {
@@ -384,17 +365,12 @@ figcaption {
 }
 
 .footnotes {
-  max-width: min(100%, var(--measure));
+  max-width: var(--measure);
   margin-top: 3rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--ink-line);
   font-size: 0.92rem;
   color: var(--ink-dim);
-  overflow-wrap: anywhere;
-}
-
-.footnotes a {
-  overflow-wrap: anywhere;
 }
 
 .footnotes h2 {
@@ -459,254 +435,6 @@ figcaption {
   color: var(--ink-dim);
   font-size: 0.95rem;
   margin-top: 0.2rem;
-}
-
-/* —— Embedded Marp deck (optional; injected when 09_slides.md exists) —— */
-.article-deck {
-  max-width: min(100%, var(--measure));
-  margin: 0 0 2.25rem;
-  border: 1px solid var(--ink-line);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--page) 88%, #000);
-  overflow: hidden;
-}
-
-.article-deck-chrome {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid var(--ink-line);
-  font-family: var(--font-sans);
-}
-
-.article-deck-label {
-  margin: 0;
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-}
-
-.article-deck-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.article-deck-nav button {
-  appearance: none;
-  border: 1px solid var(--ink-line);
-  background: var(--code-bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: 0.85rem;
-  padding: 0.35rem 0.7rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-}
-
-.article-deck-nav button:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.article-deck-nav button:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.article-deck-nav [data-deck-status] {
-  font-variant-numeric: tabular-nums;
-  font-size: 0.85rem;
-  color: var(--ink-dim);
-  min-width: 3.5rem;
-  text-align: center;
-}
-
-.article-deck-viewport {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: var(--page);
-  min-width: 0;
-}
-
-.article-deck .marpit {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.article-deck .marpit > section {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  display: none !important;
-  box-sizing: border-box !important;
-  overflow: auto !important;
-  padding: clamp(1rem, 3.5vw, 2.5rem) clamp(1rem, 4vw, 3rem) !important;
-  font-size: clamp(0.95rem, 2.1vw, 1.35rem) !important;
-  line-height: 1.45 !important;
-}
-
-.article-deck .marpit > section.is-active {
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.article-deck .marpit > section h1 {
-  font-size: clamp(1.35rem, 3.4vw, 2.1rem) !important;
-  margin: 0 0 0.45em !important;
-}
-
-.article-deck .marpit > section h2 {
-  font-size: clamp(1.15rem, 2.6vw, 1.6rem) !important;
-  margin: 0 0 0.5em !important;
-}
-
-.article-deck .marpit > section h3 {
-  font-size: clamp(1rem, 2.2vw, 1.25rem) !important;
-}
-
-.article-deck .marpit > section p,
-.article-deck .marpit > section li {
-  font-size: inherit !important;
-}
-
-.article-deck .marpit > section ul,
-.article-deck .marpit > section ol {
-  margin: 0.15em 0 0 !important;
-  padding-left: 1.15em !important;
-}
-
-.article-deck .marpit > section table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.92em;
-  margin-top: 0.5em;
-  background: transparent;
-  color: var(--ink);
-}
-
-.article-deck .marpit > section th,
-.article-deck .marpit > section td {
-  border: 1px solid var(--ink-line);
-  padding: 0.35em 0.55em;
-  text-align: left;
-  background: var(--code-bg);
-  color: var(--ink);
-}
-
-.article-deck .marpit > section th {
-  background: color-mix(in srgb, var(--accent) 18%, var(--code-bg));
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.article-deck .marpit > section .viz,
-.article-deck .marpit > section .viz-stack,
-.article-deck .marpit > section .viz-flow,
-.article-deck .marpit > section .viz-axes {
-  width: 100%;
-  max-width: 100%;
-}
-
-.article-deck .marpit > section .viz-peak {
-  width: 100%;
-  height: auto;
-  max-height: 42%;
-  display: block;
-}
-
-.article-deck .marpit > section .viz-col h3,
-.article-deck .marpit > section .viz-axis .k,
-.article-deck .marpit > section .viz-layer .tag {
-  color: var(--accent) !important;
-}
-
-.article-deck .marpit > section .viz-col,
-.article-deck .marpit > section .viz-node,
-.article-deck .marpit > section .viz-layer,
-.article-deck .marpit > section .viz-axis {
-  background: var(--code-bg) !important;
-  border-color: var(--ink-line) !important;
-}
-
-.article-deck .marpit > section .viz-note {
-  color: var(--ink-dim) !important;
-}
-
-.article-deck-hint {
-  margin: 0;
-  padding: 0.55rem 1rem 0.75rem;
-  border-top: 1px solid var(--ink-line);
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  color: var(--ink-faint);
-}
-
-@media (max-width: 640px) {
-  :root {
-    --page-inline-pad: 1rem;
-  }
-
-  body {
-    font-size: 16px;
-    line-height: 1.75;
-  }
-
-  .site-header-inner {
-    padding-top: 0.7rem;
-    padding-bottom: 0.7rem;
-    gap: 0.75rem;
-  }
-
-  .page-shell,
-  .catalog {
-    padding-top: 1.25rem;
-    padding-bottom: 3rem;
-  }
-
-  h1.title {
-    font-size: clamp(1.45rem, 6.5vw, 1.85rem);
-    line-height: 1.3;
-  }
-
-  .article-body h2 {
-    font-size: 1.35rem;
-    margin-top: 2.15rem;
-  }
-
-  .article-body h3 {
-    font-size: 1.1rem;
-  }
-
-  .sim-frame {
-    min-height: 300px;
-    height: 360px;
-  }
-
-  .catalog h1 {
-    font-size: 1.6rem;
-  }
-
-  .catalog li a {
-    font-size: 1.05rem;
-  }
-
-  .article-deck-chrome {
-    padding: 0.6rem 0.75rem;
-  }
-
-  .article-deck-viewport {
-    aspect-ratio: 4 / 5;
-    min-height: 18rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
