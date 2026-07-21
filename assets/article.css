@@ -461,6 +461,152 @@ figcaption {
   margin-top: 0.2rem;
 }
 
+/* —— Embedded Marp deck (optional; injected when 09_slides.md exists) —— */
+.article-deck {
+  max-width: min(100%, var(--measure));
+  margin: 0 0 2.25rem;
+  border: 1px solid var(--ink-line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--page) 88%, #000);
+  overflow: hidden;
+}
+
+.article-deck-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--ink-line);
+  font-family: var(--font-sans);
+}
+
+.article-deck-label {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.article-deck-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.article-deck-nav button {
+  appearance: none;
+  border: 1px solid var(--ink-line);
+  background: var(--code-bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.article-deck-nav button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.article-deck-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.article-deck-nav [data-deck-status] {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  min-width: 3.5rem;
+  text-align: center;
+}
+
+.article-deck-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--page);
+  min-width: 0;
+}
+
+.article-deck .marpit {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.article-deck .marpit > section {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: none !important;
+  box-sizing: border-box !important;
+  overflow: auto !important;
+  padding: clamp(1rem, 3.5vw, 2.5rem) clamp(1rem, 4vw, 3rem) !important;
+  font-size: clamp(0.95rem, 2.1vw, 1.35rem) !important;
+  line-height: 1.45 !important;
+}
+
+.article-deck .marpit > section.is-active {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.article-deck .marpit > section h1 {
+  font-size: clamp(1.35rem, 3.4vw, 2.1rem) !important;
+  margin: 0 0 0.45em !important;
+}
+
+.article-deck .marpit > section h2 {
+  font-size: clamp(1.15rem, 2.6vw, 1.6rem) !important;
+  margin: 0 0 0.5em !important;
+}
+
+.article-deck .marpit > section h3 {
+  font-size: clamp(1rem, 2.2vw, 1.25rem) !important;
+}
+
+.article-deck .marpit > section p,
+.article-deck .marpit > section li {
+  font-size: inherit !important;
+}
+
+.article-deck .marpit > section ul,
+.article-deck .marpit > section ol {
+  margin: 0.15em 0 0 !important;
+  padding-left: 1.15em !important;
+}
+
+.article-deck .marpit > section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+  margin-top: 0.5em;
+}
+
+.article-deck .marpit > section th,
+.article-deck .marpit > section td {
+  border: 1px solid var(--ink-line);
+  padding: 0.35em 0.55em;
+  text-align: left;
+}
+
+.article-deck-hint {
+  margin: 0;
+  padding: 0.55rem 1rem 0.75rem;
+  border-top: 1px solid var(--ink-line);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+}
+
 @media (max-width: 640px) {
   :root {
     --page-inline-pad: 1rem;
@@ -508,6 +654,15 @@ figcaption {
 
   .catalog li a {
     font-size: 1.05rem;
+  }
+
+  .article-deck-chrome {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .article-deck-viewport {
+    aspect-ratio: 4 / 5;
+    min-height: 18rem;
   }
 }
 
