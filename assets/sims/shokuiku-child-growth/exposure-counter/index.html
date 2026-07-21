@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>exposure-counter</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .meters { display: grid; gap: 0.75rem; margin: 0.75rem 0; }
+    .bar-wrap { background: var(--ink-line); border-radius: 4px; height: 1rem; overflow: hidden; }
+    .bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.2s ease; }
+    .row { display: grid; grid-template-columns: 7rem 1fr; gap: 0.5rem; align-items: center; }
+    .mono { font-family: var(--font-mono, monospace); font-size: 0.9rem; color: var(--ink-dim); }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 味の好みを上げるには、見るだけでなく味わう経験が必要で、好みは曝露頻度の関数になりうる</p>
+    <div class="panel">
+      <p>新しい食品への曝露を選ぶ。見た目好みと味好みは別メーターになる。</p>
+      <div class="sim-row">
+        <button type="button" class="primary" id="look">見るだけ +1</button>
+        <button type="button" class="primary" id="taste">味わう +1</button>
+        <button type="button" id="reset">リセット</button>
+      </div>
+      <p class="mono" id="counts">見た回数: 0 / 味わった回数: 0</p>
+      <div class="meters">
+        <div class="row"><span>見た目好み</span><div class="bar-wrap"><div class="bar" id="visual"></div></div></div>
+        <div class="row"><span>味の好み</span><div class="bar-wrap"><div class="bar" id="tasteBar"></div></div></div>
+      </div>
+      <p class="hint" id="hint">教育用玩具。Birch et al. 1987 の「見る vs 味わう」対比を模式化したものであり、実子の個人曲線ではない。</p>
+    </div>
+  </div>
+  <script>
+    let looks = 0;
+    let tastes = 0;
+    const visual = document.getElementById("visual");
+    const tasteBar = document.getElementById("tasteBar");
+    const counts = document.getElementById("counts");
+    const hint = document.getElementById("hint");
+    function clamp(n) { return Math.max(0, Math.min(100, n)); }
+    function render() {
+      // Visual preference rises with looking OR tasting (seeing happens in both).
+      const v = clamp(looks * 6 + tastes * 6);
+      // Taste preference rises mainly with tasting (looking alone is weak).
+      const t = clamp(tastes * 7 + looks * 0.5);
+      visual.style.width = v + "%";
+      tasteBar.style.width = t + "%";
+      counts.textContent = `見た回数: ${looks} / 味わった回数: ${tastes}`;
+      if (looks >= 8 && tastes === 0) {
+        hint.textContent = "見るだけでは見た目好みは上がっても、味好みはほとんど動かない。";
+      } else if (tastes >= 5) {
+        hint.textContent = "味わいが積み重なると味好みが上がりやすい。回数は個人・食品で違う。";
+      } else {
+        hint.textContent = "教育用玩具。Birch et al. 1987 の「見る vs 味わう」対比を模式化したものであり、実子の個人曲線ではない。";
+      }
+    }
+    document.getElementById("look").onclick = () => { looks += 1; render(); };
+    document.getElementById("taste").onclick = () => { tastes += 1; looks += 1; render(); };
+    document.getElementById("reset").onclick = () => { looks = 0; tastes = 0; render(); };
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" role="img" aria-label="雑食のジレンマの教育用模式図">
+  <rect width="900" height="420" fill="#f2f3f0"/>
+  <text x="24" y="36" fill="#1e201e" font-family="Georgia, serif" font-size="20" font-weight="600">雑食のジレンマ（教育用近似）</text>
+  <text x="24" y="58" fill="#393b38" font-family="Georgia, serif" font-size="13">多様な栄養が要る一方で、未知のものは毒のリスクを持つ。</text>
+  <g font-family="Georgia, serif" font-size="14">
+    <rect x="60" y="100" width="300" height="120" rx="8" fill="#fff" stroke="#35d0bb" stroke-width="2"/>
+    <text x="80" y="140" fill="#1e201e" font-weight="600">必要：多様性</text>
+    <text x="80" y="170" fill="#393b38">多くの食品から栄養を集める</text>
+    <text x="80" y="195" fill="#393b38">新しい食品も試す必要がある</text>
+    <rect x="540" y="100" width="300" height="120" rx="8" fill="#fff" stroke="#393b38" stroke-width="2"/>
+    <text x="560" y="140" fill="#1e201e" font-weight="600">危険：未知のリスク</text>
+    <text x="560" y="170" fill="#393b38">見慣れないものは毒かもしれない</text>
+    <text x="560" y="195" fill="#393b38">苦味・酸味は警戒信号になりやすい</text>
+    <path d="M360 160 H540" stroke="#393b38" stroke-width="2"/>
+    <text x="400" y="148" fill="#35d0bb" font-size="13">緊張</text>
+    <rect x="60" y="260" width="780" height="120" rx="8" fill="#fff" stroke="#393b38"/>
+    <text x="80" y="295" fill="#35d0bb" font-size="15" font-weight="600">初期の答え（足りない）</text>
+    <text x="80" y="325" fill="#1e201e">生得バイアス：甘味・塩味へ接近／苦味・酸味へ回避</text>
+    <text x="80" y="355" fill="#393b38">これだけでは「満遍なく」は完了しない。残りは学習課題になる。</text>
+  </g>
+</svg>
