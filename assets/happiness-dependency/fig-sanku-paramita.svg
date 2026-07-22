@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="320" viewBox="0 0 720 320" role="img" aria-label="sanku">
+  <rect width="720" height="320" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">三句の法門と六波羅蜜</text>
+  <rect x="40" y="60" width="200" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="70" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">菩提心を因</text>
+  <text x="70" y="112" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">如実に自心を知る志向</text>
+  <rect x="260" y="60" width="200" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="300" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">大悲を根</text>
+  <text x="290" y="112" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">他の苦への関わり</text>
+  <rect x="480" y="60" width="200" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="505" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">方便を究竟</text>
+  <text x="500" y="112" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">具体的な手立ての完成</text>
+  <path d="M360 130 V155" stroke="#c2c3bf" stroke-width="2"/>
+  <text x="250" y="175" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">方便側の行為態度として展開（達成表ではない）</text>
+  <rect x="40" y="195" width="100" height="44" rx="3" fill="#151716" stroke="#393b38"/><text x="68" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">布施</text>
+  <rect x="150" y="195" width="100" height="44" rx="3" fill="#151716" stroke="#393b38"/><text x="178" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">持戒</text>
+  <rect x="260" y="195" width="100" height="44" rx="3" fill="#151716" stroke="#393b38"/><text x="288" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">忍辱</text>
+  <rect x="370" y="195" width="100" height="44" rx="3" fill="#151716" stroke="#393b38"/><text x="398" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">精進</text>
+  <rect x="480" y="195" width="100" height="44" rx="3" fill="#151716" stroke="#393b38"/><text x="508" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">禅定</text>
+  <rect x="590" y="195" width="90" height="44" rx="3" fill="#151716" stroke="#393b38"/><text x="612" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">般若</text>
+  <text x="24" y="280" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">妄執の深度（住心）が変わると、同じ行為の意味も変わる</text>
+  <text x="24" y="305" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / 大日経・十住心論（近似）</text>
+</svg>

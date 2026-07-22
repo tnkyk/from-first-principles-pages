@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="RPE loop">
+  <rect width="720" height="260" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">報酬予測誤差の更新</text>
+  <rect x="60" y="70" width="130" height="60" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="95" y="105" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">予測</text>
+  <path d="M190 100 H230" stroke="#35d0bb" stroke-width="3"/>
+  <polygon points="230,95 242,100 230,105" fill="#35d0bb"/>
+  <rect x="250" y="70" width="130" height="60" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="285" y="105" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">結果</text>
+  <path d="M380 100 H420" stroke="#35d0bb" stroke-width="3"/>
+  <polygon points="420,95 432,100 420,105" fill="#35d0bb"/>
+  <rect x="440" y="70" width="160" height="60" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="470" y="105" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">誤差信号</text>
+  <path d="M520 130 V170 H125 V130" stroke="#c2c3bf" stroke-width="2" fill="none"/>
+  <polygon points="120,130 130,130 125,118" fill="#c2c3bf"/>
+  <text x="200" y="195" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">予測が上がる → 同じ報酬では正の誤差が消える</text>
+  <text x="24" y="235" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Schultz</text>
+</svg>

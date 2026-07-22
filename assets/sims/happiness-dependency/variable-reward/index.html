@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>variable-reward</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .log { font-family: var(--font-mono); font-size: 12px; color: var(--ink-dim); max-height: 8rem; overflow: auto; border: 1px solid var(--ink-line); padding: 0.5rem; margin-top: 0.75rem; }
+    .readout { font-family: var(--font-mono); color: var(--accent); margin-top: 0.5rem; }
+    label { display: block; color: var(--ink-dim); font-size: 12px; margin-top: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 可変間隔の小報酬は、固定報酬より試行を延ばしやすい</p>
+    <div class="panel">
+      <p>同じ平均報酬でも、配り方が違うと「もう一回」の続きやすさが変わります。固定か可変かを選んで連打してください。</p>
+      <label><input type="radio" name="mode" value="fixed" checked /> 固定（毎回ほぼ同じ）</label>
+      <label><input type="radio" name="mode" value="variable" /> 可変（たまに大きく、よく小さく）</label>
+      <div class="readout" id="out"></div>
+      <div class="log" id="log"></div>
+      <p class="hint" id="hint"></p>
+    </div>
+    <div class="sim-row">
+      <button type="button" id="spin">もう一回</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">教育用玩具。可変報酬スケジュールが試行継続を延ばしやすい、という設計同型の近似です。</p>
+  </div>
+  <script>
+    let trials = 0;
+    let total = 0;
+    const out = document.getElementById("out");
+    const log = document.getElementById("log");
+    const hint = document.getElementById("hint");
+    function mode() {
+      return document.querySelector('input[name="mode"]:checked').value;
+    }
+    function reward() {
+      if (mode() === "fixed") return 3;
+      const u = Math.random();
+      if (u < 0.15) return 12;
+      if (u < 0.55) return 2;
+      return 1;
+    }
+    function render(last) {
+      out.textContent = "試行 " + trials + " / 累計報酬 " + total + (last != null ? " / 直前 +" + last : "");
+      if (mode() === "variable" && trials > 8) {
+        hint.textContent = "可変だと「次こそ」が残りやすく、止める理由が後回しになりやすい。";
+      } else if (mode() === "fixed" && trials > 8) {
+        hint.textContent = "固定だと予測が早く落ち着き、同じ快感の更新が薄れやすい。";
+      } else {
+        hint.textContent = "平均は近いが、誤差の出方が違う。";
+      }
+    }
+    document.getElementById("spin").onclick = () => {
+      const r = reward();
+      trials += 1;
+      total += r;
+      log.textContent = (log.textContent ? log.textContent + "\n" : "") + "#" + trials + " +" + r + " (" + mode() + ")";
+      log.scrollTop = log.scrollHeight;
+      render(r);
+    };
+    document.getElementById("reset").onclick = () => {
+      trials = 0; total = 0; log.textContent = ""; render(null);
+    };
+    document.querySelectorAll('input[name="mode"]').forEach((el) => {
+      el.onchange = () => render(null);
+    });
+    render(null);
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="wanting liking">
+  <rect width="720" height="300" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">wanting と liking の分担</text>
+  <rect x="40" y="70" width="280" height="140" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="60" y="105" fill="#35d0bb" font-family="Georgia, serif" font-size="16">wanting（誘因）</text>
+  <text x="60" y="132" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">接近したい・追いかけたい</text>
+  <text x="60" y="158" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">報酬予測誤差・ドーパミン系</text>
+  <text x="60" y="182" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">基準が上がりやすい</text>
+  <rect x="400" y="70" width="280" height="140" rx="4" fill="#151716" stroke="#c2c3bf" stroke-width="2"/>
+  <text x="420" y="105" fill="#c2c3bf" font-family="Georgia, serif" font-size="16">liking（快楽）</text>
+  <text x="420" y="132" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">いま快い・味わっている</text>
+  <text x="420" y="158" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">オピオイド／内因性カンナビノイド</text>
+  <text x="420" y="182" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">狭いホットスポット</text>
+  <text x="24" y="250" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">同じ「うれしい」でも、接近駆動と快楽生成は別系統になりうる</text>
+  <text x="24" y="280" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Berridge &amp; Kringelbach / Schultz</text>
+</svg>

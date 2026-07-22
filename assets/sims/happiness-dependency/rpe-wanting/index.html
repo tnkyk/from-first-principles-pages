@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>rpe-wanting</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .meter { height: 16px; background: var(--ink-line); border-radius: 2px; overflow: hidden; margin: 0.5rem 0 1rem; }
+    .meter > i { display: block; height: 100%; background: var(--accent); width: 0%; }
+    label { display: block; color: var(--ink-dim); font-size: 12px; margin-top: 0.75rem; }
+    input[type="range"] { width: 100%; }
+    .readout { font-family: var(--font-mono); color: var(--accent); margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 予測が上がると、同じ報酬でも正の誤差が消える</p>
+    <div class="panel">
+      <p>報酬の大きさを固定したまま、予測（期待）だけを動かしてください。期待が報酬に追いつくと、正の誤差は消えます。</p>
+      <label for="reward">実際の報酬（固定して観察しやすい値）</label>
+      <input id="reward" type="range" min="0" max="100" value="60" />
+      <label for="pred">予測（期待）</label>
+      <input id="pred" type="range" min="0" max="100" value="20" />
+      <div class="readout" id="out"></div>
+      <div class="meter" aria-hidden="true"><i id="bar"></i></div>
+      <p class="hint" id="hint"></p>
+    </div>
+    <div class="sim-row">
+      <button type="button" id="match">予測を報酬に合わせる</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">教育用玩具。Schultz の報酬予測誤差の符号を触るための近似です。快楽そのもの（liking）とは別です。</p>
+  </div>
+  <script>
+    const reward = document.getElementById("reward");
+    const pred = document.getElementById("pred");
+    const out = document.getElementById("out");
+    const bar = document.getElementById("bar");
+    const hint = document.getElementById("hint");
+    function render() {
+      const r = Number(reward.value) / 100;
+      const p = Number(pred.value) / 100;
+      const pe = r - p;
+      out.textContent = "予測誤差 ≈ " + pe.toFixed(2) + "（報酬 " + r.toFixed(2) + " − 予測 " + p.toFixed(2) + "）";
+      const width = Math.max(0, Math.min(1, (pe + 1) / 2));
+      bar.style.width = Math.round(width * 100) + "%";
+      if (Math.abs(pe) < 0.05) hint.textContent = "ほぼ予測通り：正の誤差は消える。同じ報酬でも「もっと」は起きにくい。";
+      else if (pe > 0) hint.textContent = "予想より良い：正の誤差。次の予測が上がりやすい（wanting 側の更新）。";
+      else hint.textContent = "予想より悪い：負の誤差。接近が弱まりやすい。";
+    }
+    reward.oninput = render;
+    pred.oninput = render;
+    document.getElementById("match").onclick = () => { pred.value = reward.value; render(); };
+    document.getElementById("reset").onclick = () => { reward.value = 60; pred.value = 20; render(); };
+    render();
+  </script>
+</body>
+</html>
