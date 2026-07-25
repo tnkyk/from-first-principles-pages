@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="perceptual narrowing">
+  <rect width="720" height="300" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">普遍弁別から母語コミットへ</text>
+  <text x="80" y="80" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">約6ヶ月</text>
+  <text x="400" y="80" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">約12ヶ月</text>
+  <rect x="40" y="100" width="280" height="120" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="70" y="140" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">広い弁別</text>
+  <text x="70" y="168" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">母語・非母語の音差を</text>
+  <text x="70" y="188" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">広く聞き分けられる</text>
+  <path d="M340 160 H390" stroke="#35d0bb" stroke-width="3"/>
+  <polygon points="390,155 402,160 390,165" fill="#35d0bb"/>
+  <rect x="420" y="100" width="260" height="120" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="450" y="140" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">母語マップ</text>
+  <text x="450" y="168" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">母語効率↑</text>
+  <text x="450" y="188" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">非母語感度↓（トレードオフ）</text>
+  <text x="24" y="250" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">神経的コミットメント: 経験がマップを張り、後続学習を制約する</text>
+  <text x="24" y="285" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Werker &amp; Tees 1984; Kuhl 2004</text>
+</svg>

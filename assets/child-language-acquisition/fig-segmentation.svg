@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="statistical segmentation">
+  <rect width="720" height="300" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">連続音声から語候補へ（遷移確率）</text>
+  <text x="24" y="70" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">音節列（空白なし）:  pa-bi-ku-tu-da-ro-pa-bi-ku …</text>
+  <rect x="40" y="100" width="90" height="44" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="62" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">pa</text>
+  <rect x="140" y="100" width="90" height="44" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="162" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">bi</text>
+  <rect x="240" y="100" width="90" height="44" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="262" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">ku</text>
+  <rect x="350" y="100" width="90" height="44" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="372" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">tu</text>
+  <rect x="450" y="100" width="90" height="44" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="472" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">da</text>
+  <rect x="550" y="100" width="90" height="44" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="572" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">ro</text>
+  <text x="70" y="175" fill="#35d0bb" font-family="Georgia, serif" font-size="13">高い遷移確率（語内）</text>
+  <path d="M85 185 H310" stroke="#35d0bb" stroke-width="3"/>
+  <text x="400" y="175" fill="#c2c3bf" font-family="Georgia, serif" font-size="13">低い遷移確率（境界）</text>
+  <path d="M330 120 H345" stroke="#c2c3bf" stroke-width="2" stroke-dasharray="4 3"/>
+  <rect x="40" y="210" width="300" height="50" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="70" y="240" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">語候補: pa-bi-ku</text>
+  <rect x="380" y="210" width="300" height="50" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="410" y="240" fill="#f2f3f0" font-family="Georgia, serif" font-size="15">部分語: ku-tu-da</text>
+  <text x="24" y="285" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Saffran, Aslin, Newport 1996</text>
+</svg>

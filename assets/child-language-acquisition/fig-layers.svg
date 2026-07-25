@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="340" viewBox="0 0 720 340" role="img" aria-label="composition layers">
+  <rect width="720" height="340" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">Composition: いまの層（時間の後継ではない）</text>
+  <rect x="40" y="60" width="640" height="36" rx="3" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="56" y="84" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L1 音響・分節</text>
+  <rect x="40" y="104" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="56" y="128" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L2 音声カテゴリ・母語化</text>
+  <rect x="40" y="148" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="56" y="172" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L3 社会・意味付け（ゲート・ターン・共同注意）</text>
+  <rect x="40" y="192" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="56" y="216" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L4 語彙・組み合わせ</text>
+  <rect x="40" y="236" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="56" y="260" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L5 入力メトリクス（語数／ターン／多様性）</text>
+  <rect x="40" y="280" width="640" height="36" rx="3" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="56" y="304" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">L6 個人差・予後</text>
+  <text x="24" y="332" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Judgment axes: 系譜・層・圧力</text>
+</svg>

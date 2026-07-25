@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>segment-prob</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .stream { font-family: var(--font-mono); letter-spacing: 0.08em; color: var(--ink); margin: 0.75rem 0; word-break: break-all; }
+    .chunk { padding: 0.15rem 0.35rem; border-radius: 2px; }
+    .hi { background: var(--accent-soft); color: var(--accent); }
+    .lo { color: var(--ink-faint); }
+    label { display: block; color: var(--ink-dim); font-size: 12px; margin-top: 0.75rem; }
+    input[type="range"] { width: 100%; }
+    .readout { font-family: var(--font-mono); color: var(--accent); margin-top: 0.5rem; }
+    .choices { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    button.choice { flex: 1 1 140px; }
+    .feedback { min-height: 1.5em; margin-top: 0.75rem; color: var(--ink-dim); }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 隣接音節の共起が高い塊は、語らしさの候補になる</p>
+    <div class="panel">
+      <p>人工の音節列を流します。語内は高い遷移確率、境界は低い遷移確率です。どちらが「語らしい」か選んでください。</p>
+      <div class="stream" id="stream" aria-live="polite"></div>
+      <label for="cohere">語内のまとまり（遷移確率の差）</label>
+      <input id="cohere" type="range" min="20" max="95" value="80" />
+      <div class="readout" id="out"></div>
+      <div class="choices">
+        <button type="button" class="choice" data-ans="word" id="btnWord">A: pa-bi-ku</button>
+        <button type="button" class="choice" data-ans="part" id="btnPart">B: ku-tu-da</button>
+      </div>
+      <p class="feedback" id="feedback"></p>
+    </div>
+    <div class="sim-row">
+      <button type="button" id="reshuffle">別の列を流す</button>
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">教育用玩具。Saffran ら（1996）の統計学習の直感を触るための近似です。自然音声の韻律は省略しています。</p>
+  </div>
+  <script>
+    const words = [
+      ["pa", "bi", "ku"],
+      ["tu", "da", "ro"],
+      ["go", "la", "bu"],
+      ["mi", "na", "te"]
+    ];
+    const streamEl = document.getElementById("stream");
+    const cohere = document.getElementById("cohere");
+    const out = document.getElementById("out");
+    const feedback = document.getElementById("feedback");
+    let order = [0, 1, 2, 3];
+
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function renderStream() {
+      const p = Number(cohere.value) / 100;
+      const flat = order.flatMap((i) => words[i]);
+      streamEl.innerHTML = flat.map((syl, idx) => {
+        const boundary = idx > 0 && idx % 3 === 0;
+        const cls = boundary ? "lo" : "hi";
+        return '<span class="chunk ' + cls + '">' + syl + "</span>";
+      }).join("-");
+      out.textContent = "語内のまとまり ≈ " + p.toFixed(2) + "／境界 ≈ " + (1 - p).toFixed(2);
+      const w = words[order[0]].join("-");
+      const part = [words[order[0]][2], words[order[1]][0], words[order[1]][1]].join("-");
+      document.getElementById("btnWord").textContent = "A: " + w + "（語）";
+      document.getElementById("btnPart").textContent = "B: " + part + "（部分語）";
+      feedback.textContent = "";
+    }
+
+    function onChoice(ans) {
+      const p = Number(cohere.value) / 100;
+      if (ans === "word") {
+        feedback.textContent = p > 0.55
+          ? "語内の共起が高いので、Aの方が語らしく感じやすい条件です。"
+          : "差が小さいと、語と部分語の区別は難しくなります。";
+      } else {
+        feedback.textContent = "Bは境界をまたぐ並びです。遷移確率が落ちる位置をまたいでいます。";
+      }
+    }
+
+    document.querySelectorAll("button.choice").forEach((b) => {
+      b.onclick = () => onChoice(b.dataset.ans);
+    });
+    cohere.oninput = renderStream;
+    document.getElementById("reshuffle").onclick = () => {
+      order = shuffle([0, 1, 2, 3]);
+      renderStream();
+    };
+    document.getElementById("reset").onclick = () => {
+      cohere.value = 80;
+      order = [0, 1, 2, 3];
+      renderStream();
+    };
+    renderStream();
+  </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>子どもの言語習得, from First Principles · From First Principles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/article.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="index.html">From First Principles</a>
+      <nav>
+        <a href="index.html">models</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <main>
+      <header class="article-header">
+        <a class="back-link" href="index.html">← メンタルモデル一覧へ</a>
+        <h1 class="title">子どもの言語習得, from First Principles</h1>
+      </header>
+
+      <article class="article-body">
+<h2 id="願いの摩擦から入る">願いの摩擦から入る</h2>
+<p>子どもに言葉が育ってほしい——願いははっきりしている。なのに処方箋はぶつかる。とにかく話しかけろと、会話のキャッチボールが大事だ。ベイビートークはやめろと、parentese が効く。早期のフラッシュカードと、スクリーンは言語を奪う。遅い子は様子見でいいと、直ちに相談しろ。同じ脳のなかで、何が段階として積み上がり、何が個人差として分岐するのか。スローガンだけでは見えない。</p>
+<p>ここで失うのは、正解の育児マニュアルではない。流行の言説に、子どもがいま解いている問題をすり替えてしまうことだ。何が発達の制約で、何が測定の争い、何が価値判断かを分けられないと、「良い親／悪い親」の物語に主体性を奪われる。</p>
+<p>この記事は、推奨スタックを渡さない。脳と行動が解いている問題の列を辿り、世の主張を分解し、問いで終わる。</p>
+<p>理解の道筋は、次の問題の列だけにする。</p>
+<ol><li>切れ目のない音から、どうやって「語」の単位が立ち上がるか。</li><li>なぜ母語の音へ絞り込むのか。</li><li>音のかたまりは、どう意味と結びつくのか。</li><li>単語だけでは足りない——組み合わせはどう可能になるのか。</li><li>同じ年齢でも速さに差が出るのは、何が分岐しているのか。</li><li>世の「こうすべき」は、どの層を触り、何を測り損ねているのか。</li></ol>
+<p>完成した「理想の話し手」は入口に置かない。先に置くのは、摩擦だけだ。</p>
+<h2 id="切れ目のない音から単位へ">切れ目のない音から単位へ</h2>
+<p>大人の耳には、言葉が区切れて聞こえる。録音をゆっくり再生すると分かるが、実際の話しことばに空白のしるしはない。子どもは、切れ目のない音の流れのなかに生まれ落ちる。なのに数年後には、「わんわん」や「もっと」を語として扱う。切れ目は、どこから来るのか。</p>
+<p>一つの答えは、音の並び方の統計にある。ある音節のあとに別の音節が来る確率——遷移確率——は、語の内側で高く、語の境で低くなることが多い。乳児は、この分布のゆがみを短い露出でも拾える。Saffran, Aslin, Newport（1996）は、8ヶ月児が約2分の人工言語を聞いただけで、語様の単位と境界をまたぐ並びを区別したと報告した。<a class="fn-ref" href="#fn-1">(*1)</a> 後続実験では、出現頻度を揃えても条件付き確率の差だけで区別できることが示された。<a class="fn-ref" href="#fn-2">(*2)</a></p>
+<p>これは「天才的な耳」の物語ではない。分布の規則性を抽出する学習が、空白のないストリームに候補単位を立てる、という話だ。自然音声では韻律や休止も手がかりになる。だが第一の壁は変わらない。語として扱う単位がなければ、意味も文法も始まらない。</p>
+<figure class="article-figure"><img src="assets/child-language-acquisition/fig-segmentation.svg" alt="" /><figcaption>見るべき構造: 高い遷移確率の塊が語候補になり、境界で確率が落ちる。(Source: 教育用模式図 / Saffran, Aslin, Newport 1996)</figcaption></figure>
+<details class="sim-panel" open><summary>シミュレーションを開く — 隣接音節の共起が高い塊は、語らしさの候補になる</summary><iframe class="sim-frame" src="assets/sims/child-language-acquisition/segment-prob/index.html" title="segment-prob" loading="lazy"></iframe></details>
+<p>得たものは、入口の問題設定である。失うのは、「耳が良い子だけが語を切れる」一点説明だ。次の違和感はすぐ来る。単位ができても、世界のどの音の違いが「同じ語／違う語」なのかは、まだ決まっていない。</p>
+<h2 id="母語への絞り込み">母語への絞り込み</h2>
+<p>単位の候補が見えても、まだ足りない。生まれたばかりの乳児は、多くの言語の音の違いを聞き分けられる。なのに1歳前後には、聞いたことのないコントラストへの感度が落ちる。耳が悪くなったのだろうか。それとも、何か別の仕事が始まったのか。</p>
+<p>Werker と Tees（1984）は、非母語の音声コントラスト弁別が、生後1年以内に経験依存で低下することを示した。<a class="fn-ref" href="#fn-3">(*3)</a> Kuhl はこれを、単なる喪失ではなく「母語への神経的コミットメント」として読む。初期に母語の統計へマップを張り替えると、その言語の処理は効率になる。同時に、マップに合わないパターンの学習は難しくなる。<a class="fn-ref" href="#fn-4">(*4)</a> 7ヶ月時点の母語弁別の良さは後の言語発達を予測し、非母語弁別の良さは逆方向に効く、という報告もある。<a class="fn-ref" href="#fn-5">(*5)</a></p>
+<p>ここでのトレードオフははっきりしている。普遍弁別を一生維持すれば、母語のカテゴリは固まらない。母語効率を上げれば、他言語の音の壁は厚くなる。「臨界期」を誕生日で閉まるドアだと思うと、経験の役割が見えなくなる。閉じ方を駆動するのは、時計だけでなく、すでに張られたマップだ。</p>
+<figure class="article-figure"><img src="assets/child-language-acquisition/fig-narrowing.svg" alt="" /><figcaption>見るべき構造: 6–12ヶ月で非母語弁別が下がり、母語マップが立つ。得たのは効率、失ったのは未経験コントラストの感度。(Source: 教育用模式図 / Werker &amp; Tees 1984; Kuhl 2004)</figcaption></figure>
+<p>得たものは、後続学習の土台である。失うものは、万能の耳という幻想だ。だが音カテゴリがあっても、それはまだ意味ではない。「わんわん」の音のかたまりが、庭の犬を指すのは、別の問題である。</p>
+<h2 id="やりとりが意味を貼る">やりとりが意味を貼る</h2>
+<p>音のかたまりができても、世界との対応は自動では決まらない。同じ音の列が、無数の対象・性質・行為に当たりうる。一方通行で音を浴びせれば足りるのか。それとも、誰かと向き合うことが条件になるのか。</p>
+<p>Kuhl, Tsao, Liu（2003）は、9ヶ月のアメリカ人乳児に北京語を短期間聞かせた。ライブの話者との相互作用では、北京語の音声弁別が保たれた。同じ材料を DVD や音声だけで与えても、学習は起きなかった。<a class="fn-ref" href="#fn-6">(*6)</a> 音の統計だけがすべてなら、録画でも足りるはずだ。足りなかった。社会的な注意・視線・動機づけが、学習のゲートになっている——少なくともこの古典条件ではそう読める。</p>
+<p>語彙を動かす側でも、一方通行より往復が前景に出る。Romeo ら（2018）は、家庭録音のターン数（大人と子どもの往復）が、語数や SES・IQ を超えて、物語聴取時の左下前頭回（いわゆる Broca 領域）の賦活と言語スコアに関連したと報告した。<a class="fn-ref" href="#fn-7">(*7)</a> Ferjan Ramírez, Lytle, Kuhl（2020）の RCT では、parentese（高く、ゆっくり、韻律の誇張された向け話し）とターンを増やす親コーチングが、6–18ヶ月の言語成長と結果を押し上げた。<a class="fn-ref" href="#fn-8">(*8)</a></p>
+<p>ここで「ベイビートークは害」と「parentese が効く」がぶつかる。争点の本体は、意味のない幼児語の多用か、音響的に学習しやすい向け話しと往復か、である。同じ「赤ちゃんへの話し方」でも、層が違う。</p>
+<figure class="article-figure"><img src="assets/child-language-acquisition/fig-social-gate.svg" alt="" /><figcaption>見るべき構造: 同一音声でもライブ相互作用でのみ学習が起き、録画では起きない境界。下段はターンが脳応答と語彙へつながる経路。(Source: 教育用模式図 / Kuhl et al. 2003; Romeo et al. 2018)</figcaption></figure>
+<p>得たものは、意味付けの条件である。失うものは、「音を増やせば意味が付く」「画面でも同じ」という単純観だ。ただし全面的な動画否定ではない。古典実験の境界を、現代のアプリ広告の座標軸にする、という話だ。語が増えても、次の壁は残る。単語のリストだけでは、見たことのない文が作れない。</p>
+<h2 id="組み合わせが言語を拡張する">組み合わせが言語を拡張する</h2>
+<p>語が増えると安心する。チェックリストに印が付く。だが語彙在庫だけでは足りない場面がある。子どもは、一度も聞いたことのない並べ方で、いまの状況を言い始める。二語がくっつき、やがて文が伸びる。何が起きたのか。</p>
+<p>問題は単純だ。有限の入力から、無限に近い新しい事態を言い切るには、部品の再利用——組み合わせ——が要る。「わんわん」と「きた」が別々に使えるだけでなく、「わんわん きた」として結びつく。ここで言語は、暗記リストから生成装置へ踏み出す。入力の質も、語の個数だけでは測れなくなる。Rowe（2012）は、語彙多様性や文の複雑さといった質的側面が、発達段階ごとに語彙成長を予測すると報告した。<a class="fn-ref" href="#fn-9">(*9)</a> 単語カードの枚数を増やす設計と、結合が起きる会話を増やす設計は、同じ「言語力」を指していないことがある。</p>
+<p>得たものは、拡張の原理である。失うものは、語彙数＝言語力という一点指標だ。もちろん語彙は必要だ。だがボトルネックが「もっと暗記」だけだと誤認すると、カードとドリルが会話を置換する。次の違和感は、現場でいちばん痛い。同じ組み合わせの階段を上っていても、速さに大きな個人差が出る。</p>
+<figure class="article-figure"><img src="assets/child-language-acquisition/fig-combine.svg" alt="" /><figcaption>見るべき構造: 語彙在庫から二語結合へ。規則の再利用で新文が生まれ、語数だけでは測れない拡張が起きる。(Source: 教育用模式図 / 使用基盤の発達記述に基づく再構成)</figcaption></figure>
+<h2 id="地図で現在位置を置く">地図で現在位置を置く</h2>
+<p>ここまでで問題の列は揃った。分節、母語化、やりとりによる意味付け、組み合わせ。新しい育児主張が来るたびに、是非から入るとまた摩擦に戻る。先に置くのは座標だ。</p>
+<p>教育用ツリーは近似である。厳密には、同じ現象が複数層に同時に属する。その前提で、いまの層を並べる。</p>
+<ol><li>音響・分節 — 切れ目のない音から単位を切る</li><li>音声カテゴリ・母語化 — 母語マップへのコミット</li><li>社会・意味付け — ライブ相互作用、共同注意、ターン</li><li>語彙・組み合わせ — 在庫と生産性</li><li>入力環境メトリクス — 語数、ターン、多様性（測り方自体が争点）</li><li>個人差・予後 — 処理効率、late talker 軌跡</li></ol>
+<p>時間の「次の駅」ではない。いまいじっている部品の住所録である。</p>
+<p>新しいスローガンを読むときは、三つの軸で置く。</p>
+<ul><li>系譜: 分節／母語化／社会的意味付け／組み合わせの、どこから来た話か</li><li>層: 上のどの層を主に触るか（複数可）</li><li>圧力: 語数不安、ターン信仰、媒体恐怖、早期表出、格差不安のどれが駆動しているか</li></ul>
+<figure class="article-figure"><img src="assets/child-language-acquisition/fig-layers.svg" alt="" /><figcaption>見るべき構造: 音響→母語化→社会→結合→入力→個人差の層。矢印は時間の後継ではなく、前提としての requires。(Source: 教育用模式図)</figcaption></figure>
+<h3 id="演習-ex-place">演習 EX-place</h3>
+<p>材料: 「0歳向け英語DVD。ネイティブ音声を毎日聞かせるだけで耳が育ち、バイリンガルの土台ができる、と広告されている。」</p>
+<p>操作: 系譜・層・圧力を書き、Lineage 上で直前のどの問題の取り違えになりうるかを1文で書く。製品の是非で終わらない。著者の推奨を書かない。</p>
+<p>自己点検: 社会的ゲート（ライブ vs 録画）と母語化の層に触れているか。</p>
+<p>地図は順位表ではない。次に見るのは、同じ地図のうえで速さが分岐する場所だ。</p>
+<h2 id="速さの差はカスケードである">速さの差はカスケードである</h2>
+<p>同じ月齢でも、話す量も理解も大きく分かれる。早い子を見て焦り、遅い子を見て安心し、また焦る。差の説明は両極に寄りやすい。才能だ、親のせいだ、障害だ、様子見でいい——一点に潰したくなる。</p>
+<p>研究側が見ているのは、しばしばカスケードだ。Fernald と Marchman（2012）は、18ヶ月のオンライン語認識の効率が、典型発達児でも late talker でも、その後の語彙成長を予測すると報告した。同じ「遅い」でも、処理が比較的速い群は加速（bloom）しやすい。<a class="fn-ref" href="#fn-10">(*10)</a> late talker の予後メタでは、表出語彙・受容言語・SESが有意な予測因子で、句発話・性別・家族歴は非有意だった。<a class="fn-ref" href="#fn-11">(*11)</a> Rescorla の追跡では、late talker 内にも急成長群と緩慢群がある。<a class="fn-ref" href="#fn-12">(*12)</a></p>
+<p>環境側も一点ではない。語数（CDS量）とターン・多様性は、同じ「豊かな言語環境」でも別メトリクスだ。Romeo らではターンが語数を超えて効いた。<a class="fn-ref" href="#fn-13">(*13)</a> SESと入力のメタでは、子ども向け発話に限れば差はあるが、「3000万」規模より小さく、傍観発話まで入れると差が消えることがある。<a class="fn-ref" href="#fn-14">(*14)</a> 量を増やす設計が、往復を減らす副作用を持つこともある。</p>
+<p>得たものは、分岐の見取り図である。失うものは、運命づけだ。多くの late talker は追いつく。一部は持続する。臨床の閾値は別レイヤで、本稿は診断プロトコルを渡さない。残るのは、不安と様子見が、どの予測因子を見ずに言葉だけを戦わせているか、という問題だ。</p>
+<h2 id="世の主張を分解する">世の主張を分解する</h2>
+<p>原理の列が揃うと、スローガンの衝突は「どの層か」の問題に変わる。ここでは結論の推奨スタックを作らない。共通事実・争点・測定・隠れた価値に分ける。</p>
+<h3 id="c1-3000万語ギャップを埋めれば言語格差は消える">C1 — 3000万語ギャップを埋めれば言語格差は消える</h3>
+<ul><li>共通事実: SESと子ども向け発話量に関連がある研究群がある。Hart &amp; Risley（1995）が大規模な差を推定した。<a class="fn-ref" href="#fn-15">(*15)</a></li><li>争点: 規模と定義と因果。傍観発話を入れると差が消える報告があり、CDS限定メタでは差は残るが規模は縮小する。<a class="fn-ref" href="#fn-16">(*16)</a><a class="fn-ref" href="#fn-17">(*17)</a></li><li>測定: 語数か、ターンか、多様性か。Romeo らはターンが語数を超える関連を示した。<a class="fn-ref" href="#fn-18">(*18)</a></li><li>隠れた価値: 測定可能な介入で格差を埋めたい、という政策的欲望。</li></ul>
+<h3 id="c2-ベイビートークは言語発達を妨げる">C2 — ベイビートークは言語発達を妨げる</h3>
+<ul><li>共通事実: 向け話し（IDS/parentese）は多くの文化で観察される。</li><li>争点: 「ベイビートーク」が意味のない幼児語の多用を指すのか、音響的に誇張された向け話しを指すのか。後者はターンと語彙成長と正の関連・介入効果の報告がある。<a class="fn-ref" href="#fn-19">(*19)</a></li><li>測定: parentese 使用率、ターン、語彙。</li><li>隠れた価値: 子どもを一人前扱いしたい／甘やかしへの不安。</li></ul>
+<h3 id="c3-フラッシュカード早期dvdで先取りできる">C3 — フラッシュカード／早期DVDで先取りできる</h3>
+<ul><li>共通事実: 音声・画像の露出は増やせる。</li><li>争点: ライブ相互作用なしで、乳児の音声学習がどこまで起きるか。Kuhl らの古典条件では録画は無効だった。<a class="fn-ref" href="#fn-20">(*20)</a></li><li>測定: 弁別、注意、後の語彙。</li><li>隠れた価値: 時間効率と、不安の外部化。</li></ul>
+<h3 id="c4-スクリーンは子どもの言語を奪う">C4 — スクリーンは子どもの言語を奪う</h3>
+<ul><li>共通事実: メタ分析では画面の量は言語と負関連（小さな〜中程度）、教育番組・共視聴は正関連。<a class="fn-ref" href="#fn-21">(*21)</a></li><li>争点: 因果か置換か。画面が増えるとターンが減る経路（technoference）の縦断報告もある。<a class="fn-ref" href="#fn-22">(*22)</a></li><li>測定: 時間、共視聴、ターン減少。</li><li>隠れた価値: 罪悪感と管理のしやすさ。全面断絶と質の設計は別の圧力になりうる。</li></ul>
+<h3 id="c5-話し始めが遅い子は放っておけば追いつく直ちに異常">C5 — 話し始めが遅い子は放っておけば追いつく／直ちに異常</h3>
+<ul><li>共通事実: LLEの多くは追いつくが、一部は持続する。予後には受容・処理効率・SESが関わる。<a class="fn-ref" href="#fn-23">(*23)</a></li><li>争点: 誰が追いつくかを、表出マイルストーン一点で決められるか。</li><li>測定: 表出語彙、受容、オンライン処理。</li><li>隠れた価値: 安心したい／見逃したくない——両極とも価値が先に立つ。</li></ul>
+<h3 id="演習-ex-doubt">演習 EX-doubt</h3>
+<p>材料: Claim C1「3000万語ギャップを埋めれば言語格差は消える」。</p>
+<p>操作: 共通事実／争点／測定／隠れた価値のうち、いちばん怪しい点と足りない証拠を書く。全否定でも全肯定でも閉じない。</p>
+<p>自己点検: CDS vs 全発話、ターン vs 語数、標本規模に触れているか。</p>
+<p>主張を分解しても、自分の家庭での判断はまだ残る。それは記事の外——対話——の仕事だ。</p>
+<h2 id="問いで渡す">問いで渡す</h2>
+<p>ここまでで渡したものは、完成した育児モデルではない。切れ目のない音から単位が立ち、母語へコミットし、やりとりが意味を貼り、組み合わせが拡張し、速さはカスケードとして分岐する——という構造と、世の主張を置く座標である。</p>
+<p>判断の結晶化は、この先の対話で行う。先に残すのは、思考が始まる問いだけだ。</p>
+<h3 id="provocation-pack">Provocation Pack</h3>
+<p><strong>P1（境界）</strong></p>
+<p>語数を増やす工夫が、ターンを減らしている場面は、自分の観察ではどこか。</p>
+<p><strong>P2（反例）</strong></p>
+<p>「ベイビートーク禁止」が空回りした／効いたと感じた境界はどこか。parentese と、意味のない幼児語の多用を分けられるか。</p>
+<p><strong>P3（地図選択）</strong></p>
+<p>早期DVDの広告を、母語化の地図と社会的ゲートの地図のどちらで読むか。読み分けると何が変わるか。</p>
+<p><strong>P4（分解）</strong></p>
+<p>「様子見でいい」という助言を、事実／争点／測定／価値に分解すると、何が残り、何が消えるか。</p>
+<p>正しい親の完成図は、ここには置かない。置けるのは、次に疑う一点だけだ。</p>
+      </article>
+<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> Saffran, Aslin, &amp; Newport (1996). Statistical learning by 8-month-old infants. <em>Science</em>. https://doi.org/10.1126/science.274.5294.1926</li><li id="fn-2"><a href="#fnref-2">(*2)</a> Aslin, Saffran, &amp; Newport (1998). Computation of conditional probability statistics by 8-month-old infants. <em>Psychological Science</em>. https://doi.org/10.1111/1467-9280.00063</li><li id="fn-3"><a href="#fnref-3">(*3)</a> Werker &amp; Tees (1984). Cross-language speech perception. <em>Infant Behavior and Development</em>. https://doi.org/10.1016/S0163-6383(84)80022-3</li><li id="fn-4"><a href="#fnref-4">(*4)</a> Kuhl (2004). Early language acquisition: cracking the speech code. <em>Nature Reviews Neuroscience</em>. https://langev.com/pdf/kuhl04earlyLangAcq.pdf</li><li id="fn-5"><a href="#fnref-5">(*5)</a> Kuhl et al. (2005). Early speech perception and later language development. <em>Language Learning and Development</em>. https://doi.org/10.1080/15475441.2005.9671948</li><li id="fn-6"><a href="#fnref-6">(*6)</a> Kuhl, Tsao, &amp; Liu (2003). Foreign-language experience in infancy. <em>PNAS</em>. https://doi.org/10.1073/pnas.1532872100</li><li id="fn-7"><a href="#fnref-7">(*7)</a> Romeo et al. (2018). Beyond the 30-million-word gap. <em>Psychological Science</em>. https://doi.org/10.1177/0956797617742725</li><li id="fn-8"><a href="#fnref-8">(*8)</a> Ferjan Ramírez, Lytle, &amp; Kuhl (2020). Parent coaching increases conversational turns. <em>PNAS</em>. https://doi.org/10.1073/pnas.1921653117</li><li id="fn-9"><a href="#fnref-9">(*9)</a> Rowe (2012). A longitudinal investigation of the role of quantity and quality of child-directed speech in vocabulary development. <em>Child Development</em>. https://doi.org/10.1111/j.1467-7687.2012.01149.x</li><li id="fn-10"><a href="#fnref-10">(*10)</a> Fernald &amp; Marchman (2012). Individual differences in lexical processing at 18 months. <em>Child Development</em>. https://doi.org/10.1111/j.1467-8624.2011.01692.x</li><li id="fn-11"><a href="#fnref-11">(*11)</a> Fisher (2017). Predictors of expressive-language outcomes among late talkers. <em>JSLHR</em>. https://doi.org/10.1044/2017_JSLHR-L-16-0310</li><li id="fn-12"><a href="#fnref-12">(*12)</a> Rescorla et al. Vocabulary growth in late talkers. https://repository.brynmawr.edu/cgi/viewcontent.cgi?article=1008&amp;context=psych_pubs</li><li id="fn-13"><a href="#fnref-13">(*13)</a> Romeo et al. (2018). <em>Psychological Science</em>. https://doi.org/10.1177/0956797617742725</li><li id="fn-14"><a href="#fnref-14">(*14)</a> Dailey &amp; Bergelson (2021). Language input to infants of different SES. <em>Developmental Science</em>. https://doi.org/10.1111/desc.13192</li><li id="fn-15"><a href="#fnref-15">(*15)</a> Hart &amp; Risley (1995). <em>Meaningful Differences</em>.</li><li id="fn-16"><a href="#fnref-16">(*16)</a> Sperry, Sperry, &amp; Miller (2018). <em>Child Development</em>. https://doi.org/10.1111/cdev.13072</li><li id="fn-17"><a href="#fnref-17">(*17)</a> Dailey &amp; Bergelson (2021). <em>Developmental Science</em>. https://doi.org/10.1111/desc.13192</li><li id="fn-18"><a href="#fnref-18">(*18)</a> Romeo et al. (2018). <em>Psychological Science</em>. https://doi.org/10.1177/0956797617742725</li><li id="fn-19"><a href="#fnref-19">(*19)</a> Ferjan Ramírez, Lytle, &amp; Kuhl (2020). <em>PNAS</em>. https://doi.org/10.1073/pnas.1921653117</li><li id="fn-20"><a href="#fnref-20">(*20)</a> Kuhl, Tsao, &amp; Liu (2003). <em>PNAS</em>. https://doi.org/10.1073/pnas.1532872100</li><li id="fn-21"><a href="#fnref-21">(*21)</a> Madigan et al. (2020). <em>JAMA Pediatrics</em>. https://doi.org/10.1001/jamapediatrics.2020.0327</li><li id="fn-22"><a href="#fnref-22">(*22)</a> Brushe et al. (2024). <em>JAMA Pediatrics</em>. https://doi.org/10.1001/jamapediatrics.2023.6790</li><li id="fn-23"><a href="#fnref-23">(*23)</a> Fisher (2017); Fernald &amp; Marchman (2012); ASHA LLE portal.</li></ol></section>
+    </main>
+    <aside class="toc" aria-label="目次">
+      <p class="toc-label">目次</p>
+      <ol>
+<li><a href="#願いの摩擦から入る">願いの摩擦から入る</a></li>
+<li><a href="#切れ目のない音から単位へ">切れ目のない音から単位へ</a></li>
+<li><a href="#母語への絞り込み">母語への絞り込み</a></li>
+<li><a href="#やりとりが意味を貼る">やりとりが意味を貼る</a></li>
+<li><a href="#組み合わせが言語を拡張する">組み合わせが言語を拡張する</a></li>
+<li><a href="#地図で現在位置を置く">地図で現在位置を置く</a></li>
+<li><a href="#速さの差はカスケードである">速さの差はカスケードである</a></li>
+<li><a href="#世の主張を分解する">世の主張を分解する</a></li>
+<li><a href="#問いで渡す">問いで渡す</a></li>
+      </ol>
+    </aside>
+  </div>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      window.addEventListener("load", function () {
+        if (typeof renderMathInElement !== "function") return;
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      });
+
+      const links = [...document.querySelectorAll(".toc a")];
+      const heads = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+      if (!heads.length || !("IntersectionObserver" in window)) return;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id));
+        });
+      }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+      heads.forEach((h) => io.observe(h));
+    })();
+
+    (function () {
+      const deck = document.querySelector("[data-article-deck]");
+      if (!deck) return;
+      const slides = [...deck.querySelectorAll(".marpit > section")];
+      if (!slides.length) return;
+      const status = deck.querySelector("[data-deck-status]");
+      const prev = deck.querySelector("[data-deck-prev]");
+      const next = deck.querySelector("[data-deck-next]");
+      let i = 0;
+      function show(n) {
+        i = Math.max(0, Math.min(slides.length - 1, n));
+        slides.forEach((s, idx) => s.classList.toggle("is-active", idx === i));
+        if (status) status.textContent = (i + 1) + " / " + slides.length;
+        if (prev) prev.disabled = i === 0;
+        if (next) next.disabled = i === slides.length - 1;
+      }
+      prev && prev.addEventListener("click", () => show(i - 1));
+      next && next.addEventListener("click", () => show(i + 1));
+      deck.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") show(i - 1);
+        if (e.key === "ArrowRight") show(i + 1);
+      });
+      deck.tabIndex = 0;
+      show(0);
+    })();
+  </script>
+</body>
+</html>
