@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" viewBox="0 0 760 320" role="img" aria-label="causal spine">
+  <rect width="760" height="320" fill="#1e201e"/>
+  <text x="24" y="32" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">一本の因果線（構造記述）</text>
+  <rect x="30" y="60" width="150" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="55" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">仕事の負荷</text>
+  <text x="45" y="112" fill="#a9aaa5" font-family="Georgia, serif" font-size="11">制御不能・過負荷</text>
+  <path d="M185 95 H215" stroke="#35d0bb" stroke-width="2"/>
+  <polygon points="215,90 227,95 215,100" fill="#35d0bb"/>
+  <rect x="230" y="50" width="160" height="40" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="250" y="75" fill="#f2f3f0" font-family="Georgia, serif" font-size="12">帯域の占有</text>
+  <rect x="230" y="100" width="160" height="40" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="248" y="125" fill="#f2f3f0" font-family="Georgia, serif" font-size="12">状態の切替（PFC）</text>
+  <path d="M395 95 H425" stroke="#35d0bb" stroke-width="2"/>
+  <polygon points="425,90 437,95 425,100" fill="#35d0bb"/>
+  <rect x="440" y="60" width="140" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="458" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">残存する</text>
+  <text x="455" y="112" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">反省的制御</text>
+  <path d="M585 95 H615" stroke="#35d0bb" stroke-width="2"/>
+  <polygon points="615,90 627,95 615,100" fill="#35d0bb"/>
+  <rect x="630" y="60" width="110" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="648" y="90" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">子への応答</text>
+  <text x="640" y="112" fill="#a9aaa5" font-family="Georgia, serif" font-size="11">撤退／反応性</text>
+  <rect x="230" y="190" width="300" height="70" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="280" y="222" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">回復（需要停止・離脱・睡眠）</text>
+  <text x="270" y="245" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">帯域と状態を戻す／慢性負荷は別レイヤ</text>
+  <path d="M380 190 V145" stroke="#35d0bb" stroke-width="2"/>
+  <polygon points="375,145 380,133 385,145" fill="#35d0bb"/>
+  <text x="24" y="300" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 - 生活推奨ではなく、これから辿る構造の地図</text>
+</svg>
