@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300" role="img" aria-label="work to family spillover paths">
+  <rect width="720" height="300" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">仕事負荷から家庭への滲み</text>
+  <rect x="40" y="70" width="140" height="80" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="62" y="105" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">仕事の負荷</text>
+  <text x="55" y="128" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">過負荷・対人ストレス</text>
+  <path d="M190 100 H230" stroke="#35d0bb" stroke-width="2"/>
+  <polygon points="230,95 242,100 230,105" fill="#35d0bb"/>
+  <rect x="250" y="50" width="160" height="55" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="275" y="82" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">情動キャリー</text>
+  <rect x="250" y="120" width="160" height="55" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="268" y="145" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">行動的・情動的撤退</text>
+  <text x="275" y="164" fill="#a9aaa5" font-family="Georgia, serif" font-size="11">話し方・愛情表現の減少</text>
+  <rect x="250" y="195" width="160" height="55" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="275" y="227" fill="#f2f3f0" font-family="Georgia, serif" font-size="13">認知キャリー</text>
+  <path d="M420 77 H470" stroke="#c2c3bf" stroke-width="2"/>
+  <path d="M420 147 H470" stroke="#35d0bb" stroke-width="2"/>
+  <path d="M420 222 H470" stroke="#c2c3bf" stroke-width="2"/>
+  <rect x="480" y="100" width="200" height="100" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="505" y="145" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">親子の相互作用</text>
+  <text x="500" y="170" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">怒りだけが滲みではない</text>
+  <text x="24" y="280" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Repetti and Wood 1997 / Repetti and Wang 2017</text>
+</svg>

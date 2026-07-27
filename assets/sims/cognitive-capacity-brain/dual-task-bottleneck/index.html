@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dual-task-bottleneck</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .meter { height: 16px; background: var(--ink-line); border-radius: 2px; overflow: hidden; margin: 0.5rem 0 1rem; }
+    .meter > i { display: block; height: 100%; background: var(--accent); width: 0%; }
+    label { display: block; color: var(--ink-dim); font-size: 12px; margin-top: 0.75rem; }
+    input[type="range"] { width: 100%; }
+    .readout { font-family: var(--font-mono); color: var(--accent); margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 干渉下では同時に保持・制御できる帯域はすぐに飽和する</p>
+    <div class="panel">
+      <p>「今やるべき目標の数」と「邪魔の強さ」を動かしてください。残存帯域が下がると、柔らかい制御の余地が小さくなります。</p>
+      <label for="goals">同時に保持する目標の数</label>
+      <input id="goals" type="range" min="1" max="6" value="2" />
+      <label for="noise">干渉の強さ（0＝静か／1＝騒がしい）</label>
+      <input id="noise" type="range" min="0" max="100" value="30" />
+      <div class="readout" id="out"></div>
+      <div class="meter" aria-hidden="true"><i id="bar"></i></div>
+      <p class="hint" id="hint"></p>
+    </div>
+    <div class="sim-row">
+      <button type="button" id="reset">リセット</button>
+    </div>
+    <p class="hint">教育用玩具。作業記憶／実行注意の有限帯域を触るための近似です。個人差や課題特異性は潰しています。</p>
+  </div>
+  <script>
+    const goals = document.getElementById("goals");
+    const noise = document.getElementById("noise");
+    const out = document.getElementById("out");
+    const bar = document.getElementById("bar");
+    const hint = document.getElementById("hint");
+    function capacity(g, n) {
+      // crude: base 1, each extra goal costs, noise multiplies cost
+      const load = (g - 1) * 0.18 + n * 0.55;
+      return Math.max(0, Math.min(1, 1 - load));
+    }
+    function render() {
+      const g = Number(goals.value);
+      const n = Number(noise.value) / 100;
+      const c = capacity(g, n);
+      out.textContent = "残存帯域 ≈ " + c.toFixed(2) + "（目標 " + g + " / 干渉 " + n.toFixed(2) + "）";
+      bar.style.width = Math.round(c * 100) + "%";
+      if (c > 0.65) hint.textContent = "帯域に余裕：抑制や視点取得の余地が残りやすい。";
+      else if (c > 0.3) hint.textContent = "飽和し始め：同時処理のコストが前面に出る。";
+      else hint.textContent = "飽和：わかっている応答でも、制御が届きにくい帯。";
+    }
+    goals.oninput = render;
+    noise.oninput = render;
+    document.getElementById("reset").onclick = () => { goals.value = 2; noise.value = 30; render(); };
+    render();
+  </script>
+</body>
+</html>

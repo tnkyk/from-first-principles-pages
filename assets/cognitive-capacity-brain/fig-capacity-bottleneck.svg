@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="attention capacity bottleneck">
+  <rect width="720" height="280" fill="#1e201e"/>
+  <text x="24" y="36" fill="#f2f3f0" font-family="Georgia, serif" font-size="18" font-weight="600">注意焦点の有限帯域</text>
+  <rect x="40" y="70" width="200" height="120" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="70" y="110" fill="#a9aaa5" font-family="Georgia, serif" font-size="13">活性化した記憶</text>
+  <text x="80" y="140" fill="#c2c3bf" font-family="Georgia, serif" font-size="12">（広いが壊れやすい）</text>
+  <rect x="280" y="85" width="180" height="90" rx="4" fill="#151716" stroke="#35d0bb" stroke-width="2"/>
+  <text x="310" y="125" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">注意の焦点</text>
+  <text x="300" y="150" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">少数チャンクのみ</text>
+  <path d="M250 130 H275" stroke="#35d0bb" stroke-width="2"/>
+  <polygon points="275,125 287,130 275,135" fill="#35d0bb"/>
+  <rect x="500" y="70" width="180" height="120" rx="4" fill="#151716" stroke="#393b38" stroke-width="2"/>
+  <text x="530" y="110" fill="#f2f3f0" font-family="Georgia, serif" font-size="14">干渉・二重課題</text>
+  <text x="520" y="140" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">制御コストが上がる</text>
+  <text x="535" y="165" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">帯域が飽和する</text>
+  <path d="M470 130 H495" stroke="#c2c3bf" stroke-width="2"/>
+  <polygon points="495,125 507,130 495,135" fill="#c2c3bf"/>
+  <text x="24" y="250" fill="#a9aaa5" font-family="Georgia, serif" font-size="12">教育用模式図 / Cowan / Engle / Baddeley - 容量は才能総量ではない</text>
+</svg>
