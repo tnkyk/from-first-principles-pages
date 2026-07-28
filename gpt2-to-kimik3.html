@@ -28,14 +28,17 @@
       </header>
 
       <article class="article-body">
-<p class="dek">原著: <a href="https://x.com/waterloo_intern/status/2081762065392541951" rel="noopener">ali (@waterloo_intern)</a> — «22580: From GPT2 to Kimi3, Explained» の日本語訳。画像・コードはそのまま、本文のみ翻訳。</p>
+<p class="dek">原著: <a href="https://x.com/waterloo_intern/status/2081762065392541951" rel="noopener">ali (@waterloo_intern)</a> — «22580: From GPT2 to Kimi3, Explained»。図とコードは原文のまま。本文は、注意深い非専門家でも一歩ずつ追えるよう説明を組み直した日本語。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/cover.jpg" alt="表紙" /><figcaption>原著表紙 · ali (@waterloo_intern)</figcaption></figure>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-01.jpg" alt="" loading="lazy" /></figure>
-<p>2万2580。それが、KimiK3（2026）の中に収まる GPT-2（2019）モデルの数だ。7年で2万2580倍にスケールした。だが、それは単なる……スケールなのだろうか？</p>
-<p>このワークログでは、ここまでの道のりと、そのあいだに実際にどれだけ変わったか——あるいは変わらなかったか——を辿る。KimiK3 に至る主要なアーキテクチャの発展を追っていく。</p>
+<p>2万2580。</p>
+<p>2019年の GPT-2 を、2026年の KimiK3 の中に何個ぶん詰め込めるか、という数え方だ。パラメータの量だけで見ると、7年でおよそ2万2580倍に膨らんだ。</p>
+<p>だが、大きくなっただけなのだろうか。中身の組み立て方は、同じまま大きくなったのか。</p>
+<p>この記事は、原著のワークログを日本語で辿るものだ。出発点の GPT-2 から、Linear Attention、DeltaNet、ゲート、Kimi Linear、そして KimiK3 まで。</p>
+<p>追うのは部品のカタログではない。「覚える場所が足りない」「古さが混ざる」「まとめて計算できない」——そのたびに何を足し、何を捨てたか、を一つずつ確かめる。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-02.jpg" alt="" loading="lazy" /></figure>
 <h2 id="gpt-2">GPT-2</h2>
-<p>GPT-2 はデコーダ専用アーキテクチャである。</p>
+<p>まず出発点を固定する。GPT-2 は、すでに出た語だけを見て次の語を出す、デコーダ専用の形だ。翻訳のように「入力文を別経路で読む」エンコーダは持たない。チャットで見慣れた「左から右へ一文を伸ばす」機械の、小さな原型だ。</p>
 <pre><code>tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
 pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
 x = self.transformer.drop(tok_emb + pos_emb)
@@ -44,9 +47,9 @@ for block in self.transformer.h:
 x = self.transformer.ln_f(x)
 logits = self.lm_head(x)
 return logits</code></pre>
-<p>入力にはトークン埋め込みと位置埋め込みが与えられる。</p>
+<p>入力の最初の仕事は、記号を数の列にすることだ。各トークン（語の断片）に埋め込みベクトルを割り当て、さらに「何番目か」を表す位置の埋め込みを足す。ここまでで、モデルは文字ではなく、位置つきのベクトル列を見る。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-03.jpg" alt="" loading="lazy" /></figure>
-<p>各 Transformer ブロックを拡大すると、こう見える。</p>
+<p>その列は、同じ形のブロックを何度も通る。一つのブロックを拡大すると、だいたい次の二段になる。先に注意（どれをどれへ混ぜるか）を足し、次に MLP（位置ごとの変換）を足す。どちらも、入ってきたものに「差分」として足し戻す残差の形だ。</p>
 <pre><code>class Block(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -60,7 +63,7 @@ return logits</code></pre>
         x = x + self.mlp(self.ln_2(x))
         return x</code></pre>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-04.jpg" alt="" loading="lazy" /></figure>
-<p>Attention の処理は次のとおり。</p>
+<p>注意の中身は、ざっくりこう読む。いま見たい位置がクエリ（Q）、参照される側がキー（K）とバリュー（V）。Q と K の相性で重みをつけ、その重みで V を混ぜる。未来の語はまだ見えないので、後ろはマスクで隠す。</p>
 <pre><code>        B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
 
         # calculate query, key, values for all heads in batch and move head forward to be the batch dim
@@ -80,21 +83,22 @@ return logits</code></pre>
         # output projection
         y = self.resid_dropout(self.c_proj(y))
         return y</code></pre>
-<p>最終的な隠れ状態行列が得られると、言語モデルヘッドがそれを語彙ロジットへ写す。自己回帰デコードでは、次トークンを選ぶのに必要なのは最終位置のロジットだけである。</p>
-<blockquote><p>これはデコーダ専用生成の非効率さでもある。モデルは入力のすべての位置の表現を計算するが、各デコードステップが消費するのは最終位置のロジットだけだ。キャッシュがなければ、その作業の多くが次のトークンでも繰り返される。</p></blockquote>
+<p>最後の隠れ状態がそろうと、言語モデルヘッドが「語彙のどれが次か」のスコア（ロジット）へ写す。一文を伸ばすとき——自己回帰デコード——実際に次の一語を選ぶのに使うのは、いちばん新しい位置のスコアだけだ。前の位置のスコアも計算しているが、その一歩では使わない。</p>
+<blockquote><p>ここに、デコーダ専用生成のむだが見える。モデルは入力のすべての位置の表現を作るのに、デコードの一歩が飲むのは最後の位置のスコアだけだ。キャッシュがなければ、次の語を出すたびに、これまでの計算の多くをやり直すことになる。</p></blockquote>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-05.png" alt="" loading="lazy" /></figure>
-<p>KV キャッシュは率直な観察から来る。生成トークンを入力へ付け足すと、さもなければ過去トークンすべての射影を再計算してしまう。それらのキーとバリューのベクトルを保存すれば、その冗長な作業を避けられる。</p>
-<p>その保存が KV キャッシュだ。直前の N−1 トークン分のベクトルを保持し、十分に大きくなるとメモリ帯域のボトルネックになりうる。</p>
-<p>全体として、トークン候補はおよそ5万、ブロックは12、ヘッドは12、埋め込み次元は768で、ベースラインモデルはおよそ1億2400万パラメータである。</p>
+<p>KV キャッシュは、そのむだへの素直な答えだ。新しい語を付け足したあと、過去トークンのキーとバリューを毎回いちから作り直す必要はない。一度出した K と V を取っておけば、同じ射影を繰り返さずに済む。</p>
+<p>その保管庫が KV キャッシュだ。これまでの N−1 個ぶんのベクトルを抱え続ける。文が長くなるほど倉庫は太り、やがて「計算そのもの」より「メモリから運ぶ速さ」が詰まりうる。</p>
+<p>大きさの感覚だけ先に置く。語彙はおよそ5万、ブロック12、ヘッド12、埋め込み次元768。この GPT-2 サイズのベースラインは、およそ1億2400万パラメータだ。</p>
 <pre><code>vocab_size: int = 50304 # GPT-2 vocab_size of 50257, padded up to nearest multiple of 64 for efficiency
 n_layer: int = 12
 n_head: int = 12
 n_embd: int = 768</code></pre>
-<p>2.8兆パラメータの KimiK3 1体は、およそ2万2580個の GPT-2 と同じだけのパラメータを含む。</p>
+<p>一方 KimiK3 はおよそ2.8兆パラメータ。単純な割り算では、GPT-2 がおよそ2万2580個ぶん入る。ここから先は「何倍か」ではなく、記憶の持ち方がどう変わったかを見る。</p>
 <h2 id="linear-attention">Linear Attention</h2>
-<p>Softmax attention は q·k 積のあとに非線形をかけ、すべてのクエリをすべてのキーへ結合する。Linear attention は代わりに、ELU+1 のような特徴写像を q と k に別々に適用する。これで積が結合法則を満たすようになり、増え続ける K と V の集合を固定サイズの D×D 状態へ畳み込める。</p>
-<p>論文の O(N²) という枠組みには戸惑った。「Transformer の各時間ステップのコストは、その時点の系列長の二乗にスケールする」というのは正しくない。それが Flash Attention が直すものだ……と思ったら、その論文は2020年発表だった。</p>
-<p>当時の訓練では、しばしば完全な N×N Attention 行列を実体化し、FlashAttention はまだなく、参照用の自己回帰実装は KV キャッシュなしでトークン履歴を再計算することも多かった。</p>
+<p>普通の Softmax Attention は、Q と K を掛けたあとで非線形（指数）をかけ、すべてのクエリをすべてのキーへ結びつける。系列が長いほど、この結びつきの表は縦にも横にも伸びる。</p>
+<p>Linear Attention は発想を変える。ELU+1 のような写像を、Q と K に別々に先にかけておく。すると掛け算の順番を組み替えられ、増え続ける K と V を、長さに依らない固定サイズの D×D の状態へ畳み込める。「全文の表」ではなく、「要約されたメモ一枚」で済む、というイメージだ。</p>
+<p>原著の著者は、論文の「コストが系列長の二乗」という言い方に一度つまずいている。いまの実装感覚では、Flash Attention がその二乗の実体化をかなり和らげた、と思いやすい。だがその論文は2020年。いま読んでいる Linear Attention の文脈より前の世界の話だ。</p>
+<p>当時の訓練では、N×N の注意行列をそのままメモリに広げがちだった。FlashAttention はまだなく、参考実装は KV キャッシュなしで履歴を再計算することも多かった。「長いほど重い」は、机上の話ではなく、当時の実装の感触でもあった。</p>
 <pre><code>def forward(self, x, mask=None, past_kv=None):
   # x is b,t,d
   b,t,d=x.shape
@@ -134,9 +138,9 @@ n_embd: int = 768</code></pre>
   o_proj=self.o_proj(o)
   past_kv=(k, v)
   return o_proj, past_kv</code></pre>
-<p>同じ過程は図のほうがわかりやすい。各デコードステップは HBM へ ND 読みを2回、1D 書きを2回行い、KV キャッシュは系列長に対して線形——O(N)——に成長する。</p>
+<p>図のほうが追いやすい。デコードの一歩ごとに、大きなメモリ（HBM）へ長い読み書きが走る。KV キャッシュ自体も、系列長に比例して——いわゆる O(N) で——太っていく。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-06.png" alt="" loading="lazy" /></figure>
-<p>過剰な読み書きに注目してほしい。この論文はそれを次のように置き換える。</p>
+<p>読み書きが多すぎる。Linear Attention 側の論文は、そこを次のような更新に置き換える。毎回の巨大な履歴テーブルではなく、固定サイズの状態を足し更新していく。</p>
 <pre><code>def forward(self, x, mask=None, cache=None):
   # x is b,t,d
   b,t,d=x.shape
@@ -164,17 +168,19 @@ n_embd: int = 768</code></pre>
  cache=(S,z)
  
  return o_proj, cache</code></pre>
-<p>トレードオフがある。</p>
-<p>ここでは、softmax が使う指数を、相互作用の前に q と k それぞれへ適用する ELU+1 で置き換える。どちらも結果スコアを正規化するが、linear attention の特徴写像は softmax カーネルの表現力が弱い近似である。その近似は忠実度を下げうるが、実務上の精度低下はアーキテクチャとワークロードに依存する。</p>
-<p>なお、qk の和での割り算は今も行うが、図では単純化のため省略されている。高レベルでは、Attention は次の3ステップからなる。</p>
-<ol><li>qk スコアを非負にする。Linear attention は ELU+1、softmax は指数を使う。</li><li>和で割る。</li><li>バリューの加重平均を計算する。</li></ol>
-<p>これで基本的な Attention の契約は保たれるが、QK スコアを非負にするために表現力が弱い特徴写像を使っている。</p>
+<p>ただし、楽になる代わりに失うものがある。</p>
+<p>Softmax が使う指数の代わりに、相互作用の前に Q と K へ別々へ ELU+1 をかける。どちらもあとで割り算して重みをそろえるが、Linear 側の写像は Softmax の近似としては表現力が弱い。忠実度は落ちうる。実務でどれだけ精度が落ちるかは、設計と仕事内容次第だ。</p>
+<p>ちなみに、QK の和で割る正規化は今も行う。図では単純化のため省略されているだけだ。高レベルでは、注意は次の三手に分解できる。</p>
+<ol><li>スコアを非負にする。Linear は ELU+1、Softmax は指数。</li><li>和で割り、重みをそろえる。</li><li>その重みでバリューを混ぜる（加重平均）。</li></ol>
+<p>注意という契約——「相性で重みをつけ、値を混ぜる」——は保たれる。ただ、非負にする手段が弱い近似になっている。</p>
 <h2 id="deltanetfast-weight-programmers">DeltaNet（Fast Weight Programmers）</h2>
-<p>有限キャッシュは、すでに格納された情報を上書きするか合成しなければならない。トークン i−1 の状態は専用スロットを持たず、同じ D×D 行列へ加算される。したがって新しいクエリは、各過去トークンの完全に孤立した表現を取り出せなくなる。</p>
-<p>その加算こそが効率向上の源でもある。連結ではなく加算でキャッシュを更新すれば O(N) 成長は防げるが、同じ操作が情報の干渉を起こす。DeltaNet はこの回収可能性の喪失に対処する。</p>
+<p>固定サイズのメモには、置く場所が限られる。新しいトークンの情報は、専用の引き出しをもらえない。同じ D×D の一枚に、足し込まれていく。</p>
+<p>すると困ることが起きる。あとから「あのとき書いた事実だけ」を、きれいな孤立状態では取り出せなくなる。前のインクの上に、新しいインクが重なるからだ。</p>
+<p>その加算こそが、長さに比例して太らない理由でもある。履歴を後ろへ連結する代わりに、同じ板へ足す。効率は上がるが、情報が干渉する。DeltaNet が狙うのは、この「取り出しにくさ」への対処だ。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-07.png" alt="" loading="lazy" /></figure>
-<p>Schlag の論文（Fast Weight Programmers）の言い回しは的確だ。「系列長が記憶容量を超えると、モデルは過容量レジームに入りうる。そのようなレジームで適切に動くには、モデルは記憶内容と動的に相互作用し、どのキー・バリュー連合を残しどれを消すかを選択的に決めることを学ぶべきだ。純粋な加算命令はこの目的には不適切かもしれない……有限サイズの記憶へ新しい連合を終わりなく足し続けると、式17のように、いずれ限界に達する。」</p>
-<p>Linear attention が魅力的になるレジーム——N が D よりはるかに大きい場合——は、同時にその主制約も露わにする。状態が実効容量を超えると、更新が加算でキャッシュから何も出ていかないため、連合が干渉し始める。</p>
+<p>Schlag の論文（Fast Weight Programmers）は、この限界をはっきり書いている。</p>
+<p>「系列長が記憶容量を超えると、過容量の状態に入りうる。そこでは、何を残し何を消すかを選びながら記憶とやり取りする必要がある。ただ足し続けるだけの命令では足りない。有限の記憶へ連合を終わりなく足せば、いずれ限界に達する。」</p>
+<p>Linear Attention が魅力的なのは、系列長 N が状態の幅 D よりずっと長いときだ。同じ条件が、弱点もむき出しにする。更新が加算だけで、何も出ていかないなら、容量を超えた連合は互いに邪魔をし始める。</p>
 <pre><code>def forward(self, x, mask=None, cache=None):
   # x is b,t,d
   b,t,d=x.shape
@@ -201,13 +207,16 @@ n_embd: int = 768</code></pre>
   o = o.transpose(1, 2).contiguous().view(b, t, d)
   return self.o_proj(o), S
 </code></pre>
-<p>視覚的な例のほうが追いやすい。</p>
+<p>数式より先に、小さな操作の絵で追う。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-08.jpg" alt="" loading="lazy" /></figure>
-<p>単一の連合を S = k.T @ v として書く。同じキーで読み戻すと k @ (k.T @ v)、すなわち (k @ k.T) v になり、キーの二乗ノルム倍の v になる。つまり読み出しはキーの二乗ノルムでスケールされ、k を単位長に正規化するか結果をノルムで割れば、v を正確に取り戻せる。</p>
-<p>Q も学習されたポインタである。Wq と Wk は同じ残差ストリームを読み、ある事実へのクエリは、その事実が書き込まれたキー方向を指す。更新はまず、現在のキーがキャッシュから何を取り出すかを尋ねる。格納したいバリューからその既存情報を引き、キーにその差を掛け、結果を足し戻す。古い情報が除かれ、新しい情報がその場所に書かれる。</p>
-<h2 id="deltanetparallelizing-linear-transformers-with-delta-rule">DeltaNet（Parallelizing Linear Transformers with Delta Rule）</h2>
-<p>このポストでいちばん難しい節だ。実用的な理解に至るまでおよそ7時間かかったので、実装から説明を組み立てる。要するに DeltaNet は、一般化された Householder 遷移行列を持つ一次線形再帰を実装し、ハードウェア効率の良い線形時間訓練のためのチャンク並列順伝播を可能にする。入力と出力をサイズ C の複数チャンクへ分割し、各チャンクの出力を、前チャンクの最終状態と現チャンクのクエリ・キー・バリュー・ブロックから計算する。</p>
-<p>実務上の問題は prefill だ。T トークン系列への Delta 規則の直接実装は次のようになる。</p>
+<p>一つの連合を、ごく単純に S = kᵀ @ v と書く。同じキー k で読み戻すと、k @ (kᵀ @ v) になり、結局「k の長さの二乗」倍の v が返る。</p>
+<p>つまり読み出しは、キーの大きさで伸び縮みする。k を長さ1にそろえるか、あとでその大きさで割れば、v をそのまま取り戻せる。「書いたものを、同じ鍵で開ける」最小の例だ。</p>
+<p>クエリ Q も、学習されたポインタだと思える。Q 用と K 用の射影は同じ残差の流れを読み、ある事実を思い出したいときの Q は、その事実を書いた K の方向を指す。</p>
+<p>Delta の更新は、だいたい次の順だ。いまのキーで、板（キャッシュ）から何が読めるかを見る。書きたい値から、その既読ぶんを引く。差分だけをキーに載せて足し戻す。古いインクを消し、新しいインクを同じ場所へ書く——上書きに近い操作になる。</p>
+<h2 id="deltanet並列化">DeltaNet（並列化）</h2>
+<p>ここがいちばん難しい。原著の著者も、手応えのある理解までおよそ7時間かかったと書いている。なので、抽象より実装の順で組み立てる。</p>
+<p>短い要約だけ先に置く。DeltaNet は、一歩前の状態から一歩後の状態へ進む一次の線形再帰だ。遷移の仕方をうまく書き直すと、系列を長さ C の塊（チャンク）に分け、塊ごとにある程度まとめて前へ進められる。訓練で「一トークンずつしか進めない」壁を下げ、ハードウェア向きの線形時間に近づける、という話だ。</p>
+<p>実務で痛いのは、長いプロンプトを最初に飲み込む段階——いわゆる prefill——だ。T 個のトークンへ Delta 規則をそのまま書くと、次のような一歩ずつのループになる。</p>
 <pre><code>S = torch.zeros(b, h, dh, dh) if cache is None else cache
 outs = []
 for i in range(t):
@@ -219,7 +228,7 @@ for i in range(t):
     S = S + k_i.transpose(-1, -2) @ u_i # write
     outs.append(q[:, :, i:i+1] @ S)     
 o = torch.cat(outs, dim=2)                 </code></pre>
-<p>標準 Attention と違い、この定式化はすべてのキーベクトルで補正が必要なので、並列行列積への道はすぐには見えない。Delta 規則がなくても、直接の linear-attention prefill は逐次のままである。</p>
+<p>普通の注意と違い、キーのたびに「今ある状態からの補正」が要る。だから、いきなり大きな行列の掛け算一発、には見えにくい。Delta を外しても、素朴な Linear Attention の prefill は、状態を順に更新する逐次処理のままだ。</p>
 <pre><code>S = torch.zeros(b, h, dh, dh) if cache is None else cache
 outs = []
 for i in range(t):
@@ -237,10 +246,10 @@ for i in range(t):
     outs.append(out)
 
 o = torch.cat(outs, dim=2)</code></pre>
-<p>チャンク化した定式化のほうが効率的だ。仕組みは例で追うほうがわかりやすい。</p>
+<p>そこで系列をチャンクに切る。塊の中と、塊と塊のあいだで、やり方を分けるとうまくいく。図の例で追うのがいちばん早い。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-09.jpg" alt="" loading="lazy" /></figure>
-<p>C=N にすると標準の O(N²) Attention に戻り、C=1 だと通常の linear attention になる。中間の値では、チャンク内の追加作業とハードウェア利用率のあいだを補間する。実務では C はしばしば64や128で、テンソルコア命令がその粒度で効率的に動くからである。UMMA がその一例だ。</p>
-<p>中間タイルは状態更新の一部として S へ畳み込まれる。</p>
+<p>チャンク長 C を系列長 N と同じにすると、いつもの O(N²) Attention に戻る。C=1 にすると、普通の Linear Attention になる。そのあいだの C は、塊の中で少し余分に計算する代わりに、GPU が得意な大きさの行列積へ仕事を載せる。実務では C は64や128が多い。テンソルコアが効きやすい粒度だからで、UMMA はその一例だ。</p>
+<p>塊の中でできた中間結果は、状態 S の更新へ折り込まれる。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-10.jpg" alt="" loading="lazy" /></figure>
 <pre><code>S = torch.zeros(b, h, dh, dh) if cache is None else cache
 outs = []
@@ -261,21 +270,22 @@ for i in range(t//C):
     outs.append(o)
 
 o = torch.cat(outs, dim=2)</code></pre>
-<p>ブロック内では q(kᵀv) を行う。これはスコア先、マスク付きの通常 Attention 順だ。ブロック間では (kᵀv)q に従い、再帰順・状態先になる。Attention は O(N²) で成長するが、こちらはそうならない。ブロック内では本物の Attention（マスク付き QKᵀ に V）を行い、ブロック間ではすべてを状態へ畳み込み、1回の matmul で読み戻す。コストは二つに分かれる。固定部分 2Ld² は状態作業で C に依存しない。成長部分 2LCd は対角上に座るスコア行列だ。フル Attention は C が L に等しい場合で、第二項が 2L²d になり二次になる。だから C を小さくするほど FLOP は減る。</p>
-<p>純粋な FLOP では C=1 がいちばん安いが、壁時計時間では必ずしもそうではない。GPU は、作業が行列積ハードウェアへうまく載るとき、より多くの算術をより速く終えられる。</p>
-<p>次のステップは、同じ手法を DeltaNet へ拡張することだ。</p>
+<p>塊の中では、普通の注意と同じ順——まずスコア、マスクあり——で q(kᵀv) をやる。塊と塊のあいだでは順が逆で、(kᵀv) を先に状態へ折り、あとで q で読む。再帰的に「要約メモを更新してから読む」順だ。</p>
+<p>全体の注意表が N² で膨らむ普通の Attention と違い、ここはそうならない。コストは二つに分かれる。状態まわりの固定費（だいたい 2Ld²。C に依らない）と、対角に並ぶ塊内スコアの成長費（だいたい 2LCd）だ。C を L と同じにすると後者が 2L²d になり、いつもの二乗に戻る。C を小さくするほど計算量の個数（FLOPs）は減る。</p>
+<p>ただし FLOPs が最少だから壁時計でも最速、とは限らない。GPU は、行列積ユニットにうまく載る形の仕事のほうが、個数が多くても速いことがある。C=1 が紙の上では最安でも、実装では中くらいの C が勝つ、という感覚だ。</p>
+<p>同じチャンク発想を、DeltaNet 本体へ伸ばす。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-11.jpg" alt="" loading="lazy" /></figure>
-<p>根本の問題は単純で、純粋加算 Attention 用のチャンク法は、デルタ更新にはそのまま適用できない。</p>
+<p>障害は単純だ。ただ足すだけの Linear Attention 用チャンク法を、差分で上書きする Delta 更新へそのまま持っていけない。</p>
 <pre><code>v_old = k_i @ S                  
 u_i  = b_i * (v_i - v_old)</code></pre>
-<p>差し引くべき情報を計算するには、すべての状態が必要になる。数学的な再パラメータ化なしでは、同じようには並列化できない。そこで著者はデルタ更新を次から書き換える。</p>
+<p>差し引くべき「今そこにある情報」を知るには、途中の状態が順番に要る。並べ方を数学的に書き直さないと、同じようには並列化できない。そこで著者は、デルタ更新の式を次の形から組み替える。</p>
 <pre><code>u=v_new-v_old
 S_t= S_(t-1)+K.T@u
 o=q@S_T</code></pre>
-<p>ここでは逐次ループが反復ごとに1つのデルタを計算する。再パラメータ化した形は次のとおり。</p>
+<p>左の形は、ループが一周ごとに一つのデルタを出す。組み替えたあとの形は、次のように書ける。</p>
 <pre><code>S_t = S_{t-1}(I − β_t k_t k_tᵀ)  +  β_t v_t k_tᵀ
 o_t = S_t q_t</code></pre>
-<p>この定式化により、チャンク化したコードが C 個のデルタを一度に計算できる。</p>
+<p>この形だと、チャンク内の C 個のデルタをまとめて扱いやすい。</p>
 <pre><code>def chunk_delta_rule_forward(Q, K, V, beta, C):
 		# L: sequence length, d: head dimension
 		L, d = Q.shape
@@ -307,51 +317,51 @@ o_t = S_t q_t</code></pre>
 				S += k_i.t() @ u_i # update state with addition 
 				O[i] = o_intra + o_inter #update output with flash + recurrent
 		return O.reshape(L, d)</code></pre>
-<p>これで最初の比較点に至る。MHA 対 DeltaNet Transformer だ。</p>
+<p>ここまでで、最初の比較点に立てる。ふつうの Multi-Head Attention（MHA）と、DeltaNet 版 Transformer を横に置く。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-12.jpg" alt="" loading="lazy" /></figure>
 <h2 id="gated-delta-net">Gated Delta Net</h2>
-<p>これでキャッシュを精密に変更する方法が手に入った。新しい事実（新しいキーベクトル）ごとに、その点に格納された古い情報を正確に見て、注目したい新しい情報で置き換えられる。</p>
-<p>しかしこの機構は、具体的な置換がある連合しか忘れられない。コンテキスト切替で複数連合を効率よく消したり、容量を空けるために記憶一般を減衰させたりはできない。</p>
-<p>もし純粋加算の linear attention をしていたなら、</p>
-<p>忘れる能力を足すのは簡単だっただろう。忘れっぽい状態を制御するパラメータが1つあればよい。</p>
+<p>これで、キャッシュの一点を精密に書き換えられるようになった。新しい事実（新しいキー）ごとに、そこへ書いてあった古い情報を見て、注目したい新しい情報で置き換えられる。</p>
+<p>足りない能力がある。「この事実を別の事実で上書きする」はできる。だが、話題が切り替わったときに複数の連合をまとめて消す、あるいは容量を空けるために記憶全体をじわっと薄める、は不得意だ。</p>
+<p>もし記憶更新が、ただ足すだけの Linear Attention だったら、</p>
+<p>「忘れる」を足すのは比較的簡単だった。前の状態をどれだけ残すか、という係数を一つ置けばよい。</p>
 <pre><code>S_old=cache
 S_new=k@v
 # cache=S_old+S_new
 cache=alpha * S_old + S_new</code></pre>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-13.png" alt="" loading="lazy" /></figure>
-<p>これが Mamba-2 の寄与だ。前のキャッシュを減衰させ、新しいキャッシュをフル強度で足し、状態が無制限に成長しないようにする。</p>
-<p>各時間ステップですべてのキー・バリュー連合を動的比率で一様に減衰させるのは、実用的な手法であり、Mamba がやっていることだ。だが、連合ごとの重要度の違いは考慮しない。</p>
-<p>つまり、特定の連合だけを忘れたいときでも、すべての連合が同じだけ忘れられる。対照的に Delta 規則は単一の事実を更新できるが、残りの事実を減衰させる手段がない。</p>
-<p>そこで Gated Delta 規則は、Mamba のゲート付き更新規則と Delta 規則を組み合わせる。パラメータ alpha を加え、1のとき純粋な Delta 規則、0のとき記憶をクリアする。課題は、同じ並列チャンク法でこれを実装することだ。</p>
-<p>実装は前節の DeltaNet 再パラメータ化を使う。数学はほぼ同じで、追加は一つ——前状態の減衰を制御する、データ依存の0〜1スカラーだ。これで効果的なキー・バリュー連合学習と適応的メモリ管理が組み合わさる。</p>
-<p>対応するコード変更を以下に示す。</p>
+<p>これが Mamba-2 が持ち込んだ寄与に近い。前のキャッシュを減衰させ、新しい分をフルの強さで足す。状態が限りなく太るのを防ぐ。</p>
+<p>毎ステップ、すべての連合を同じ比率で薄める——動的ではあるが一様な減衰——は実用的で、Mamba 系がやっていることだ。だが「どの連合がどれだけ大事か」の差は見ない。</p>
+<p>一つだけ忘れたいときでも、全部が同じだけ薄まる。逆に Delta 規則は、一点の上書きは上手いが、残りをじわっと薄める手段がない。</p>
+<p>Gated Delta 規則は、両方を足す。Mamba 側のゲートと、Delta 側の上書きだ。係数 alpha を置く。1 なら純粋な Delta、0 なら記憶をクリアする方向へ寄る。難しさは、前節と同じチャンク並列のまま実装することだ。</p>
+<p>実装の骨格は、前節の DeltaNet の書き直しをそのまま使う。数式はほぼ同じで、足るのは一つ——前状態をどれだけ残すか、データ次第で 0 から 1 のあいだを取るスカラーだ。事実の書き換えと、記憶の太さの管理が同じ更新に載る。</p>
+<p>対応するコードの差分は、次の図のとおり。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-14.jpg" alt="" loading="lazy" /></figure>
-<p>γʳ/γⁱ 項は累積減衰を表す。時刻 x で書かれ x+t で読まれるトークンは、αₓαₓ₊₁αₓ₊₂…αₓ₊ₜ で掛けられてきた。これはプレフィックス和の乗法版である。</p>
-<p>結果のアーキテクチャはこう見える。</p>
+<p>図中の γʳ/γⁱ は、減衰が何回も掛け算されてきた累積を表す。時刻 x で書いたトークンを x+t で読むとき、途中の alpha が全部掛かっている。足し算のプレフィックス和に対し、掛け算版の「これまでの積」だと思えばよい。</p>
+<p>この段階の全体像は、次の図になる。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-15.jpg" alt="" loading="lazy" /></figure>
 <h2 id="kda--kimi-linear">KDA / Kimi Linear</h2>
-<p>この時点で研究者は、Gated DeltaNet と Mamba のように、複数の Attention 形式を一つのアーキテクチャ内で組み合わせるハイブリッドモデルを試し始めた。</p>
-<p>Kimi Linear が注目を集めた中心主張は、制御された比較でフル Attention を上回ったことだ。著者は、品質が良くデコードスループットが最大6倍の、ドロップイン置換として提示した。</p>
-<p>Kimi Linear は、細粒度ゲーティングを導入して Gated DeltaNet を改善する。単一スカラー減衰ではなく、チャネルごとに別の減衰値を学習する。</p>
+<p>研究は、一つの注意形式に賭け切るより、複数を一つの模型の中で混ぜる方向へも進んだ。Gated DeltaNet と Mamba を同居させる、といったハイブリッドだ。</p>
+<p>Kimi Linear が目立ったのは、中心の主張が強いからだった。条件を揃えた比較で、フルの Softmax Attention を上回った、と。置き換え部品として、品質が良く、デコードのスループットが最大でおよそ6倍、と提示された。</p>
+<p>Gated DeltaNet からの一歩は、減衰の粒度だ。状態全体を一つの alpha で薄めるのではなく、チャネルごとに別の減衰を学習する。「メモの行ごとに、忘れ方を変えられる」イメージに近い。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-16.jpg" alt="" loading="lazy" /></figure>
-<p>KDA の更新規則は似たままだが、コードは今や次のように見える。</p>
+<p>更新規則の骨格は似ている。コードは、次のように見える。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-17.jpg" alt="" loading="lazy" /></figure>
-<p>ここで alpha.reshape(nb, C, d) が、論文の最大の寄与——メモリ減衰への細粒度制御——を捉えている。</p>
-<p>DeltaNet Transformer の隣に置くと、Kimi Linear アーキテクチャは三つの大きな変更を導入する。</p>
-<ol><li>Multi-head Latent Attention（MLA）層を挟み込むハイブリッド系を使う。</li><li>MLP を Mixture-of-Experts（MoE）層に置き換える。</li><li>alpha 射影を通じて DeltaNet に容量を足す。</li></ol>
+<p>alpha を (チャンク数, C, 次元) へ reshape しているところが、論文のいちばんの寄与に対応する。メモリ減衰を、チャネル単位で触れるようにした。</p>
+<p>DeltaNet Transformer の横に置くと、Kimi Linear は大きく三つ変わる。</p>
+<ol><li>Multi-head Latent Attention（MLA）層をあいだに挟むハイブリッドにする。</li><li>MLP を Mixture-of-Experts（MoE）に置き換える。</li><li>alpha の射影を通じて、DeltaNet 側に容量を足す。</li></ol>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-18.jpg" alt="" loading="lazy" /></figure>
-<p>後の節で MLA と MoE をより詳しく扱う。いま重要なのは、これが盲目的スケーリングではないことだ。追加容量には具体的な数学的目的がある。チャネルごとのスケールが、メモリ減衰へのより細かい制御をモデルに与える。</p>
-<p>スケーリング則はなお有効だが、容量は正しい場所に、システムが使える形で足さなければならない。この進歩の各アーキテクチャは、直前の系の具体的な制約に対処するために容量を足している。</p>
+<p>MLA と MoE の細部は後で触れる。いま押さえるのは、これが「とにかく大きくする」盲目的スケーリングではないことだ。足した容量には役割がある。チャネルごとのスケールが、忘れ方の解像度を上げる。</p>
+<p>スケーリング則は無効になったわけではない。ただ、容量は「足せる場所」と「系が使える形」に置かないと効かない。ここまでの各段は、直前の設計が抱えた具体的な詰まりへ、容量を足している。</p>
 <h2 id="kimi-k3">Kimi K3</h2>
-<p>結局のところ、KimiK3 の言語バックボーンは上の Kimi Linear モデルに似ている。23個の4層マクロサイクルを含む。各マクロサイクルでは、3層が Kimi Delta Attention、4層目が Multi-head Latent Attention を使う。最初の層は dense フィードフォワード、残りのすべての層は latent Mixture-of-Experts を使う。</p>
-<p>一見すると、Kimi Linear からの変更は控えめに見える。</p>
-<ul><li>大幅なスケール増</li><li>12層ごとの Blockwise AttnRes</li><li>MLA クエリ LoRA と出力ゲーティング</li><li>潜在空間 MoE</li><li>SiTU 活性化</li><li>Gated MLA</li></ul>
-<p>KDA は定数状態の再帰メモリを供給し、周期的な MLA 層はコンテキスト上のフル softmax 検索を保持する。以下の簡略図は、下で述べる変更の有用な参照になる。</p>
+<p>KimiK3 の言語バックボーンは、上の Kimi Linear に近い。4層で一つのマクロサイクルを作り、それを23回繰り返す。各サイクルでは、3層が Kimi Delta Attention（KDA）、4層目が Multi-head Latent Attention（MLA）。最初の層だけ dense のフィードフォワード、あとの層は latent な Mixture-of-Experts だ。</p>
+<p>Kimi Linear からの差分を一覧すると、一見控えめに見える。</p>
+<ul><li>大幅なスケール増</li><li>12層ごとの Blockwise AttnRes</li><li>MLA のクエリ LoRA と出力ゲーティング</li><li>潜在空間で動く MoE</li><li>SiTU という活性化</li><li>Gated MLA</li></ul>
+<p>役割分担だけ先に読む。KDA は、サイズが膨らまない再帰メモリを担う。ところどころの MLA は、文脈全体への Softmax 的な精密検索を残す。固定メモだけではこぼれるものを、ときどき本式の検索で拾う、という同居だ。次の簡略図を、この分担の地図として見てほしい。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-19.jpg" alt="" loading="lazy" /></figure>
-<p>まずはより直接的な変更から始める。Gated MLA、潜在空間 MoE、SiTU 活性化だ。</p>
-<p>Gated MLA は、取得された各特徴のうちどれだけが MLA から残差ストリームへ通るかを決める。入力から射影したゲートとの要素積でそれを行う。</p>
-<p>従来の MoE では、学習されたルータが内積類似度で各トークンを専門家ネットワークの部分集合へ送る。KimiK3 の専門家は合計898。うち2つは共有で全トークンを処理し、残る896のうちルータが各トークンに16を選ぶ。</p>
-<p>KimiK3 は専門家の活性化も変える。up 射影へ SiLU をかけ、ゲートと要素積し、down 射影する代わりに、SiTU を使う。</p>
+<p>わかりやすい変更から行く。Gated MLA、潜在空間の MoE、SiTU 活性化だ。</p>
+<p>Gated MLA は、「MLA が取ってきた特徴のうち、どれだけを本流（残差）へ通すか」を決める。入力から作ったゲートを、要素ごとに掛けて絞る。</p>
+<p>ふつうの MoE では、ルータが各トークンを専門家の一部へ振り分ける。内積の似ている専門家へ送る、というやり方だ。KimiK3 の専門家は合計898。うち2つは共有で、どのトークンも通る。残る896から、トークンごとに16人を選ぶ。</p>
+<p>専門家の中の活性化も変えている。昔ながらの「up に SiLU、ゲートと掛けて、down」ではなく、SiTU を使う。</p>
 <pre><code>d = x.shape[-1] // 2
 gate = x[..., :d].to(torch.float32)
 up = x[..., d:].to(torch.float32)
@@ -359,34 +369,36 @@ situ_a = self.beta * torch.tanh(gate / self.beta) * torch.sigmoid(gate)
 if self.linear_beta is not None:
     up = self.linear_beta * torch.tanh(up / self.linear_beta)
 return (situ_a * up).to(x.dtype)</code></pre>
-<p>モデルはまた、共有専門家への入力を down 射影し、その最終和を up 射影する。</p>
+<p>共有専門家へ渡す前に入力を細い空間へ落とし（down 射影）、専門家の出力を足したあとで戻す（up 射影）——という経路もある。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-20.jpg" alt="" loading="lazy" /></figure>
-<p>これはモデル推論で繰り返し現れる課題を示す。融合カーネルがなければ、新しい活性化は元の経路よりほぼ3倍遅い。相殺する最適化の一つは、専門家が圧縮された潜在空間で動くことで、順伝播が大幅に速くなり FLOP をほぼ半減することだ。</p>
-<p>残る変更は、MLA クエリ LoRA、出力ゲーティング、12層ごとの blockwise Attention Residuals だ。AttnRes は推論レイテンシをおよそ2%増やすが、二つの重要な利点がある。</p>
-<ul><li>より早い表現の選択的検索——残差の希釈と隠れ状態の肥大を緩和する</li><li>1.25倍の計算上の利点</li></ul>
-<p>AttnRes と MLA は、同じ根底の制約に別方向から対処する。KDA 層は定数サイズ状態で動き、必然的に情報を捨てる。MLA はトークン・コンテキストから検索し、AttnRes はより早い深さ方向の表現から検索する。</p>
+<p>推論では繰り返し出る摩擦でもある。専用に融合したカーネルがなければ、新しい活性化は昔の経路よりおよそ3倍遅い、となりうる。相殺の工夫の一つが、専門家を圧縮した潜在空間で動かすことだ。順伝播が速くなり、計算量もおよそ半分近くまで落とせる。</p>
+<p>残りは、MLA のクエリ LoRA、出力ゲート、そして12層ごとの Attention Residuals（AttnRes）だ。AttnRes は推論の遅延をおよそ2%増やすが、利点が二つある。</p>
+<ul><li>より早い層の表現を選び取れる（残差が薄まりすぎる／隠れ状態が太りすぎるのを抑える）</li><li>計算上、およそ1.25倍の得がある</li></ul>
+<p>AttnRes と MLA は、同じ根の困りごとに別方向から触れている。KDA は固定サイズの状態なので、必ず何かを捨てる。MLA はトークン列の文脈から拾い直す。AttnRes は、深さ方向——もっと手前の層が出した表現——から拾い直す。</p>
 <h2 id="attnres">AttnRes</h2>
-<p>この節の助けをしてくれた @chloey3k に感謝する。各順伝播で、入力は層のスタックを通る。ここでは各層が Attention ブロック（KDA または MLA）と MLP または MoE ブロックからなる。通常、各層への入力は、元の埋め込みと先行するすべての層出力の和であり、すべて等しく重み付けされる。</p>
+<p>この節は、原著でも @chloey3k の助けへの謝辞がある。順伝播では、入力が層の積み重ねを通る。各層は、注意（KDA か MLA）と、MLP か MoE、の組だ。</p>
+<p>ふつう、次の層への入力は、最初の埋め込みと、ここまでの層出力を、同じ重みで足したものになる。どれも等しい、という前提だ。</p>
 <p>$$h_l = h_1 + \sum_{i=1}^{l-1} f_i(h_i)$$</p>
-<p>ここで h_i は層 i への入力、h_1 は現在トークン（これまでの系列の最後のトークン）の埋め込み、f_i(h_i) は層 i（Attention または MLP ブロック）の出力である。</p>
-<p>問題は選択的アクセスの欠如だ。異なる層タイプが同じ集約状態を受け取るが、異なる重み付けの恩恵を受けうる。再帰が純粋加算のため、後段の層は蓄積残差に影響するためにますます大きな出力を学習しなければならず、訓練を不安定化しうる。すべての層を等しく扱う代わりに、AttnRes はその和の各項に専用の重みを掛け、文脈でいちばん有用な層へより多くの重要度を与えられるようにする。</p>
+<p>記号ではこう書く。h_i は層 i への入力。h_1 は、いま注目しているトークン（これまでの列の最後）の埋め込み。f_i(h_i) は層 i の出力（注意または MLP ブロック）だ。</p>
+<p>問題は、選べないことだ。層の種類が違っても、同じ「全部足した状態」しか受け取れない。しかも純粋な加算なので、後ろの層が効かせるには出力をどんどん大きくしがちで、訓練が不安定になりうる。</p>
+<p>AttnRes は、足し算の各項に専用の重みをかける。いまの文脈で効く層へ、より多くの票を渡せる。</p>
 <p>$$h_l = \alpha_0 \cdot h_1 + \sum_{i=1}^{l-1} \alpha_i \cdot f_i(h_i)$$</p>
-<p>各重み alpha_i はクエリ・キー内積から計算される。クエリは層ごとに学習され、キーとバリューはより早い残差ストリーム状態から来る。スコアは和が1になるよう正規化され、それらの状態の加重結合を作るのに使われる。</p>
+<p>重み alpha_i は、クエリとキーの内積から来る。クエリは層ごとに学習され、キーとバリューはより手前の残差状態から来る。スコアは合計1になるよう正規化し、その重みで手前の状態を混ぜる。</p>
 <figure class="article-figure"><img src="assets/gpt2-to-kimik3/fig-21.jpg" alt="" loading="lazy" /></figure>
-<p>したがってモデルは、直前の前任だけに条件付けする必要がない。AttnRes は各層に、より早い層出力への選択的アクセスを与え、学習されたクエリが現在の計算にいちばん有用な表現を取り出せるようにする。</p>
-<p>以下の疑似コードは、同じ考えをブロック粒度で適用する。ブロックは、12個のデコーダ層にわたって蓄積された Attention と MLP 出力の要素和であり、後の AttnRes 混合用の単一の深さ表現として保存される。</p>
-<p>すべての層で残差 Attention を適用すると、訓練と推論のコストが増えすぎる。固定ブロック境界だけで適用すれば、大半の利益をより低いコストで捉えられる。KimiK3 では、各境界は12デコーダ層のあとにある。23個の4層マクロサイクル全体で、これは8個の AttnRes ブロックを生み、推論速度を上げる。</p>
-<p>おそらくこれが block_attn_res 関数でいちばん重要な部分だ。</p>
+<p>だからモデルは、「直前の層だけ」を見る必要がない。AttnRes は、手前の層出力への選択的アクセスを渡し、いまの計算に要る表現をクエリで取りにいける。</p>
+<p>疑似コードは、同じ考えをブロック単位で書く。ここでブロックとは、デコーダ12層ぶんの注意と MLP の出力を足してまとめた、深さ方向の一つの要約だ。あとで AttnRes が混ぜる単位になる。</p>
+<p>これを毎層やると、訓練も推論も高くつきすぎる。固定間隔の境界だけでやると、恩恵の大半を安いコストで取れる。KimiK3 では、その境界が12デコーダ層ごと。23個の4層マクロサイクル全体で、AttnRes ブロックは8つになり、推論の速さにも効く、と原著は書く。</p>
+<p>block_attn_res でいちばん肝になるのは、おそらく次の部分だ。</p>
 <pre><code>V = torch.stack(blocks + [partial_block]) # [N+1, B, T, D]
 K = norm(V)
 logits = torch.einsum(&#x27;d, n b t d -&gt; n b t&#x27;, proj.weight.squeeze(), K)
 h = torch.einsum(&#x27;n b t, n b t d -&gt; b t d&#x27;, logits.softmax(0), V)
 return h</code></pre>
-<p>これで GPT-2 から KimiK3 までの進歩は完了する。</p>
-<p>中心にある変化はスケールだけではない。各アーキテクチャ段階は、モデルが何を格納するか、その状態をどう更新するか、あるいは固定サイズ状態が保てない情報をどう検索するかを変える。</p>
-<p>KimiK3 は、定数状態の再帰メモリ、周期的な softmax 検索、疎な専門家容量、選択的な深さ方向残差アクセスを組み合わせる。結果は、追加容量を具体的な機能的役割がある場所に使う系である。</p>
-<p>本質的に、固定容量の連想記憶（固定次元）には追い出し方針が必要だ。純粋加算の線形操作は、容量に達するとやがて干渉を足すからである。そのため、ゲーティング、ルーティング、減衰のような学習された選択が必要であり、Attention はいちばん効果的な選択的読み取り機構である。</p>
-<hr /><p><small>出典: <a href="https://x.com/waterloo_intern/status/2081762065392541951" rel="noopener">https://x.com/waterloo_intern/status/2081762065392541951</a> · 翻訳は読者向け公開用。図中の英語ラベルは原図のまま。</small></p>
+<p>ここまでが、GPT-2 から KimiK3 までの一本道だ。</p>
+<p>中心の変化は、単なる巨大化ではない。各段は、「何を倉庫に残すか」「倉庫をどう更新するか」「固定サイズでは保てないものを、どこから拾い直すか」のどれかを変えている。</p>
+<p>KimiK3 は、次を同居させている。サイズが膨らまない再帰メモリ、ときどきの Softmax 検索、疎な専門家の容量、深さ方向の選択的アクセス。足した容量のそれぞれに、役割がある。</p>
+<p>短い結論だけ置く。次元が固定された連想記憶には、追い出しの方針が要る。ただ足すだけの更新は、満杯のあと干渉を増やす。だから、ゲートやルーティングや減衰のような、学習された選択が要る。そして注意は、いまでも「何を読むか」を選ぶいちばん強力な手段の一つだ。</p>
+<hr /><p><small>出典: <a href="https://x.com/waterloo_intern/status/2081762065392541951" rel="noopener">https://x.com/waterloo_intern/status/2081762065392541951</a> · 図中の英語ラベルは原図のまま。技術的な範囲は原著に揃え、説明の足場だけを読者向けに組み直している。</small></p>
       </article>
 
     </main>
@@ -396,7 +408,7 @@ return h</code></pre>
 <li><a href="#gpt-2">GPT-2</a></li>
 <li><a href="#linear-attention">Linear Attention</a></li>
 <li><a href="#deltanetfast-weight-programmers">DeltaNet（Fast Weight Programmers）</a></li>
-<li><a href="#deltanetparallelizing-linear-transformers-with-delta-rule">DeltaNet（Parallelizing Linear Transformers with Delta Rule）</a></li>
+<li><a href="#deltanet並列化">DeltaNet（並列化）</a></li>
 <li><a href="#gated-delta-net">Gated Delta Net</a></li>
 <li><a href="#kda--kimi-linear">KDA / Kimi Linear</a></li>
 <li><a href="#kimi-k3">Kimi K3</a></li>
