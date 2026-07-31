@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>memory-budget</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 同じ「7B」でも精度と文脈長で必要メモリが qualitatively 変わる</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <label>精度
+        <select id="bits">
+          <option value="2">FP16 (2B)</option>
+          <option value="1">INT8 (1B)</option>
+          <option value="0.5" selected>~4bit (0.5B)</option>
+        </select>
+      </label>
+      <label>文脈トークン
+        <input id="ctx" type="range" min="512" max="32768" step="512" value="4096" />
+      </label>
+      <span class="mono" id="ctxLabel">4096</span>
+    </div>
+    <p class="hint">教育用の概算です。実モデルの層数・KV ヘッドは固定の玩具定数です。</p>
+  </div>
+  <script>
+    const N = 7e9;
+    const kvPerTok = 0.00012; // GB per token toy constant (~illustrative)
+    const bits = document.getElementById("bits");
+    const ctx = document.getElementById("ctx");
+    const ctxLabel = document.getElementById("ctxLabel");
+    const stage = document.getElementById("stage");
+    function render() {
+      const b = parseFloat(bits.value);
+      const L = parseInt(ctx.value, 10);
+      ctxLabel.textContent = String(L);
+      const weights = (N * b) / 1e9;
+      const kv = L * kvPerTok;
+      const total = weights + kv;
+      stage.innerHTML =
+        "<div class='mono'>重み ≈ " + weights.toFixed(1) + " GB</div>" +
+        "<div class='mono'>KV（玩具）≈ " + kv.toFixed(1) + " GB</div>" +
+        "<div class='mono' style='color:var(--accent);margin-top:0.5rem'>合計 ≈ " + total.toFixed(1) + " GB</div>" +
+        "<p style='margin-top:0.75rem;color:var(--ink-dim)'>" +
+        (kv > weights * 0.5
+          ? "文脈が伸び、KV が重みに肉薄／超過しはじめている。"
+          : "いまは重みが支配的。文脈を伸ばすと比率が逆転しうる。") +
+        "</p>";
+    }
+    bits.onchange = render;
+    ctx.oninput = render;
+    render();
+  </script>
+</body>
+</html>

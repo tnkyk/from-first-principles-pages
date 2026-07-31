@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="KV キャッシュの線形成長">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">KV キャッシュの線形成長</text>
+
+  <text x="40" y="80" fill="#4a4c48" font-family="Georgia, serif" font-size="14">KV サイズ ∝ 層数 × KVヘッド × d × 系列長 × 精度</text>
+  <rect x="40" y="110" width="120" height="80" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="55" y="145" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">重み</text>
+  <text x="55" y="168" fill="#4a4c48" font-family="Georgia, serif" font-size="12">ほぼ固定</text>
+  <rect x="200" y="100" width="80" height="100" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="215" y="145" fill="#0d7a6c" font-family="Georgia, serif" font-size="13">KV</text>
+  <text x="210" y="168" fill="#0d7a6c" font-family="Georgia, serif" font-size="12">L に比例</text>
+  <rect x="320" y="90" width="120" height="120" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="340" y="145" fill="#0d7a6c" font-family="Georgia, serif" font-size="13">長い文脈</text>
+  <text x="335" y="168" fill="#4a4c48" font-family="Georgia, serif" font-size="12">KV が支配的に</text>
+  <text x="480" y="130" fill="#4a4c48" font-family="Georgia, serif" font-size="14">「モデルは載る」≠</text>
+  <text x="480" y="158" fill="#4a4c48" font-family="Georgia, serif" font-size="14">「長い PDF も載る」</text>
+  <text x="40" y="230" fill="#4a4c48" font-family="Georgia, serif" font-size="13">教育用模式図 · KVQuant の問題設定に基づく</text>
+
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0d7a6c"/></marker></defs>
+</svg>

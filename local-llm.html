@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ローカルLLM, from First Principles · From First Principles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/article.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">From First Principles</a>
+    <nav>
+      <a href="index.html">models</a>
+    </nav>
+  </header>
+
+  <div class="page-shell">
+    <main>
+      <header class="article-header">
+        <a class="back-link" href="index.html">← メンタルモデル一覧へ</a>
+        <h1 class="title">ローカルLLM, from First Principles</h1>
+      </header>
+      <article class="article-body">
+<p>同じ仕事を、クラウドの閉模型と手元のオープン模型に投げると、片方は滑らかに通り、もう片方はメモリ不足で落ちるか、遅すぎて会話にならない。なのにベンチマーク表では「小モデルが大モデルに迫る」と書かれている。画面の摩擦は「性能不足」に見えるが、実際に詰まっているのが重みの大きさなのか、文脈の長さなのか、逐次生成の帯域なのか、読者は日常的に切り分けられないまま、再び API キーに戻ってしまう。</p>
+<p>クローズドモデルへの依存を「賢いから仕方ない」で片づけると、代替の設計権が残らない。メモリと帯域が有限なミドルレンジ PC で何が本質的に足りないかを層で言えないと、量子化のビット数や LoRA の有無といった手段を、ベンダーの雰囲気やコミュニティの流行に預けることになる。理解で取り戻すのは、クラウド並みの予言ではなく、どの制約を先に解き、どの能力を外側（検索・道具・小さな追加重み）に渡すかの選択権である。</p>
+<p>この記事の狙いは、制約から機構を組み立て直すことだ。用語は必要が立ってから出し、各層を強制した問題の物語に沿って進む。LLM の次トークン予測と注意の骨格は、別稿（<a href="https://tnkyk.github.io/from-first-principles-pages/llm-v3.html" rel="noopener">原理原則</a>、<a href="https://tnkyk.github.io/from-first-principles-pages/gpt2-to-kimik3.html" rel="noopener">GPT-2→Kimi K3</a>）に置き、ここでは局所推論の制約連鎖に集中する。</p>
+<h2 id="理解の道筋">理解の道筋</h2>
+<p>進むのは部品名の目次ではなく、次の問題の列である。</p>
+<ol><li>クローズド依存は、何が足りないという感覚として現れるか</li><li>手元マシンで最初に潰れるのは、計算力なのかメモリ交通なのか</li><li>巨大な重みを、どう精度と配置を変えて収めるか</li><li>密な巨大化なしに、能力をどう小さく運ぶか</li><li>再学習なしで、挙動をどう足し合わせ・切り替えるか</li><li>遅さをどこで削り、自分の研究をどの層に置くか</li></ol>
+<p>入口の三つの日常の謎——「7B が入るのに長いと死ぬ」、画像生成の LoRA 差し替えは文章でも同じか、「考えさせる」と小モデルが伸びることがある——は、該当する層で回収する。</p>
+<h2 id="依存はスタックの不一致である">依存はスタックの不一致である</h2>
+<p>同じ仕事を、クラウドの閉模型と手元のオープン模型に投げると、片方は滑らかに通り、もう片方はメモリ不足で落ちるか、遅すぎて会話にならない。なのに公開ベンチでは「小モデルが大モデルに迫る」と書かれていることがある。ここで最初の違和感が立つ。足りないのは、本当に「知能の一点」なのか。それとも、画面の体験を支えている束のどれかが、手元に無いのか。</p>
+<h3 id="閉模型の体験は一枚岩ではない">閉模型の体験は一枚岩ではない</h3>
+<p>API キー越しに見えるのは、単一の巨大ネットというより、いくつもの層がすでに束ねられた製品である。口調と拒否の境界、長い文書を外から足す検索、コード実行やブラウザのような道具、難問で長く考える時間——どれも「ベースの次トークン予測」の上に載る。Apple の基盤モデル報告が on-device 用の約 3B と、Private Cloud Compute 向けの大規模系を役割分担として並べるのも、同じ発想の裏返しだ。全部を一つの封筒に詰めない（*1）。</p>
+<p>だから「オープンで代替する」と宣言した瞬間に問われるのは、IQ の合計ではない。<strong>いまの作業スタックのうち、どの層を局所で再現し、どの層を外側に残すか</strong>である。検索を捨ててパラメータ内知識だけで戦うのか。道具呼び出しはアプリ側に残すのか。「考える時間」はローカルの追加トークン生成で賄うのか。依存脱却は、まずこの分解から始まる。</p>
+<figure class="article-figure"><img src="assets/local-llm/closed-stack.svg" alt="" /><figcaption>見るべき構造: 閉模型の滑らかさは、基底モデル単体ではなく UI・道具・検索・考える時間の束として立つ。 (Source: 教育用模式図; Apple AFM の on-device/server 役割分担に着想)</figcaption></figure>
+<h3 id="局所再現層と外側委譲層">局所再現層と外側委譲層</h3>
+<p>分解したあと、各層にラベルを貼る。局所で完結させたいもの——プライバシー、オフライン、コスト上限、再現性——は<strong>局所再現層</strong>になる。逆に、手元の封筒では無理でも仕事全体には必要なもの——最新ニュース、巨大コーパス検索、重いサンドボックス——は<strong>外側委譲層</strong>として残してよい。脱却とは「すべてをディスクに落とす」ことと同義ではない。閉模型への<strong>単一窓口依存</strong>を解き、自分で境界を引き直すことだ。</p>
+<p>ここで失敗しやすいのは、ベンチマーク一点で可否を決めることだ。MMLU が近いのに、自分の社内 PDF 要約が死ぬ。コーディング Elo が近いのに、手元では 4 トークン/s で会話にならない。測定している指標と、壊れている層が一致していない。依存が強制される感覚の正体は、多くの場合この不一致である。</p>
+<h3 id="再構成昨日通った仕事を層に割る">再構成：昨日通った仕事を層に割る</h3>
+<p>具体で固定する。昨日、閉模型に「この仕様書とログから原因候補を五つ」と頼んだとする。そこには少なくとも、(a) 長文を窓に入れるか検索で足すか、(b) 推論の深さ、(c) コードやコマンドを叩くか、(d) 口調と安全拒否、が混ざっている。手元の 7B が落ちたとき、「7B が馬鹿だから」で止めると次の手が無い。窓が足りないのか、重みが載っていないのか、道具が無いのか、考える予算を与えていないのか——層が名指せれば、次に買う・作る・諦めるが変わる。</p>
+<p>入口の謎の一つ、「ベンチでは近いのに手元で失敗する」は、ここで回収の半分だけ返す。残りは次の物理制約で開く。</p>
+<h2 id="最初に潰れるのはメモリ交通である">最初に潰れるのはメモリ交通である</h2>
+<p>スタックを分解しても、手元のミドルレンジ PC では、まず物理が口を挟む。「もうちょっと速い GPU があれば」と思いがちだが、局所 LLM の日常的な失敗——載らない、長いと死ぬ、利用率が低いのに遅い——は、計算力不足というより<strong>メモリ量とメモリ交通</strong>の物語として読めることが多い。</p>
+<h3 id="重みメモリ封筒">重みメモリ封筒</h3>
+<p>推論中、少なくともモデルの重みは参照され続ける。粗い見積もりは単純で、必要バイトはだいたい</p>
+<p>\[</p>
+<p>N_{\text{params}} \times \text{bytes per param}</p>
+<p>\]</p>
+<p>に比例する。7B を FP16（2 バイト）で持てばおおよそ 14 GB 級。同じ 7B を約 4bit（0.5 バイト）へ落とせば数 GB 台へ近づく。コミュニティが「Q4 なら載る」と言うとき、言っているのはこの封筒の話だ。GPTQ 系の事後量子化が最初に解こうとしたのも、生成モデルを現実のメモリに押し込むことだった（*2）。</p>
+<p>ここで誤解が入りやすい。<strong>載る</strong>と<strong>使える速度</strong>は別メーターである。スワップに逃げて「起動はした」は、会話の代替にはならない。</p>
+<figure class="article-figure"><img src="assets/local-llm/weight-budget.svg" alt="" /><figcaption>見るべき構造: 同じパラメータ数でも、要素あたりバイトが封筒の高さを決める。 (Source: 教育用模式図; GPTQ の動機に基づく概算)</figcaption></figure>
+<h3 id="kv-キャッシュは系列長に比例する">KV キャッシュは系列長に比例する</h3>
+<p>重みが載ったのに、長い PDF や長いスレッドで落ちることがある。自己回帰デコーダは、過去トークンの Key/Value を層ごとに保持して再利用する。この <strong>KV キャッシュ</strong> のサイズは、おおむね層数・KV ヘッド・次元・<strong>系列長</strong>・精度に比例して伸びる。長文脈では、重みより KV が支配的になる——これが KV 量子化研究の問題設定そのものだ（*3）。</p>
+<p>だから日常の謎「7B が入るのに長いと死ぬ」は、矛盾ではない。見ていなかった軸が系列長だっただけだ。窓の宣伝値は「理論上の最大」であって、あなたの RAM/VRAM 上の無料パスではない。</p>
+<figure class="article-figure"><img src="assets/local-llm/kv-growth.svg" alt="" /><figcaption>見るべき構造: 重みはほぼ固定、KV は系列長 L に比例して膨らむ。 (Source: 教育用模式図; KVQuant の問題設定)</figcaption></figure>
+<details class="sim-panel" open><summary>シミュレーションを開く — 同じ「7B」でも精度と文脈長で必要メモリが qualitatively 変わる</summary><iframe class="sim-frame" src="assets/sims/local-llm/memory-budget/index.html" title="memory-budget" loading="lazy"></iframe></details>
+<h3 id="decode-は帯域で律速しうる">decode は帯域で律速しうる</h3>
+<p>さらにたちが悪いのが生成フェーズ（decode）だ。次の一トークンのために、大きな重みと伸びた KV をメモリから繰り返し読む。バッチが小さい日常チャットでは、算術強度が低く、<strong>コアが遊んでいても帯域で律速</strong>する。だから「GPU 使用率が低い＝余裕がある」とは限らない。投機的復号が魅力的になるのも、この余りがちな算術を、複数トークンの検証に回せるからである（*4）。</p>
+<figure class="article-figure"><img src="assets/local-llm/decode-bandwidth.svg" alt="" /><figcaption>見るべき構造: 1トークンごとに重みと KV を再読込するループが、decode の遅さの本体になりうる。 (Source: 教育用模式図; Speculative Decoding の動機)</figcaption></figure>
+<p>三つの拘束を並べると、診断が変わる。OOM なら重みか KV か。遅いのに利用率が低いなら帯域。計算力を買う前に、どのメーターが赤いかを言えなければ、ミドルレンジの最適化は空振りする。</p>
+<h2 id="収める精度配置疎">収める：精度・配置・疎</h2>
+<p>メモリ交通が一次拘束だと分かると、次の問題は素直だ。FP16 の巨大な密重みを、どう変形すれば封筒に入るか。ここで「小さいモデルを選ぶ」だけが答えではない。<strong>精度を落とす、メモリの形に合わせる、毎回全部を起こさない</strong>——三つの軸が同時に動く。</p>
+<h3 id="事後量子化という買い方">事後量子化という買い方</h3>
+<p>訓練後に重みのビット幅を下げる <strong>事後量子化（post-training quantization）</strong> は、ローカルコミュニティの実務の中心にある。GPTQ は生成 Transformer をおよそ 3–4bit まで落とす実用的手続きを示し（<em>2）、AWQ は活性化のスケールを見て「効く重み」を守りつつ圧縮する（</em>5）。llama.cpp 系の GGUF 量子化も、同じ動機——容量と、読むバイト数——を消費者ハードウェア向けに運んだ形式だ。</p>
+<p>重要なのは、量子化が「ファイルサイズの話」だけではないことだ。decode が帯域律速なら、読むビットが減ることは速度の話でもある。逆に、雑に落とすと自タスクの品質が先に壊れる。だから研究・実務の単位は「何 bit か」ではなく、<strong>どの層を何 bit にするか／自分の失敗モードで測る</strong>になる。</p>
+<h3 id="qat-と層感度">QAT と層感度</h3>
+<p>Apple のオンデバイス約 3B は、さらに踏み込んで量子化を訓練に織り込む（QAT）方向と、KV まわりのアーキテクチャ工夫を併用する（*1）。MLX の案内でも、埋め込みや lm_head を相対的に厚く残し、他を 4bit にする、といった層ごとの指定が自然に出てくる。中国勢・開放系の高コスパモデルが「小さいのに強い」とされる背景にも、データと事後調整だけでなく、<strong>低精度前提の設計</strong>が混ざる。ビットは一様スライダーではない。</p>
+<figure class="article-figure"><img src="assets/local-llm/quant-ladder.svg" alt="" /><figcaption>見るべき構造: 感度の高い層を守り、中間を積極的に低bit化するという非一様な梯子。 (Source: 教育用模式図; GPTQ/AWQ/AFM/MLX の実務に基づく)</figcaption></figure>
+<h3 id="統合メモリと活性パラメータ">統合メモリと活性パラメータ</h3>
+<p>同じバイト数でも、機種で体感が変わる。Apple silicon の <strong>統合メモリ</strong> は、離散 GPU の VRAM 封筒とは違う見積もりを強いる。重みと KV と OS が同じプールを奪い合うかわり、コピーの壁が薄い。MLX が量子化推論を第一級にするのも、この配置に最適化するためだ（*6）。</p>
+<p>もう一つの軸が <strong>活性パラメータ</strong> である。Mixtral 型の MoE は、総パラメータが大きくても、トークンごとに少数の expert しか起こさない（<em>7）。ディスク上の大きさと、一歩あたりの計算・帯域は一致しない。Apple の on-device 側が KV-cache sharing で KV を約 37.5% 削減し、prefill も短縮すると述べるのも、「総量を減らす」以外の収め方だ（</em>1）。</p>
+<figure class="article-figure"><img src="assets/local-llm/active-vs-total.svg" alt="" /><figcaption>見るべき構造: 総パラメータは常駐の上限、活性パラメータは一歩のコスト。統合メモリと KV 共有は別軸の削減。 (Source: 教育用模式図; Mixtral / Apple AFM)</figcaption></figure>
+<p>収める技術を一言にすると、モデルを小さくすることではなく、<strong>精度・配置・疎活性を自分の封筒に合わせて設計する</strong>ことだ。ここまでで「載せる」側の主要レバーは揃う。それでも残るのは、閉模型作業との能力ギャップ——次に、巨大化以外の運び方を見る。</p>
+<h2 id="運ぶ蒸留と考える時間">運ぶ：蒸留と考える時間</h2>
+<p>封筒に収まった小〜中モデルは、それでも閉模型の作業スタックに負けることがある。ここで「やはり 70B を買えないと無理だ」に戻るのは早い。2024–26 年の開放系が示したのは、能力の一部が<strong>パラメータ数以外の経路</strong>でも運ばれる、という実務的事実である。</p>
+<h3 id="推論軌跡の蒸留">推論軌跡の蒸留</h3>
+<p>DeepSeek-R1 系が目立つのは、巨大な教師が残した長い思考過程（軌跡）をデータにし、Qwen / Llama 系の密モデルへ教師あり微调で移した点だ。公開された蒸留群は 1.5B から 70B まで跨がり、ローカル実行可能なサイズに「考える型」を載せる道を開いた（*8）。ここでのポイントは神秘ではない。次トークン予測の学習目標に、ただの答えではなく、途中の試行錯誤付きテキストを与えた、という手続きである。</p>
+<p>中国勢の高コスパ議論が強いのも、同じ地形にある。Qwen 系のような開放基盤の上に、蒸留・事後調整・量子化済み成果物が早く降りてくる（*9）。コスパとは値段だけでなく、<strong>ミドルレンジ封筒に入る形で能力が流通するか</strong>の指標でもある。</p>
+<figure class="article-figure"><img src="assets/local-llm/distill-pipe.svg" alt="" /><figcaption>見るべき構造: 大教師の推論軌跡がテキストデータになり、小密モデルへ SFT で移る。 (Source: 教育用模式図; DeepSeek-R1 蒸留の方針)</figcaption></figure>
+<h3 id="局所の推論時計算">局所の推論時計算</h3>
+<p>もう一つの運び方が、推論時にトークンを余分に使うこと——いわゆる <strong>推論時計算（test-time compute）</strong> だ。難問だけ長く考え、易問は短くする。クラウドの「考え中」モードと同じ原理を、手元でも再現できる。ただし入口で予告した謎への答えは両義的だ。小モデルが伸びるのは、追加計算が探索を増やすからであり、長いテキストが証明になるからではない。局所では、考える時間がそのまま壁時計と KV 成長に化ける。能力と封筒が、また衝突する。</p>
+<p>研究として面白いのは、この衝突の測り方だ。同じ 7B で「即答」と「長い思考」を自タスクで対比し、受理可能なレイテンシの中で何点伸びるかを記録する。閉模型に近づくかどうかを、リーダボードではなく、自分の失敗ログで定義する。運ぶとは、大きい重みを買うことだけではなく、<strong>軌跡と時間を予算化すること</strong>でもある。</p>
+<p>それでも、仕事の口調・手順・社内用語・拒否境界は、汎用蒸留では固定しきれない。次に要るのは、全パラメータを再学習せずに挙動を寄せる部品だ。</p>
+<h2 id="固定する低ランクデルタ">固定する：低ランクデルタ</h2>
+<p>知人の仮説がある。画像や動画の生成で使う LoRA は、再学習なしで特定の重みを足し合わせ、挙動を一定方向に固定できる。これを LLM にも転用できるのではないか——隣の畑から仮説を立てる感覚は正しい。ただし歴史の向きを一度直す必要がある。</p>
+<h3 id="起源は-llm-側にある">起源は LLM 側にある</h3>
+<p><strong>LoRA（Low-Rank Adaptation）</strong> の原著は、大規模言語モデルの適応そのものを対象にしている。事前学習済みの重み \(W_0\) を凍結し、更新を低ランクの積 \(BA\) で近似する。</p>
+<p>\[</p>
+<p>W = W_0 + BA</p>
+<p>\]</p>
+<p>これにより学習パラメータを劇的に減らし、推論時には \(BA\) を \(W_0\) へマージすれば追加遅延なし、と論じた（*10）。つまり「LLM への転用」ではなく、<strong>LLM で発明された低ランクデルタを、拡散モデル側が作風の差し替え運用として花開かせた</strong>、という順序が正確だ。隣畑から学ぶべきなのは発明の特許ではなく、<strong>軽量アダプタをギャラリーのように持ち歩き、強さを変え、用途ごとに挿抜する文化</strong>である。</p>
+<figure class="article-figure"><img src="assets/local-llm/lora-delta.svg" alt="" /><figcaption>見るべき構造: 凍結した W₀ に低ランクの BA を足す。マージすれば一枚の重みに戻せる。 (Source: 教育用模式図; Hu et al., 2021 の更新式)</figcaption></figure>
+<details class="sim-panel" open><summary>シミュレーションを開く — 低ランクデルタは基底に足せば挙動が寄り、外せば戻る</summary><iframe class="sim-frame" src="assets/sims/local-llm/lora-merge/index.html" title="lora-merge" loading="lazy"></iframe></details>
+<h3 id="再学習不要の言い過ぎを削る">「再学習不要」の言い過ぎを削る</h3>
+<p>仮説の危険な半分は、「学習ゼロで挙動が固定できる」という読みだ。LoRA はフル微調整より遥かに安いが、<strong>小さい学習</strong>（または誰かが既に学習したデルタを入手すること）が前提になる。ローカルでの意味はこう言い直せる。巨大なベースを一枚ずつ複製する代わりに、共通の量子化ベースの上に、社内口調・要約様式・拒否境界・道具の使い方といったデルタを複数持ち、必要ならマージし、必要ならホットスワップする。</p>
+<p>画像コミュニティから転用して面白い研究課題も、ここに生まれる。スケール（強度）を連続的に変えたときの挙動の単調性、複数 LoRA の干渉、量子化ベース上での QLoRA 的学習の品質、失敗時に「ベースへ戻す」操作が本当に再現できるか。どれもベンチの一点より、依存脱却の運用に直結する。</p>
+<p>挙動を寄せても、体感が遅ければ日常作業はクラウドに戻る。最後の主要レバーは、逐次生成そのものの削り方だ。</p>
+<h2 id="速くする投機的復号">速くする：投機的復号</h2>
+<p>収めて、運んで、固定しても、1 トークンずつの decode が帯域で律速しているなら、会話はもたつく。ここでモデルをさらに小さくする以外の手が、<strong>投機的復号（speculative decoding）</strong> である。</p>
+<h3 id="draft-が提案しtarget-がまとめて検証する">draft が提案し、target がまとめて検証する</h3>
+<p>Leviathan らは、小さい近似モデル（draft）が複数トークンを先に提案し、大きい目標モデル（target）がそれを並列に検証する手続きを示した。受理の規則を正しく取れば、出力の分布は通常の自己回帰と同じまま、壁時計を 2–3 倍速くできる場合がある（*4）。直感はこうだ。decode では算術が余っていることが多い。その余りを、「次の一トークン」ではなく「候補列の検証」に使う。</p>
+<p>ローカル runtime でも、draft モデル、n-gram キャッシュ、MTP 頭など、同じ思想の実装が llama.cpp 系に降りている（*11）。ミドルレンジでの要点は、理論の美しさより<strong>受理率</strong>だ。draft が的外れなら検証コストだけ増え、遅くなるらすらある。だから研究課題は「投機的復号を入れる」ではなく、自タスク・自トークナイザ・自量子化での受理率と、draft のメモリ二重化が封筒に収まるかの測定になる。</p>
+<figure class="article-figure"><img src="assets/local-llm/speculative.svg" alt="" /><figcaption>見るべき構造: draft が候補列を作り、target がまとめて検証して受理する。分布を保ったまま逐次性を削る。 (Source: 教育用模式図; Leviathan et al.)</figcaption></figure>
+<h3 id="速度レバーを層に戻す">速度レバーを層に戻す</h3>
+<p>速くする手段は投機だけではない。量子化は読むバイトを減らし、KV の量子化や共有は伸びるキャッシュを抑え、考える時間は意図的に遅くして能力を買う。層を混同すると、全部を同時に最大化しようとして破綻する。日常作業の代替では、まず「対話が成立するトークン/s」の下限を決め、その中で品質メーターを上げる。閉模型依存から降りる最後の実務は、速さのロマンではなく、<strong>どのレバーをどの順で回すかの設計</strong>だ。</p>
+<p>ここまでの部品——スタック分解、メモリ交通、収め方、運び方、デルタ、投機——を、判断規則へ結晶化できる。</p>
+<h2 id="どこに研究を置くか">どこに研究を置くか</h2>
+<p>閉模型の画面は一枚に見える。手元で代替しようとすると、層が剥がれる。<strong>作業スタック</strong>の選定、<strong>重みメモリ封筒</strong>、<strong>KV キャッシュ</strong>、<strong>decode 帯域拘束</strong>、量子化と統合メモリと<strong>活性パラメータ</strong>、<strong>推論軌跡の蒸留</strong>と<strong>推論時計算</strong>、<strong>低ランクデルタ（LoRA）</strong>、<strong>投機的復号</strong>、そして検索や道具という外側——どれも、単一の「オープンがクローズドを超えたか」表には載らない。</p>
+<p>入口の三つの日常の謎は、層に落ちる。「7B なのに長いと死ぬ」は KV と封筒の話だった。画像の LoRA 差し替えは、LLM 起源のデルタを運用文化として借りる話だった。「考えさせると伸びる」は、パラメータ以外の能力の運び方だった。残る問いは一つだけだ。自分のミドルレンジ封筒の上で、次に何を測り、何を試作するか。</p>
+<h3 id="層の地図">層の地図</h3>
+<p><strong>スタック選定</strong> — 閉模型体験を、基底・検索・道具・考える時間・口調に分解し、局所再現と外側委譲を決める。</p>
+<p><strong>重み封筒</strong> — \(N \times\) バイト。載る／載らないの第一近似。</p>
+<p><strong>KV</strong> — 系列長に比例。長文の死はここで起きやすい。</p>
+<p><strong>帯域</strong> — decode の反復読込。利用率が低くても遅い理由。</p>
+<p><strong>収め方</strong> — 事後量子化・QAT・層感度・統合メモリ・MoE の活性・KV 共有。</p>
+<p><strong>運び方</strong> — 蒸留と局所 TTC。能力を小さく流通させる。</p>
+<p><strong>固定</strong> — LoRA 等のデルタ。ベース共有＋挿抜。</p>
+<p><strong>速度</strong> — 投機的復号など、分布を保った並列化。</p>
+<p><strong>外側</strong> — RAG・tools。パラメータに無い世界と操作。</p>
+<h3 id="判断規則">判断規則</h3>
+<p><strong>1. 摩擦を層で名指す。</strong> OOM・遅さ・品質・口調ずれを、上の地図のどれかに割り当ててから手段を選ぶ。</p>
+<p><strong>2. 三メーターを分ける。</strong> 「載る」「使える速度」「自タスク品質」を混ぜない。どれか一つだけの最適化は、依存に戻す。</p>
+<p><strong>3. 能力ギャップは巨大化より先に、蒸留・TTC・外側記憶を試す。</strong> フル微調整は最後の手段に近づける。</p>
+<p><strong>4. 隣畑からの転用は、発明の起源ではなく運用様式を移す。</strong> 仮説は強度・干渉・挿抜再現性として測れる形にする。</p>
+<p><strong>5. 研究課題は自分の封筒と失敗ログから逆算する。</strong> リーダボードの週次差分より、昨日の OOM と不合格出力が一次情報になる。</p>
+<h3 id="ローカルで追う研究の置き方例">ローカルで追う研究の置き方（例）</h3>
+<p>自分のマシンで、次のような問いは論文を待たずに回せる。</p>
+<ul><li>自タスクでの量子化ビット対品質の折れ点（層ごと・KV 含む）</li><li>同族小 draft の投機的復号の受理率と正味 tokens/s</li><li>業務様式 LoRA の強度スイープと、複数アダプタ干渉</li><li>「即答」対「長い思考」の壁時計予算内での得点差</li><li>検索／道具を足したときに削れるパラメータ需要</li></ul>
+<p>中国勢の開放モデルと蒸留物、Apple のオンデバイス設計、ローカル runtime の量子化と投機——方向性はすでに出ている。足りないのは、あなたの封筒に合わせた<strong>測定とデルタの資産化</strong>だ。</p>
+<p>いま手元で詰まっているのは、収める・運ぶ・固定する・速くするのどれか。それが言えたとき、クローズドへの依存は、運命ではなく設計対象に戻る。</p>
+<p>関連: <a href="https://tnkyk.github.io/from-first-principles-pages/llm-v3.html" rel="noopener">LLM, from First Principles</a>（原理原則）、<a href="https://tnkyk.github.io/from-first-principles-pages/gpt2-to-kimik3.html" rel="noopener">GPT-2 から Kimi K3 へ</a>（系譜の翻訳）。</p>
+<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> Apple, <em>Apple Intelligence Foundation Language Models: Tech Report 2025</em> — on-device ≈3B と server 系の役割、KV-cache sharing、低bit QAT 等。https://arxiv.org/html/2507.13575</li><li id="fn-2"><a href="#fnref-2">(*2)</a> Frantar et al., <em>GPTQ</em> — 生成 Transformer の高精度事後量子化。https://arxiv.org/abs/2210.17323</li><li id="fn-3"><a href="#fnref-3">(*3)</a> Hooper et al., <em>KVQuant</em> — 長文脈で KV が支配的になる問題設定。https://arxiv.org/abs/2401.18079</li><li id="fn-4"><a href="#fnref-4">(*4)</a> Leviathan et al., <em>Fast Inference from Transformers via Speculative Decoding</em>. https://arxiv.org/abs/2211.17192</li><li id="fn-5"><a href="#fnref-5">(*5)</a> Lin et al., <em>AWQ: Activation-aware Weight Quantization</em>. https://arxiv.org/abs/2306.00978</li><li id="fn-6"><a href="#fnref-6">(*6)</a> Apple Machine Learning Research, <em>Exploring LLMs with MLX and the Neural Accelerators in the M5 GPU</em>. https://machinelearning.apple.com/research/exploring-llms-mlx-m5</li><li id="fn-7"><a href="#fnref-7">(*7)</a> Jiang et al., <em>Mixtral of Experts</em>. https://arxiv.org/abs/2401.04088</li><li id="fn-8"><a href="#fnref-8">(*8)</a> DeepSeek-AI, <em>DeepSeek-R1</em> — 推論 RL と密モデルへの蒸留。https://arxiv.org/abs/2501.12948</li><li id="fn-9"><a href="#fnref-9">(*9)</a> Qwen Team, <em>Qwen2 Technical Report</em>. https://arxiv.org/abs/2407.10671</li><li id="fn-10"><a href="#fnref-10">(*10)</a> Hu et al., <em>LoRA: Low-Rank Adaptation of Large Language Models</em>. https://arxiv.org/abs/2106.09685</li><li id="fn-11"><a href="#fnref-11">(*11)</a> llama.cpp, <em>Speculative Decoding</em> ドキュメント. https://github.com/ggml-org/llama.cpp/blob/master/docs/speculative.md</li></ol></section>
+      </article>
+    </main>
+    <aside class="toc" aria-label="目次">
+      <p class="toc-label">目次</p>
+      <ol>
+<li><a href="#理解の道筋">理解の道筋</a></li>
+<li><a href="#依存はスタックの不一致である">依存はスタックの不一致である</a></li>
+<li><a href="#最初に潰れるのはメモリ交通である">最初に潰れるのはメモリ交通である</a></li>
+<li><a href="#収める精度配置疎">収める：精度・配置・疎</a></li>
+<li><a href="#運ぶ蒸留と考える時間">運ぶ：蒸留と考える時間</a></li>
+<li><a href="#固定する低ランクデルタ">固定する：低ランクデルタ</a></li>
+<li><a href="#速くする投機的復号">速くする：投機的復号</a></li>
+<li><a href="#どこに研究を置くか">どこに研究を置くか</a></li>
+      </ol>
+    </aside>
+  </div>
+  <script>
+    (function () {
+      const links = [...document.querySelectorAll(".toc a")];
+      const heads = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+      if (!heads.length || !("IntersectionObserver" in window)) return;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id));
+        });
+      }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+      heads.forEach((h) => io.observe(h));
+    })();
+  </script>
+</body>
+</html>

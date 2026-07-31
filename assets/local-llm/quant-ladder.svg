@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="量子化の梯子（層感度）">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">量子化の梯子（層感度）</text>
+
+  <text x="40" y="80" fill="#4a4c48" font-family="Georgia, serif" font-size="14">精度は一様に落とすのではなく、感度の高い層を守る</text>
+  <rect x="40" y="110" width="140" height="60" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="55" y="145" fill="#0d7a6c" font-family="Georgia, serif" font-size="13">埋め込み / head</text>
+  <text x="200" y="145" fill="#4a4c48" font-family="Georgia, serif" font-size="14">高めの精度</text>
+  <rect x="40" y="185" width="140" height="40" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="55" y="210" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">中間線形層</text>
+  <text x="200" y="210" fill="#4a4c48" font-family="Georgia, serif" font-size="14">積極的な低bit（GPTQ/AWQ/QAT）</text>
+  <text x="420" y="145" fill="#4a4c48" font-family="Georgia, serif" font-size="13">Apple AFM: 2-bit QAT 等</text>
+  <text x="420" y="175" fill="#4a4c48" font-family="Georgia, serif" font-size="13">MLX: 層ごとの bits 指定</text>
+  <text x="40" y="250" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · GPTQ / AWQ / AFM / MLX</text>
+
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0d7a6c"/></marker></defs>
+</svg>

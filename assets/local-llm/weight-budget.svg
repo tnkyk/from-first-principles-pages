@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-label="重みメモリ封筒">
+  <rect width="720" height="260" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">重みメモリ封筒</text>
+
+  <text x="40" y="80" fill="#4a4c48" font-family="IBM Plex Mono, monospace" font-size="15">bytes ≈ N_params × bytes_per_param</text>
+  <rect x="40" y="110" width="90" height="70" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="55" y="140" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">FP16</text>
+  <text x="55" y="162" fill="#4a4c48" font-family="IBM Plex Mono, monospace" font-size="12">2 B</text>
+  <rect x="150" y="110" width="90" height="70" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="165" y="140" fill="#1a1c1a" font-family="Georgia, serif" font-size="13">INT8</text>
+  <text x="165" y="162" fill="#4a4c48" font-family="IBM Plex Mono, monospace" font-size="12">1 B</text>
+  <rect x="260" y="110" width="90" height="70" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="275" y="140" fill="#0d7a6c" font-family="Georgia, serif" font-size="13">~4bit</text>
+  <text x="275" y="162" fill="#0d7a6c" font-family="IBM Plex Mono, monospace" font-size="12">0.5 B</text>
+  <text x="380" y="130" fill="#4a4c48" font-family="Georgia, serif" font-size="14">例: 7B × 2 B ≈ 14 GB</text>
+  <text x="380" y="158" fill="#4a4c48" font-family="Georgia, serif" font-size="14">7B × 0.5 B ≈ 3.5 GB（概算）</text>
+  <text x="40" y="220" fill="#4a4c48" font-family="Georgia, serif" font-size="13">教育用模式図 · GPTQ/AWQ の動機（容量と帯域）</text>
+
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0d7a6c"/></marker></defs>
+</svg>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="投機的復号">
+  <rect width="720" height="280" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">投機的復号</text>
+
+  <rect x="40" y="70" width="180" height="70" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="55" y="110" fill="#0d7a6c" font-family="Georgia, serif" font-size="14">draft: 候補列を速く</text>
+  <path d="M230 105 H280" stroke="#0d7a6c" stroke-width="3" marker-end="url(#arr)"/>
+  <rect x="290" y="70" width="220" height="70" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="310" y="110" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">target: まとめて検証</text>
+  <path d="M520 105 H570" stroke="#0d7a6c" stroke-width="3" marker-end="url(#arr)"/>
+  <rect x="580" y="70" width="100" height="70" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="595" y="110" fill="#0d7a6c" font-family="Georgia, serif" font-size="14">受理</text>
+  <text x="40" y="180" fill="#4a4c48" font-family="Georgia, serif" font-size="14">出力分布を変えずに、逐次 K 回を並列検証へ寄せる（受理率が鍵）</text>
+  <text x="40" y="220" fill="#4a4c48" font-family="Georgia, serif" font-size="12">教育用模式図 · Leviathan et al., Speculative Decoding</text>
+
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0d7a6c"/></marker></defs>
+</svg>

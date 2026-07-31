@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280" role="img" aria-label="decode のメモリ帯域拘束">
+  <rect width="720" height="280" fill="#f2f3f0"/>
+  <text x="28" y="36" fill="#1a1c1a" font-family="Georgia, serif" font-size="18" font-weight="600">decode のメモリ帯域拘束</text>
+
+  <rect x="40" y="70" width="200" height="90" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="55" y="105" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">重み + KV を読む</text>
+  <text x="55" y="130" fill="#4a4c48" font-family="Georgia, serif" font-size="12">メモリ帯域</text>
+  <path d="M250 115 H300" stroke="#0d7a6c" stroke-width="3" marker-end="url(#arr)"/>
+  <rect x="310" y="70" width="160" height="90" rx="6" fill="#fff" stroke="#0d7a6c" stroke-width="2"/>
+  <text x="330" y="105" fill="#0d7a6c" font-family="Georgia, serif" font-size="14">少し計算</text>
+  <text x="330" y="130" fill="#4a4c48" font-family="Georgia, serif" font-size="12">1 トークン</text>
+  <path d="M480 115 H530" stroke="#0d7a6c" stroke-width="3" marker-end="url(#arr)"/>
+  <rect x="540" y="70" width="140" height="90" rx="6" fill="#fff" stroke="#393b38" stroke-width="2"/>
+  <text x="555" y="115" fill="#1a1c1a" font-family="Georgia, serif" font-size="14">また読む</text>
+  <text x="40" y="200" fill="#4a4c48" font-family="Georgia, serif" font-size="14">decode は逐次のため、算術コアが遊んでいても帯域で律速しうる</text>
+  <text x="40" y="235" fill="#4a4c48" font-family="Georgia, serif" font-size="13">教育用模式図 · Speculative Decoding の動機</text>
+
+  <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#0d7a6c"/></marker></defs>
+</svg>

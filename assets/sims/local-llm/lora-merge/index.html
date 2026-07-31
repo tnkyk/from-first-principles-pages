@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lora-merge</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+  <style>
+    .bar { height: 1.2rem; background: var(--ink-line); border-radius: 2px; margin: 0.4rem 0; position: relative; overflow: hidden; }
+    .fill { height: 100%; background: var(--accent); width: 0%; }
+  </style>
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 低ランクデルタは基底に足せば挙動が寄り、外せば戻る</p>
+    <div class="panel">
+      <div class="mono">ベース口調</div>
+      <div class="bar"><div class="fill" id="base"></div></div>
+      <div class="mono">タスク寄りの口調</div>
+      <div class="bar"><div class="fill" id="task"></div></div>
+      <p id="msg" style="color:var(--ink-dim)"></p>
+    </div>
+    <div class="sim-row">
+      <label>デルタ強度 <input id="scale" type="range" min="0" max="100" value="0" /></label>
+      <button type="button" class="primary" id="merge">マージ</button>
+      <button type="button" id="unmerge">外す</button>
+    </div>
+    <p class="hint">教育用の一次元スカラー玩具です。実 LoRA は行列 BA です。</p>
+  </div>
+  <script>
+    let merged = false;
+    const scale = document.getElementById("scale");
+    const base = document.getElementById("base");
+    const task = document.getElementById("task");
+    const msg = document.getElementById("msg");
+    function render() {
+      const s = merged ? parseInt(scale.value, 10) : 0;
+      base.style.width = (100 - s) + "%";
+      task.style.width = s + "%";
+      msg.textContent = merged
+        ? (s === 0 ? "デルタ強度 0。ベースに戻っている。" : "W₀+BA 側へ寄っている（強度 " + s + "）。")
+        : "デルタは未適用。ベースのみ。";
+    }
+    document.getElementById("merge").onclick = () => { merged = true; if (+scale.value === 0) scale.value = 60; render(); };
+    document.getElementById("unmerge").onclick = () => { merged = false; scale.value = 0; render(); };
+    scale.oninput = () => { if (!merged) merged = true; render(); };
+    render();
+  </script>
+</body>
+</html>
