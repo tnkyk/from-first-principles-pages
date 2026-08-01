@@ -56,11 +56,11 @@
 <p>実際のファイルはスケール係数や埋め込み、トークナイザ周辺、フレームワークのヘッダで上振れする。だがオーダー感を掴むには、この掛け算で十分なことが多い。</p>
 <figure class="article-figure"><img src="assets/inference-memory/bitwidth-ladder.svg" alt="" /><figcaption>見るべき構造: 同じパラメータでも、ビット幅が下がるほど 1 個あたりの箱が小さくなり、倉庫の合計面積が縮む。(Source: 教育用模式図)</figcaption></figure>
 <h2 id="公式混合精度">公式混合精度</h2>
-<p>DeepSeek-V4 系のリリースは、一様な FP16 ではない。公式の整理では、<strong>MoE の expert 側を FP4、その他の多くを FP8</strong> とする混合が基本形とされる(<em>1)(</em>3)。0731 のカードが BF16 / F8 / I8 などを併記しつつ、実体サイズがおおよそ <strong>167 GB</strong> なのも、「全部が FP16」ではないことの証拠として読める。</p>
+<p>DeepSeek-V4 系のリリースは、一様な FP16 ではない。公式の整理では、<strong>MoE の expert 側を FP4、その他の多くを FP8</strong> とする混合が基本形とされる<a class="fn-ref" href="#fn-1">(<em>1)</a><a class="fn-ref" href="#fn-3">(</em>3)</a>。0731 のカードが BF16 / F8 / I8 などを併記しつつ、実体サイズがおおよそ <strong>167 GB</strong> なのも、「全部が FP16」ではないことの証拠として読める。</p>
 <p>つまり Flash を「いまから 4bit 化する対象」とだけ見るのはずれる。すでに倉庫の大半は、低精度前提で詰まれている。コミュニティのより粗い量子化は、その上に乗る<strong>二段目</strong>になりやすい。</p>
 <figure class="article-figure"><img src="assets/inference-memory/flash-envelope.svg" alt="" /><figcaption>見るべき構造: 左から BF16 一様想像、FP8 一様、公式 FP4+FP8 混合（〜167 GB 級）、さらに粗い 4bit 一様近似。同じ Flash 総数でも棒の高さが qualitatively 変わる。(Source: 教育用模式図／arXiv:2606.19348 と HF DeepSeek-V4-Flash-0731 の公開サイズ)</figcaption></figure>
 <h2 id="事後量子化">事後量子化</h2>
-<p>訓練後にビット幅を落とす古典が GPTQ や AWQ である(<em>4)(</em>5)。ローカルの「Q4 なら載る」は、多くの場合この系統の話だ。Flash にそれを適用するときは、公式が既に FP4 側へ寄せた expert を、さらに粗く丸めることになる。容量は下がるかもしれないが、品質の落ち方は「初めて 4bit にする 7B」とは別物になりうる。</p>
+<p>訓練後にビット幅を落とす古典が GPTQ や AWQ である<a class="fn-ref" href="#fn-4">(<em>4)</a><a class="fn-ref" href="#fn-5">(</em>5)</a>。ローカルの「Q4 なら載る」は、多くの場合この系統の話だ。Flash にそれを適用するときは、公式が既に FP4 側へ寄せた expert を、さらに粗く丸めることになる。容量は下がるかもしれないが、品質の落ち方は「初めて 4bit にする 7B」とは別物になりうる。</p>
 <details class="sim-panel" open><summary>シミュレーションを開く — 同じ総パラメータでもビット幅で重み容量が qualitatively 変わる</summary><iframe class="sim-frame" src="assets/sims/inference-memory/quant-budget/index.html" title="quant-budget" loading="lazy"></iframe></details>
 <p>出口は楽観でも悲観でもない。<strong>量子化とは、パラメータ個数の話を、1 個あたりのビット幅の話へ翻訳する操作</strong>だ。Flash ではその翻訳の一部が、すでに公式チェックポイントに織り込まれている。</p>
 <p>重み科目を FP4+FP8 まで落とし、マルチ GPU に分割して「載った」とする。それでも、長いリポジトリや <code>reasoning_effort=max</code> の長い思考で落ちることがある。これは Flash に限った呪いではなく、<strong>第二科目（KV）が伸びた</strong>ときに必ず現れる形だ。</p>
