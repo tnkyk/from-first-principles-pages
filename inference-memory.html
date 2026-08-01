@@ -35,8 +35,8 @@
 <p>文章やツール結果が長くなると、注意は過去のトークンを何度も参照する。毎回ゼロから Key/Value を作り直すと遅すぎるので、推論系は過去分を <strong>KV キャッシュ</strong>として残す。これは重みとは別物だ。プロンプトが伸びるほど、会話が続くほど、考えるモードで出力が長くなるほど、この棚は太る。カードに「1M context」と書いてあっても、それは理論上の窓であり、あなたの封筒上の無料パスではない。</p>
 <h2 id="作業バッファ">作業バッファ</h2>
 <p>前向き計算の途中には、層の入出力や一時テンソルが必要になる。バッチを大きくすれば膨らみ、実装やカーネルによってはピークが跳ねる。本稿では細部に入らないが、科目として忘れると「重みは入ったのに OOM」の説明が一つ欠ける。</p>
-<figure class="article-figure"><img src="assets/inference-memory/resident-trio.svg" alt="" /><figcaption>見るべき構造: 同じ封筒の中で、重み・KV・作業バッファが同時に面積を占める。どれか一つだけの GB 表示では足りない。(Source: 教育用模式図)</figcaption></figure>
-<figure class="article-figure"><img src="assets/inference-memory/kv-grows.svg" alt="" /><figcaption>見るべき構造: 左は短い文脈、右は長い文脈。重みの箱は同じでも、KV の棚だけが系列長に応じて伸びる。(Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/inference-memory/resident-trio.svg?v=2" alt="" /><figcaption>見るべき構造: 同じ封筒の中で、重み・KV・作業バッファが同時に面積を占める。どれか一つだけの GB 表示では足りない。(Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/inference-memory/kv-grows.svg?v=2" alt="" /><figcaption>見るべき構造: 左は短い文脈、右は長い文脈。重みの箱は同じでも、KV の棚だけが系列長に応じて伸びる。(Source: 教育用模式図)</figcaption></figure>
 <p>DeepSeek-V4 系は、この KV 科目をアーキテクチャ側でも圧縮する（CSA / HCA）。だから「同じ百万トークン」でも、世代間で棚の太さが qualitatively 違う。だが入口の謎——カードの数字が矛盾して見えること——の第一解はそこではない。まず、<strong>載る／落ちるを一枚の「モデルサイズ」で語っていたこと自体が科目不足</strong>だった、と固定する。</p>
 <p>三科目のうち、重み科目を Flash に落とすと、すぐに次の摩擦が出る。論文の DeepSeek-V4-Flash は <strong>総パラメータ 284B、活性 13B</strong> と書かれる。0731 のモデルカードは <strong>304B params</strong> と出し、構造は DSpark（投機的復号モジュール）付きだと言う。どちらを信じれば「小さい」のか。</p>
 <p>答えは、問いを二つに割ることだ。</p>
@@ -45,7 +45,7 @@
 <p>ディスク上の 0731 がおおよそ <strong>167 GB</strong> と見えるのも、この総数に、公式の低精度表現を掛けた結果として読むのが自然だ（後章）。BF16 で総数を一様に持つ想像は、すぐに数百 GB 級へ跳ねる。</p>
 <h2 id="活性パラメータ演算">活性パラメータ（演算）</h2>
 <p>一方、<strong>活性パラメータ</strong>は、あるトークンの前向き計算で実際に触る重みの規模感である。Flash ではここが約 13B とされ、同じ世代の Pro（約 49B 活性）より一歩が軽い、という話になる。レイテンシや FLOPs の感覚、電気代の感覚は、しばしばこちらに近い。だが「GPU に何 GB 要るか」の第一近似を活性だけで取ると、倉庫を見落として楽観する。</p>
-<figure class="article-figure"><img src="assets/inference-memory/moe-total-active.svg" alt="" /><figcaption>見るべき構造: 左の広い倉庫が総パラメータ、中央の細い通路が 1 トークンで実際に通る活性パラメータ。倉庫を縮小せずに通路だけ細いのが MoE の形。(Source: 教育用模式図／DeepSeek-V4 tech report の総/活性の区別)</figcaption></figure>
+<figure class="article-figure"><img src="assets/inference-memory/moe-total-active.svg?v=2" alt="" /><figcaption>見るべき構造: 左の広い倉庫が総パラメータ、中央の細い通路が 1 トークンで実際に通る活性パラメータ。倉庫を縮小せずに通路だけ細いのが MoE の形。(Source: 教育用模式図／DeepSeek-V4 tech report の総/活性の区別)</figcaption></figure>
 <p>0731 が 304B と表示される点は、preview の 284B に投機用モジュール等が乗ったリリース差分として扱えばよい。本稿の主張に効くのは小数点以下の B ではなく、<strong>格納のオーダーは総数、計算のオーダーは活性数</strong>という切り分けである。</p>
 <p>「小さい activated なのに巨大チェックポイント」は矛盾ではない。広告の売り文句と、封筒の請求書が、別のメーターを指しているだけだ。</p>
 <p>倉庫が総パラメータで決まるなら、次のレバーは個数を減らすことだけではない。<strong>1 個の数値を何ビットで持つか</strong>を落とせば、同じ個数でもバイト総量は Shrink する。これが量子化の中核である。</p>
@@ -54,11 +54,11 @@
 <p>概算の足場は単純でよい。重みのおおよそ GB ≈ パラメータ数 × bytes/param。</p>
 <div class="table-wrap"><table><thead><tr><th>表現</th><th>bytes/param（目安）</th><th>284B 一様のとき（目安）</th></tr></thead><tbody><tr><td>FP16 / BF16</td><td>2</td><td>≈ 568 GB</td></tr><tr><td>FP8 / INT8</td><td>1</td><td>≈ 284 GB</td></tr><tr><td>FP4 / 約 4bit</td><td>0.5</td><td>≈ 142 GB</td></tr></tbody></table></div>
 <p>実際のファイルはスケール係数や埋め込み、トークナイザ周辺、フレームワークのヘッダで上振れする。だがオーダー感を掴むには、この掛け算で十分なことが多い。</p>
-<figure class="article-figure"><img src="assets/inference-memory/bitwidth-ladder.svg" alt="" /><figcaption>見るべき構造: 同じパラメータでも、ビット幅が下がるほど 1 個あたりの箱が小さくなり、倉庫の合計面積が縮む。(Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/inference-memory/bitwidth-ladder.svg?v=2" alt="" /><figcaption>見るべき構造: 同じパラメータでも、ビット幅が下がるほど 1 個あたりの箱が小さくなり、倉庫の合計面積が縮む。(Source: 教育用模式図)</figcaption></figure>
 <h2 id="公式混合精度">公式混合精度</h2>
 <p>DeepSeek-V4 系のリリースは、一様な FP16 ではない。公式の整理では、<strong>MoE の expert 側を FP4、その他の多くを FP8</strong> とする混合が基本形とされる<a class="fn-ref" href="#fn-1">(&#42;1)</a><a class="fn-ref" href="#fn-3">(&#42;3)</a>。0731 のカードが BF16 / F8 / I8 などを併記しつつ、実体サイズがおおよそ <strong>167 GB</strong> なのも、「全部が FP16」ではないことの証拠として読める。</p>
 <p>つまり Flash を「いまから 4bit 化する対象」とだけ見るのはずれる。すでに倉庫の大半は、低精度前提で詰まれている。コミュニティのより粗い量子化は、その上に乗る<strong>二段目</strong>になりやすい。</p>
-<figure class="article-figure"><img src="assets/inference-memory/flash-envelope.svg" alt="" /><figcaption>見るべき構造: 左から BF16 一様想像、FP8 一様、公式 FP4+FP8 混合（〜167 GB 級）、さらに粗い 4bit 一様近似。同じ Flash 総数でも棒の高さが qualitatively 変わる。(Source: 教育用模式図／arXiv:2606.19348 と HF DeepSeek-V4-Flash-0731 の公開サイズ)</figcaption></figure>
+<figure class="article-figure"><img src="assets/inference-memory/flash-envelope.svg?v=2" alt="" /><figcaption>見るべき構造: 左から BF16 一様想像、FP8 一様、公式 FP4+FP8 混合（〜167 GB 級）、さらに粗い 4bit 一様近似。同じ Flash 総数でも棒の高さが qualitatively 変わる。(Source: 教育用模式図／arXiv:2606.19348 と HF DeepSeek-V4-Flash-0731 の公開サイズ)</figcaption></figure>
 <h2 id="事後量子化">事後量子化</h2>
 <p>訓練後にビット幅を落とす古典が GPTQ や AWQ である<a class="fn-ref" href="#fn-4">(&#42;4)</a><a class="fn-ref" href="#fn-5">(&#42;5)</a>。ローカルの「Q4 なら載る」は、多くの場合この系統の話だ。Flash にそれを適用するときは、公式が既に FP4 側へ寄せた expert を、さらに粗く丸めることになる。容量は下がるかもしれないが、品質の落ち方は「初めて 4bit にする 7B」とは別物になりうる。</p>
 <details class="sim-panel" open><summary>シミュレーションを開く — 同じ総パラメータでもビット幅で重み容量が qualitatively 変わる</summary><iframe class="sim-frame" src="assets/sims/inference-memory/quant-budget/index.html" title="quant-budget" loading="lazy"></iframe></details>
