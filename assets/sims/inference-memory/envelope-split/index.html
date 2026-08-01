@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>envelope-split</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 重みを削っても文脈を伸ばすと KV が封筒を取り戻す</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <label>重み（GB）
+        <input id="w" type="range" min="80" max="560" step="10" value="170" />
+      </label>
+      <span class="mono" id="wLabel">170</span>
+      <label>文脈トークン
+        <input id="ctx" type="range" min="2048" max="262144" step="2048" value="32768" />
+      </label>
+      <span class="mono" id="ctxLabel">32768</span>
+    </div>
+    <p class="hint">KV は圧縮注意を模した玩具定数です。実 Flash の CSA/HCA より粗く、定性だけ見てください。</p>
+  </div>
+  <script>
+    const w = document.getElementById("w");
+    const ctx = document.getElementById("ctx");
+    const wLabel = document.getElementById("wLabel");
+    const ctxLabel = document.getElementById("ctxLabel");
+    const stage = document.getElementById("stage");
+    const kvPerTok = 0.0004; // GB/token toy (illustrative)
+    function render() {
+      const weights = parseInt(w.value, 10);
+      const L = parseInt(ctx.value, 10);
+      wLabel.textContent = String(weights);
+      ctxLabel.textContent = String(L);
+      const kv = L * kvPerTok;
+      const total = weights + kv;
+      stage.innerHTML =
+        "<div class='mono'>重み ≈ " + weights + " GB</div>" +
+        "<div class='mono'>KV（玩具）≈ " + kv.toFixed(1) + " GB</div>" +
+        "<div class='mono' style='color:var(--accent);margin-top:0.5rem'>合計 ≈ " + total.toFixed(1) + " GB</div>" +
+        "<p style='margin-top:0.75rem;color:var(--ink-dim)'>" +
+        (kv > weights * 0.35
+          ? "文脈が伸び、KV が重みに肉薄しはじめている。量子化だけでは足りない。"
+          : "いまは重みが支配的。スライダを右へ回すと科目が入れ替わりうる。") +
+        "</p>";
+    }
+    w.oninput = render;
+    ctx.oninput = render;
+    render();
+  </script>
+</body>
+</html>

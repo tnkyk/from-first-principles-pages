@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>推論メモリと量子化, from First Principles · From First Principles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/article.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">From First Principles</a>
+    <nav>
+      <a href="index.html">models</a>
+    </nav>
+  </header>
+
+  <div class="page-shell">
+    <main>
+      <header class="article-header">
+        <a class="back-link" href="index.html">← メンタルモデル一覧へ</a>
+        <h1 class="title">推論メモリと量子化, from First Principles</h1>
+      </header>
+      <article class="article-body">
+<p>Hugging Face に「DeepSeek-V4-Flash」と出ると、カードには 13B activated・304B params・167 GB といった数字が並ぶ。読者の頭では「小さいから載る」「大きいから載らない」が同時に立ち上がり、どっちが正しいのか分からない。量子化を選ぶ画面では FP8 や 4bit が並ぶが、それが何を細かく・粗くしているのか、そして GPU に何を置けば生成が始まるのかが見えないまま、まずダウンロードが始まる。</p>
+<p>メモリ不足や極端な遅さを「モデルが重すぎる」と一枚岩で扱うと、次の一手が流行の量子化名に預けられる。重み・KV・作業バッファのどれが封筒を食っているかを層で言えなければ、精度を落とすべきか文脈を短くすべきか、MoE の総パラメータと活性パラメータのどちらを見るべきかを自分で決められない。取り戻すのは予言ではなく、利用時メモリの勘定科目を自分で切る権利である。</p>
+<p>この記事の狙いは、制約から機構を組み立て直すことだ。用語は必要が立ってから出し、各層を強制した問題の物語に沿って進む。</p>
+<p>Hugging Face の DeepSeek-V4-Flash-0731 を開くと、カードに「304B params」と「167 GB」、ベンチ表の横には「はるかに小さい activated parameter count」と書いてある。同じ画面なのに、頭の中では「巨大だから無理」と「小さいから載る」が同時に立つ。どちらも部分的に正しい。欠けているのは、<strong>利用とは何をメモリに置く行為か</strong>という勘定科目である。</p>
+<p>推論を始めるとき、機械が必要とするのは「モデルという抽象」ではない。少なくとも次の三つが、同じ封筒（RAM / VRAM）を奪い合う。</p>
+<h2 id="重みの常駐">重みの常駐</h2>
+<p>学習済みのつながり——<strong>重み（parameters）</strong>——は、生成のたびにディスクから全部読み直すには大きすぎる。だから普通は、使う予定の重みをメモリ上に常駐させる。ここが第一科目だ。後で見るように、MoE では「計算に使う重み」と「置いておく重み」の数が一致しない。だが科目の名前は単純でよい。<strong>倉庫に置いた数値のバイト総量</strong>である。</p>
+<h2 id="kv-キャッシュ">KV キャッシュ</h2>
+<p>文章やツール結果が長くなると、注意は過去のトークンを何度も参照する。毎回ゼロから Key/Value を作り直すと遅すぎるので、推論系は過去分を <strong>KV キャッシュ</strong>として残す。これは重みとは別物だ。プロンプトが伸びるほど、会話が続くほど、考えるモードで出力が長くなるほど、この棚は太る。カードに「1M context」と書いてあっても、それは理論上の窓であり、あなたの封筒上の無料パスではない。</p>
+<h2 id="作業バッファ">作業バッファ</h2>
+<p>前向き計算の途中には、層の入出力や一時テンソルが必要になる。バッチを大きくすれば膨らみ、実装やカーネルによってはピークが跳ねる。本稿では細部に入らないが、科目として忘れると「重みは入ったのに OOM」の説明が一つ欠ける。</p>
+<figure class="article-figure"><img src="assets/inference-memory/resident-trio.svg" alt="" /><figcaption>見るべき構造: 同じ封筒の中で、重み・KV・作業バッファが同時に面積を占める。どれか一つだけの GB 表示では足りない。(Source: 教育用模式図)</figcaption></figure>
+<figure class="article-figure"><img src="assets/inference-memory/kv-grows.svg" alt="" /><figcaption>見るべき構造: 左は短い文脈、右は長い文脈。重みの箱は同じでも、KV の棚だけが系列長に応じて伸びる。(Source: 教育用模式図)</figcaption></figure>
+<p>DeepSeek-V4 系は、この KV 科目をアーキテクチャ側でも圧縮する（CSA / HCA）。だから「同じ百万トークン」でも、世代間で棚の太さが qualitatively 違う。だが入口の謎——カードの数字が矛盾して見えること——の第一解はそこではない。まず、<strong>載る／落ちるを一枚の「モデルサイズ」で語っていたこと自体が科目不足</strong>だった、と固定する。</p>
+<p>三科目のうち、重み科目を Flash に落とすと、すぐに次の摩擦が出る。論文の DeepSeek-V4-Flash は <strong>総パラメータ 284B、活性 13B</strong> と書かれる。0731 のモデルカードは <strong>304B params</strong> と出し、構造は DSpark（投機的復号モジュール）付きだと言う。どちらを信じれば「小さい」のか。</p>
+<p>答えは、問いを二つに割ることだ。</p>
+<h2 id="総パラメータ格納">総パラメータ（格納）</h2>
+<p><strong>総パラメータ</strong>は、チェックポイントに含まれる数値の個数に近い。MoE では専門家（expert）が多数あり、トークンごとにその一部だけが選ばれる。選ばれなかった専門家の重みも、次のトークンで呼ばれる可能性があるので、普通は<strong>倉庫に置いたまま</strong>にする。したがって、VRAM に載せる重みの第一近似は「活性 13B」ではなく「総 284B（や 304B）」側である。</p>
+<p>ディスク上の 0731 がおおよそ <strong>167 GB</strong> と見えるのも、この総数に、公式の低精度表現を掛けた結果として読むのが自然だ（後章）。BF16 で総数を一様に持つ想像は、すぐに数百 GB 級へ跳ねる。</p>
+<h2 id="活性パラメータ演算">活性パラメータ（演算）</h2>
+<p>一方、<strong>活性パラメータ</strong>は、あるトークンの前向き計算で実際に触る重みの規模感である。Flash ではここが約 13B とされ、同じ世代の Pro（約 49B 活性）より一歩が軽い、という話になる。レイテンシや FLOPs の感覚、電気代の感覚は、しばしばこちらに近い。だが「GPU に何 GB 要るか」の第一近似を活性だけで取ると、倉庫を見落として楽観する。</p>
+<figure class="article-figure"><img src="assets/inference-memory/moe-total-active.svg" alt="" /><figcaption>見るべき構造: 左の広い倉庫が総パラメータ、中央の細い通路が 1 トークンで実際に通る活性パラメータ。倉庫を縮小せずに通路だけ細いのが MoE の形。(Source: 教育用模式図／DeepSeek-V4 tech report の総/活性の区別)</figcaption></figure>
+<p>0731 が 304B と表示される点は、preview の 284B に投機用モジュール等が乗ったリリース差分として扱えばよい。本稿の主張に効くのは小数点以下の B ではなく、<strong>格納のオーダーは総数、計算のオーダーは活性数</strong>という切り分けである。</p>
+<p>「小さい activated なのに巨大チェックポイント」は矛盾ではない。広告の売り文句と、封筒の請求書が、別のメーターを指しているだけだ。</p>
+<p>倉庫が総パラメータで決まるなら、次のレバーは個数を減らすことだけではない。<strong>1 個の数値を何ビットで持つか</strong>を落とせば、同じ個数でもバイト総量は Shrink する。これが量子化の中核である。</p>
+<p>ここで、よくある誤解を一度潰す。重みは「0.0〜1.0 の小数第 1 位」ではない。正負どちらも取りうる実数であり、層によってスケールも違う。量子化が削るのは「小数の桁」というより、<strong>その実数を代表値へ丸める粗さ</strong>と、それを格納するビット幅である。</p>
+<h2 id="ビット幅">ビット幅</h2>
+<p>概算の足場は単純でよい。重みのおおよそ GB ≈ パラメータ数 × bytes/param。</p>
+<div class="table-wrap"><table><thead><tr><th>表現</th><th>bytes/param（目安）</th><th>284B 一様のとき（目安）</th></tr></thead><tbody><tr><td>FP16 / BF16</td><td>2</td><td>≈ 568 GB</td></tr><tr><td>FP8 / INT8</td><td>1</td><td>≈ 284 GB</td></tr><tr><td>FP4 / 約 4bit</td><td>0.5</td><td>≈ 142 GB</td></tr></tbody></table></div>
+<p>実際のファイルはスケール係数や埋め込み、トークナイザ周辺、フレームワークのヘッダで上振れする。だがオーダー感を掴むには、この掛け算で十分なことが多い。</p>
+<figure class="article-figure"><img src="assets/inference-memory/bitwidth-ladder.svg" alt="" /><figcaption>見るべき構造: 同じパラメータでも、ビット幅が下がるほど 1 個あたりの箱が小さくなり、倉庫の合計面積が縮む。(Source: 教育用模式図)</figcaption></figure>
+<h2 id="公式混合精度">公式混合精度</h2>
+<p>DeepSeek-V4 系のリリースは、一様な FP16 ではない。公式の整理では、<strong>MoE の expert 側を FP4、その他の多くを FP8</strong> とする混合が基本形とされる(<em>1)(</em>3)。0731 のカードが BF16 / F8 / I8 などを併記しつつ、実体サイズがおおよそ <strong>167 GB</strong> なのも、「全部が FP16」ではないことの証拠として読める。</p>
+<p>つまり Flash を「いまから 4bit 化する対象」とだけ見るのはずれる。すでに倉庫の大半は、低精度前提で詰まれている。コミュニティのより粗い量子化は、その上に乗る<strong>二段目</strong>になりやすい。</p>
+<figure class="article-figure"><img src="assets/inference-memory/flash-envelope.svg" alt="" /><figcaption>見るべき構造: 左から BF16 一様想像、FP8 一様、公式 FP4+FP8 混合（〜167 GB 級）、さらに粗い 4bit 一様近似。同じ Flash 総数でも棒の高さが qualitatively 変わる。(Source: 教育用模式図／arXiv:2606.19348 と HF DeepSeek-V4-Flash-0731 の公開サイズ)</figcaption></figure>
+<h2 id="事後量子化">事後量子化</h2>
+<p>訓練後にビット幅を落とす古典が GPTQ や AWQ である(<em>4)(</em>5)。ローカルの「Q4 なら載る」は、多くの場合この系統の話だ。Flash にそれを適用するときは、公式が既に FP4 側へ寄せた expert を、さらに粗く丸めることになる。容量は下がるかもしれないが、品質の落ち方は「初めて 4bit にする 7B」とは別物になりうる。</p>
+<details class="sim-panel" open><summary>シミュレーションを開く — 同じ総パラメータでもビット幅で重み容量が qualitatively 変わる</summary><iframe class="sim-frame" src="assets/sims/inference-memory/quant-budget/index.html" title="quant-budget" loading="lazy"></iframe></details>
+<p>出口は楽観でも悲観でもない。<strong>量子化とは、パラメータ個数の話を、1 個あたりのビット幅の話へ翻訳する操作</strong>だ。Flash ではその翻訳の一部が、すでに公式チェックポイントに織り込まれている。</p>
+<p>重み科目を FP4+FP8 まで落とし、マルチ GPU に分割して「載った」とする。それでも、長いリポジトリや <code>reasoning_effort=max</code> の長い思考で落ちることがある。これは Flash に限った呪いではなく、<strong>第二科目（KV）が伸びた</strong>ときに必ず現れる形だ。</p>
+<h2 id="kv-成長">KV 成長</h2>
+<p>KV は「いま抱えている系列長」にほぼ比例して膨らむ。重みはプロンプトが短くても長くても同じ箱だが、KV は会話の履歴そのものだ。だから「同じ量子化の同じ Flash」でも、短い質問と百万トークン近くのエージェント軌跡では、封筒の中身が qualitatively 違う。</p>
+<p>DeepSeek-V4 は CSA/HCA で KV を圧縮し、論文上は 1M 文脈で V3.2 比の数割〜1 割級まで棚を薄くできると主張する<a class="fn-ref" href="#fn-1">(*1)</a>。これは第二科目へのアーキテクチャ介入である。サービング側では、さらに KV を FP8 で持つなどの精度レバーも併用される。いずれも「重みの Q4」とは別ノブだ。</p>
+<h2 id="kv-精度圧縮">KV 精度／圧縮</h2>
+<p>ここでの判断規則は短い。</p>
+<ul><li>重みが載らない → ビット幅・並列分割・（MoE なら）総数の現実を疑う</li><li>重みは載るが長いと死ぬ → KV と作業バッファを疑う</li><li>短いのに遅い → 帯域やデコード、投機の成否など、容量以外の軸へ（本稿の外縁）</li></ul>
+<details class="sim-panel" open><summary>シミュレーションを開く — 重みを削っても文脈を伸ばすと KV が封筒を取り戻す</summary><iframe class="sim-frame" src="assets/sims/inference-memory/envelope-split/index.html" title="envelope-split" loading="lazy"></iframe></details>
+<p>Flash のカードが 1M を謳うとき、それは「KV 科目が設計上かなり安い」という宣言であって、「あなたの 24 GB カードで百万トークンが無料」という宣言ではない。量子化で重み棒を短くしても、文脈スライダを右へ回せば、別の棒が封筒を埋め直す。</p>
+<p>入口の奇妙さは、矛盾ではなかった。DeepSeek-V4-Flash は、計算の一歩（活性〜13B）としては小さく、倉庫（総〜284B／0731 では 304B 表示、ディスク〜167 GB）としては大きい。量子化は、その倉庫の <strong>bytes/param</strong> を動かす。文脈は <strong>KV</strong> を動かす。作業机は別途ピークを作る。</p>
+<h2 id="抽象の使い方">抽象の使い方</h2>
+<p>新しい「載らない／遅い」に出会ったら、まず用語ではなく科目を言う。重みか。KV か。作業バッファか。MoE なら、いま見ている数字が総数か活性数か。</p>
+<h2 id="壁に当たったときの型">壁に当たったときの型</h2>
+<ol><li><strong>ディスク／VRAM の静的サイズ</strong>が合わない → 総パラメータ × ビット幅（公式混合なら加重）を概算し直す</li><li><strong>短い入力では生き、長いと死ぬ</strong> → KV（と KV dtype／圧縮）を疑う</li><li><strong>公式 FP4+FP8 の上にさらに粗くする</strong> → 二段目の品質コストを別メーターで測る</li><li><strong>並列で載せる</strong> → 分割は倉庫を複数封筒に分ける操作であり、通信と複製分も科目に入れる</li></ol>
+<h2 id="life-placement">Life placement</h2>
+<p>いま足りないのは、倉庫（重み）か、履歴棚（KV）か、作業机（バッファ）か。Flash を選ぶ／落とす／量子化する前に、その一文が言えるかどうかが、本稿の成功条件である。</p>
+<h2 id="判断規則">判断規則</h2>
+<ol><li>利用時メモリは少なくとも重み・KV・作業バッファの三科目で読む。</li><li>MoE では格納＝総パラメータ、一歩の計算＝活性パラメータ。</li><li>重み GB の第一近似は「個数 × bytes/param」。Flash は公式に FP4+FP8 混合へ寄っている。</li><li>事後のより粗い量子化は二段目であり、容量と品質を別々に測る。</li><li>量子化で重みが載っても、文脈を伸ばせば KV が封筒を取り戻す。</li></ol>
+<section class="footnotes"><h2>注</h2><ol><li id="fn-1"><a href="#fnref-1">(*1)</a> DeepSeek-AI, <em>DeepSeek-V4: Towards Highly Efficient Million-Token Context Intelligence</em> — Flash 284B/13B、FP4 experts、CSA/HCA による KV 削減。https://arxiv.org/abs/2606.19348</li><li id="fn-2"><a href="#fnref-2">(*2)</a> DeepSeek-AI, <em>DeepSeek-V4-Flash-0731</em> model card — 304B params、DSpark、公開サイズ約 167 GB。https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731</li><li id="fn-3"><a href="#fnref-3">(*3)</a> DeepSeek-AI, <em>DeepSeek-V4-Flash</em> collection README — FP4+FP8 Mixed（experts FP4、他は主に FP8）。https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash</li><li id="fn-4"><a href="#fnref-4">(*4)</a> Frantar et al., <em>GPTQ</em> — 生成 Transformer の高精度事後量子化。https://arxiv.org/abs/2210.17323</li><li id="fn-5"><a href="#fnref-5">(*5)</a> Lin et al., <em>AWQ: Activation-aware Weight Quantization</em>. https://arxiv.org/abs/2306.00978</li></ol></section>
+      </article>
+    </main>
+    <aside class="toc" aria-label="目次">
+      <p class="toc-label">目次</p>
+      <ol>
+<li><a href="#重みの常駐">重みの常駐</a></li>
+<li><a href="#kv-キャッシュ">KV キャッシュ</a></li>
+<li><a href="#作業バッファ">作業バッファ</a></li>
+<li><a href="#総パラメータ格納">総パラメータ（格納）</a></li>
+<li><a href="#活性パラメータ演算">活性パラメータ（演算）</a></li>
+<li><a href="#ビット幅">ビット幅</a></li>
+<li><a href="#公式混合精度">公式混合精度</a></li>
+<li><a href="#事後量子化">事後量子化</a></li>
+<li><a href="#kv-成長">KV 成長</a></li>
+<li><a href="#kv-精度圧縮">KV 精度／圧縮</a></li>
+<li><a href="#抽象の使い方">抽象の使い方</a></li>
+<li><a href="#壁に当たったときの型">壁に当たったときの型</a></li>
+<li><a href="#life-placement">Life placement</a></li>
+<li><a href="#判断規則">判断規則</a></li>
+      </ol>
+    </aside>
+  </div>
+  <script>
+    (function () {
+      const links = [...document.querySelectorAll(".toc a")];
+      const heads = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+      if (!heads.length || !("IntersectionObserver" in window)) return;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === "#" + e.target.id));
+        });
+      }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+      heads.forEach((h) => io.observe(h));
+    })();
+  </script>
+</body>
+</html>

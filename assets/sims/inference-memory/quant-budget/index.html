@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>quant-budget</title>
+  <link rel="stylesheet" href="../../../sim-kit.css" />
+</head>
+<body>
+  <div class="sim">
+    <p class="sim-claim"><strong>主張:</strong> 同じ総パラメータでもビット幅で重み容量が qualitatively 変わる</p>
+    <div class="panel" id="stage"></div>
+    <div class="sim-row">
+      <label>総パラメータ
+        <select id="n">
+          <option value="284e9" selected>Flash ~284B</option>
+          <option value="7e9">比較用 7B dense</option>
+        </select>
+      </label>
+      <label>表現
+        <select id="bpp">
+          <option value="2">BF16 (2B)</option>
+          <option value="1">FP8 (1B)</option>
+          <option value="0.6" selected>混合 ~0.6B（公式寄せ）</option>
+          <option value="0.5">~4bit (0.5B)</option>
+        </select>
+      </label>
+    </div>
+    <p class="hint">教育用概算。0731 の公開サイズ ~167 GB は混合 ~0.6 B/param × 284B に近いオーダーです。</p>
+  </div>
+  <script>
+    const nEl = document.getElementById("n");
+    const bppEl = document.getElementById("bpp");
+    const stage = document.getElementById("stage");
+    function render() {
+      const N = parseFloat(nEl.value);
+      const bpp = parseFloat(bppEl.value);
+      const gb = (N * bpp) / 1e9;
+      const label = N > 1e10 ? "Flash 級の倉庫" : "小さい dense";
+      stage.innerHTML =
+        "<div class='mono'>重み ≈ " + gb.toFixed(0) + " GB</div>" +
+        "<p style='margin-top:0.75rem;color:var(--ink-dim)'>" +
+        label + "でも、ビット幅を半分にすれば棒はおおよそ半分。混合 0.6 は「全部 FP4」より厚く、「全部 FP8」より薄い。</p>";
+    }
+    nEl.onchange = render;
+    bppEl.onchange = render;
+    render();
+  </script>
+</body>
+</html>
